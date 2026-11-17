@@ -194,6 +194,7 @@ label.ck input{width:24px;height:24px;flex:none}
   <button class="lang-btn" onclick="toggleLang()" id="hdrLang">DA</button>
 </header>
 
+<div id="testBanner" class="hidden" style="background:#ffd75e;color:#5a3b00;font-weight:800;text-align:center;padding:8px;font-size:14px"></div>
 <main>
 <!-- ONBOARDING -->
 <section class="screen" id="onboard">
@@ -331,6 +332,8 @@ label.ck input{width:24px;height:24px;flex:none}
       <label class="ck"><input type="checkbox" id="ckSound"><span data-t="sound"></span></label>
       <label class="ck"><input type="checkbox" id="ckVib"><span data-t="vib"></span></label>
       <label class="ck"><input type="checkbox" id="ckSpeak"><span data-t="speak"></span></label>
+      <div class="row" style="margin:2px 0 8px 34px"><button class="btn sec sm" onclick="testVoice()" data-t="testVoice"></button></div>
+      <p id="ttsInfo" class="muted" style="font-size:14px;margin:0 0 8px"></p>
       <label class="ck"><input type="checkbox" id="ckBreaks"><span data-t="breaks"></span></label>
       <label class="ck"><input type="checkbox" id="ckBig"><span data-t="big"></span></label>
     </div>
@@ -342,6 +345,9 @@ label.ck input{width:24px;height:24px;flex:none}
       <button class="btn sec sm" style="color:var(--bad)" onclick="resetAll()" data-t="reset"></button>
     </div>
     <p class="muted" style="font-size:13px" data-t="storeNote"></p>
+    <div id="exportRemind"></div>
+    <h3 style="margin-top:14px">🛟 <span data-t="bkTitle"></span></h3>
+    <div class="list" id="bkList"></div>
   </div>
   <div class="card"><h3>🧠 <span data-t="adhdTitle"></span></h3><div data-t="adhdNote" style="font-size:15px;line-height:1.5"></div></div>
 </section>
@@ -393,6 +399,13 @@ ro:{
   sound:'Sunete', vib:'Vibrații (telefon)', speak:'Citește întrebările cu voce tare', breaks:'Pauze de mișcare între misiuni', big:'Include adunări/scăderi până la 100',
   save:'Salvează', export:'⬇️ Exportă', import:'⬆️ Importă', reset:'🗑️ Șterge tot',
   storeNote:'Progresul se salvează doar pe acest dispozitiv. Folosește Export/Import ca să-l muți pe alt dispozitiv.',
+  testVoice:'🔊 Testează vocea', voiceSample:n=>`Bună, ${n}! Eu îți citesc întrebările.`,
+  ttsNone:'Acest browser nu poate citi cu voce. Deschide aplicația în Chrome.',
+  ttsNoVoice:'Nu am găsit pe telefon o voce în limba română. Pe Samsung: Setări → Gestionare generală → Limbă → Ieșire text în vorbire → motor preferat „Google” → ⚙️ → Instalare date vocale → Română. Apoi închide și redeschide aplicația.',
+  ttsOk:v=>`Vocea folosită: ${v}. Dacă nu se aude nimic, dă mai tare volumul media al telefonului 🔉.`, ttsErr:e=>`Vocea nu a pornit (${e}). Verifică volumul media și motorul text-în-vorbire al telefonului.`,
+  bkTitle:'Copii de siguranță automate', restore:'Restaurează', restored:'Progres restaurat ✔', confirmRestore:d=>`Înlocuiești progresul actual cu copia din ${d}?`,
+  exportOld:'⚠️ Ultimul export e mai vechi de 2 săptămâni. Fă unul acum, ca progresul ei să fie salvat și în afara telefonului.', exportNever:'⚠️ Nu ai făcut încă niciun export. Îți recomand unul acum (⬇️ Exportă) și păstrează fișierul pe e-mail sau în cloud.',
+  testBanner:'🧪 VERSIUNE DE TEST — progresul de aici e o copie separată; cel adevărat nu e atins.',
   saved:'Salvat ✔', imported:'Progres importat ✔', invalid:'Fișier invalid', confirmReset:'Ștergi tot progresul de pe acest dispozitiv?', deleted:'Șters',
   newAch:t=>`🏆 Trofeu nou: ${t}!`,
   adhdTitle:'Cum ajută aplicația concentrarea',
@@ -512,6 +525,13 @@ da:{
   sound:'Lyde', vib:'Vibration (telefon)', speak:'Læs opgaverne højt', breaks:'Bevægelsespauser mellem missioner', big:'Tag plus/minus op til 100 med',
   save:'Gem', export:'⬇️ Eksportér', import:'⬆️ Importér', reset:'🗑️ Slet alt',
   storeNote:'Fremskridt gemmes kun på denne enhed. Brug Eksportér/Importér for at flytte det til en anden enhed.',
+  testVoice:'🔊 Test stemmen', voiceSample:n=>`Hej ${n}! Jeg læser opgaverne højt for dig.`,
+  ttsNone:'Denne browser kan ikke læse op. Åbn appen i Chrome.',
+  ttsNoVoice:'Jeg kunne ikke finde en dansk stemme på telefonen. På Samsung: Indstillinger → Generel administration → Sprog → Tekst-til-tale → foretrukken motor „Google” → ⚙️ → Installer stemmedata → Dansk. Luk og åbn appen igen.',
+  ttsOk:v=>`Stemme: ${v}. Hvis der ikke kommer lyd, så skru op for telefonens medielydstyrke 🔉.`, ttsErr:e=>`Stemmen startede ikke (${e}). Tjek medielydstyrken og telefonens tekst-til-tale.`,
+  bkTitle:'Automatiske sikkerhedskopier', restore:'Gendan', restored:'Fremskridt gendannet ✔', confirmRestore:d=>`Vil du erstatte det nuværende fremskridt med kopien fra ${d}?`,
+  exportOld:'⚠️ Sidste eksport er over 2 uger gammel. Lav en nu, så hendes fremskridt også er gemt uden for telefonen.', exportNever:'⚠️ Du har ikke lavet en eksport endnu. Jeg anbefaler at lave en nu (⬇️ Eksportér) og gemme filen på mail eller i skyen.',
+  testBanner:'🧪 TESTVERSION — fremskridtet her er en separat kopi; det rigtige bliver ikke rørt.',
   saved:'Gemt ✔', imported:'Fremskridt importeret ✔', invalid:'Ugyldig fil', confirmReset:'Vil du slette alt fremskridt på denne enhed?', deleted:'Slettet',
   newAch:t=>`🏆 Nyt trofæ: ${t}!`,
   adhdTitle:'Sådan hjælper appen koncentrationen',
@@ -596,7 +616,10 @@ da:{
 }};
 
 /* ================= STATE ================= */
-const LS='mateMagie_v1';
+const IS_TEST=/\/test\//.test(location.pathname);
+const LS=IS_TEST?'mateMagie_test':'mateMagie_v1', BK=LS+'_backup';
+// versiunea de test pornește cu o COPIE a progresului adevărat (doar citire)
+if(IS_TEST){try{if(!localStorage.getItem(LS)&&localStorage.getItem('mateMagie_v1'))localStorage.setItem(LS,localStorage.getItem('mateMagie_v1'));}catch(e){}}
 const OPS=['add','sub','mul','div','rem'];
 const LEVELS=[0,60,150,300,500,800];
 const BUDDIES=['🦊','🐱','🦄','🐼','🐸','🐧','🐶','🐉','🐰','🦋'];
@@ -610,7 +633,12 @@ function defState(){return {v:2,lang:'',name:'',buddy:'🦊',stars:0,settings:{s
 function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.facts){const d=defState();const o=Object.assign(d,s,{settings:Object.assign(d.settings,s.settings||{})});
   if(!s.v){o.lang=o.name?'ro':'';o.settings.len=10;o.v=2;} return o;}}catch(e){}return defState();}
 let S=load();
-function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function save(){try{const j=JSON.stringify(S);localStorage.setItem(LS,j);backupDaily(j);}catch(e){}}
+// copie de siguranță automată: una pe zi, ultimele 5 zile
+function backupDaily(j){try{const day=new Date().toISOString().slice(0,10);let b=JSON.parse(localStorage.getItem(BK)||'[]');
+  if(b.length&&b[b.length-1].d===day)b[b.length-1].j=j;else b.push({d:day,j});b=b.slice(-5);localStorage.setItem(BK,JSON.stringify(b));}catch(e){}}
+function backups(){try{return JSON.parse(localStorage.getItem(BK)||'[]');}catch(e){return [];}}
+function restoreBackup(i){const b=backups()[i];if(!b)return;if(!confirm(t('confirmRestore',b.d)))return;localStorage.setItem(LS,b.j);S=load();save();toast(t('restored'));applyI18n();renderParent();updateHeader();}
 const $=id=>document.getElementById(id);
 const rnd=n=>Math.floor(Math.random()*n);
 const pick=a=>a[rnd(a.length)];
@@ -1119,15 +1147,17 @@ function renderParent(){
   $('setName').value=S.name;
   $('slowChips').innerHTML=[3,4,5,6,8].map(v=>`<button class="chip ${S.settings.slow===v?'on':''}" onclick="S.settings.slow=${v};save();renderParent()">${v} s</button>`).join('');
   $('lenChips').innerHTML=[5,10,15,20].map(v=>`<button class="chip ${S.settings.len===v?'on':''}" onclick="S.settings.len=${v};save();renderParent()">${v}</button>`).join('');
+  const lastEx=S.lastExport||0;$('exportRemind').innerHTML=(Date.now()-lastEx>14*864e5)?`<p style="background:var(--warnl);border-radius:12px;padding:10px;font-weight:700">${lastEx?t('exportOld'):t('exportNever')}</p>`:'';
+  $('bkList').innerHTML=backups().map((b,i)=>{let st='';try{st=JSON.parse(b.j).stars;}catch(e){}return `<div class="li"><span>${b.d} · ⭐ ${st}</span><button class="btn sec sm" onclick="restoreBackup(${i})">${t('restore')}</button></div>`;}).reverse().join('');
   $('ckSound').checked=S.settings.sound;$('ckVib').checked=S.settings.vib;$('ckSpeak').checked=S.settings.speak;$('ckBreaks').checked=S.settings.breaks;$('ckBig').checked=S.settings.big;
 }
-function saveSettings(){
+function saveSettings(silent){
   const n=$('setName').value.trim();if(n)S.name=n;
   Object.assign(S.settings,{sound:$('ckSound').checked,vib:$('ckVib').checked,speak:$('ckSpeak').checked,breaks:$('ckBreaks').checked,big:$('ckBig').checked});
-  save();toast(t('saved'));
+  save();if(silent!==true)toast(t('saved'));
 }
 function exportData(){const blob=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`mate-magie-${(S.name||'progres').toLowerCase().replace(/[^a-z0-9-]/g,'')}-${todayStr()}.json`;document.body.appendChild(a);a.click();a.remove();}
+  S.lastExport=Date.now();save();a.download=`mate-magie-${(S.name||'progres').toLowerCase().replace(/[^a-z0-9-]/g,'')}-${todayStr()}.json`;document.body.appendChild(a);a.click();a.remove();}
 function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.facts)throw 0;
   localStorage.setItem(LS,JSON.stringify(d));S=load();save();toast(t('imported'));applyI18n();renderParent();updateHeader();}catch(e){toast(t('invalid'));}};r.readAsText(f);inp.value='';}
 function resetAll(){if(confirm(t('confirmReset'))){const l=S.lang;S=defState();S.lang=l;save();toast(t('deleted'));go('onboard');obStep(2);}}
@@ -1197,14 +1227,34 @@ let AC;function sound(kind){if(!S.settings.sound)return;try{AC=AC||new (window.A
   const notes=kind==='great'?[660,880,1100]:kind==='ok'?[520,660]:[300,220];
   notes.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=kind==='bad'?'triangle':'sine';o.frequency.value=f;const t0=AC.currentTime+i*.09;
     g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.18,t0+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+.2);o.connect(g).connect(AC.destination);o.start(t0);o.stop(t0+.22);});}catch(e){}}
-function speak(txt){try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);const lg=t('speechLang');u.lang=lg;u.rate=.9;
-  const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.replace('_','-').toLowerCase().startsWith(lg.slice(0,2)));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
-function speakQ(){if(!cur)return;const sp=t('sp');speak(`${cur.a} ${sp[cur.sign]||cur.sign} ${cur.b}`);if(cur)cur.lastAct=performance.now();}
-if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{};
+let UTT=null; // referință păstrată: pe Android, Chrome altfel „pierde” fraza
+function voiceFor(lg){try{const n=x=>(x||'').replace('_','-').toLowerCase(),vs=speechSynthesis.getVoices();
+  return vs.find(v=>n(v.lang)===lg.toLowerCase())||vs.find(v=>n(v.lang).startsWith(lg.slice(0,2)));}catch(e){return null;}}
+function speak(txt,onInfo){
+  try{
+    const ss=window.speechSynthesis;if(!ss||!window.SpeechSynthesisUtterance){onInfo&&onInfo(t('ttsNone'));return;}
+    const lg=t('speechLang');
+    const go=()=>{
+      UTT=new SpeechSynthesisUtterance(txt);UTT.lang=lg;UTT.rate=.9;UTT.volume=1;
+      const v=voiceFor(lg);if(v)UTT.voice=v;
+      UTT.onstart=()=>{onInfo&&onInfo(t('ttsOk',v?v.name:lg));};
+      UTT.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled')onInfo&&onInfo(ss.getVoices().length&&!v?t('ttsNoVoice'):t('ttsErr',e.error));};
+      ss.resume();ss.speak(UTT);
+      if(onInfo&&ss.getVoices().length&&!v)setTimeout(()=>onInfo(t('ttsNoVoice')),1500);
+    };
+    if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150);}else go();   // evită eroarea cancel→speak
+  }catch(e){onInfo&&onInfo(t('ttsErr',e.message||e));}
+}
+function speakQ(){if(!cur)return;const sp=t('sp');speak(cur.say||`${cur.a} ${sp[cur.sign]||cur.sign} ${cur.b}`);cur.lastAct=performance.now();}
+function testVoice(){$('ttsInfo').textContent='…';speak(t('voiceSample',S.name||''),m=>{$('ttsInfo').textContent=m;});}
+if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}}
 
 /* ================= START ================= */
 applyI18n();updateHeader();
 if(!S.lang)obStep(1);else if(!S.name)obStep(2);else go('home');
+document.querySelectorAll('#parent input[type=checkbox]').forEach(c=>c.addEventListener('change',()=>{saveSettings(true);if(c.id==='ckSpeak'&&c.checked)testVoice();}));
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+if(IS_TEST){$('testBanner').textContent=t('testBanner');$('testBanner').classList.remove('hidden');}
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
