@@ -35,3 +35,8 @@ Fișiere: `index.html` (toată aplicația), `manifest.json`, `sw.js` (funcționa
 ## Lumi noi (în versiunea de test)
 Forme · Corpuri · Simetrie · Arie și perimetru · Ceasul · Bani (kr / lei) · Măsurători — fiecare cu carduri „Descoperă” și 3 niveluri.
 Nivelul 3 (🌱) e pregătire pentru ce urmează (din programa de după clasa a 3-a): acolo nu se măsoară timpul.
+
+## Testul cel mare (în versiunea de test)
+Ca testul național danez: 45 de minute (reglabil 30/45/50), întrebări din toate cele trei părți — numere și calcul, geometrie și măsurare, statistică și probabilitate.
+Fără corectare pe loc, cu hartă a întrebărilor, buton „⏭ Sari peste”, o sugestie de săritură când se blochează, a doua tură pentru întrebările sărite, rezultat pe părți și bilanț al strategiei.
+„Antrenament de strategie” (10 min) exersează special săritul și revenirea.

@@ -185,6 +185,15 @@ label.ck input{width:24px;height:24px;flex:none}
 .buddies button{font-size:38px;background:#fff;border-radius:16px;box-shadow:var(--sh);aspect-ratio:1;border:3px solid transparent}
 .buddies button.on{border-color:var(--pri);background:#efe9ff}
 .center{text-align:center}
+/* test */
+.etime{height:10px;background:#e2dcfb;border-radius:6px;overflow:hidden;margin-bottom:3px}#eTimeBar{height:100%;background:linear-gradient(90deg,#1fa463,#8b6cf0);transition:width 1s linear}
+.emap{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;margin:8px 0}
+.emap button{height:40px;border-radius:10px;font-weight:900;background:#ece9f5;color:#7a7399}.emap .a{background:var(--ok);color:#fff}.emap .s{background:var(--warn);color:#fff}.emap .c{outline:3px solid var(--pri)}
+.opt.sel{border-color:var(--pri);background:#efe9ff;box-shadow:0 0 0 3px #d9cffc}
+.bignum{font-size:56px;font-weight:900;letter-spacing:2px;text-align:center}
+.ptab{border-collapse:collapse;margin:6px auto}.ptab td,.ptab th{border:2px solid #c9c3e6;padding:6px 14px;font-size:22px;font-weight:900;text-align:center}.ptab th{background:#efe9ff;color:var(--pri)}
+.picto{margin:0 auto;border-collapse:separate;border-spacing:4px 2px}
+.hero.w3{background:linear-gradient(135deg,#f08a24,#e5484d)}
 /* lumi */
 .qtext.wq{font-size:inherit;letter-spacing:0;margin:2px 0 6px}
 .qprompt{font-size:21px;font-weight:800;margin:4px 0 10px;line-height:1.35}
@@ -238,6 +247,7 @@ label.ck input{width:24px;height:24px;flex:none}
   <div class="stat-row" id="homeStats"></div>
   <button class="big-btn hero" id="bMission" onclick="go('missionSetup')"><span class="ico">🚀</span><span data-t="btnMission"></span><small data-t="btnMissionSub"></small></button>
   <button class="big-btn hero w2" onclick="go('worlds')"><span class="ico">🗺️</span><span><span id="bWorldsT"></span><span id="bWorldsNew"></span></span><small id="bWorldsS"></small></button>
+  <button class="big-btn hero w3" onclick="openExamSetup()"><span class="ico">📝</span><span id="bExamT"></span><small id="bExamS"></small></button>
   <div class="grid2">
     <button class="big-btn" id="bAssess" onclick="go('assessSetup')"><span class="ico">🔍</span><span data-t="btnAssess"></span><small data-t="btnAssessSub"></small></button>
     <button class="big-btn" onclick="openRoom()"><span class="ico">🏆</span><span data-t="btnRoom"></span><small data-t="btnRoomSub"></small></button>
@@ -289,6 +299,27 @@ label.ck input{width:24px;height:24px;flex:none}
 <section class="screen" id="worlds"><div class="card"><h2>🗺️ <span id="wTitle"></span></h2><div class="list" id="worldList"></div><div class="row" style="margin-top:12px"><button class="btn sec" onclick="go('home')" data-t="back"></button></div></div></section>
 <section class="screen" id="world"><div class="card" id="worldBox"></div></section>
 <section class="screen" id="disc"><div class="card" id="discBox"></div></section>
+
+<!-- TEST -->
+<section class="screen" id="examSetup"><div class="card" id="examSetupBox"></div></section>
+<section class="screen" id="coach"><div class="card" id="coachBox"></div></section>
+<section class="screen" id="exam">
+  <div class="card qbox">
+    <div class="qtop">
+      <button class="iconbtn" onclick="examQuit()" aria-label="pause">⏸</button>
+      <div style="flex:1"><div class="etime"><div id="eTimeBar"></div></div><div class="muted" id="eCount" style="font-size:13px;font-weight:800;text-align:left"></div></div>
+      <button class="iconbtn" onclick="toggleMap()" aria-label="map">🗺️</button>
+      <button class="iconbtn" id="eSpk" onclick="eToggleSpeak()" aria-label="read">🔇</button>
+    </div>
+    <div id="eMap" class="emap hidden"></div>
+    <div class="qbuddy"><span class="av" id="eAv">🦊</span><div class="bubble" id="eBubble"></div></div>
+    <div id="eArea" class="muted" style="font-size:13px;font-weight:800"></div>
+    <div class="qtext" id="eQ" onclick="eSpeak()" style="cursor:pointer"></div>
+    <div class="answers" id="eAns"></div>
+    <div class="pad" id="ePad"></div>
+    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn sec" id="eSkip" onclick="examSkip()"></button><button class="btn ok" id="eOk" onclick="examConfirm()"></button></div>
+  </div>
+</section>
 
 <!-- BREAK -->
 <section class="screen" id="brk">
@@ -349,6 +380,7 @@ label.ck input{width:24px;height:24px;flex:none}
     <div class="chips" id="slowChips"></div>
     <p style="margin:12px 0 4px"><b data-t="lenTitle"></b></p>
     <div class="chips" id="lenChips"></div>
+    <div id="examSet"></div>
     <div style="margin-top:8px">
       <label class="ck"><input type="checkbox" id="ckSound"><span data-t="sound"></span></label>
       <label class="ck"><input type="checkbox" id="ckVib"><span data-t="vib"></span></label>
@@ -649,7 +681,7 @@ const CREATURES=[ // [emoji, raritate 0..3]
  ['🦊',1],['🦁',1],['🐯',1],['🦉',1],['🐬',1],['🦜',1],['🦩',1],['🦦',1],['🐙',1],['🦔',1],['🐿️',1],['🦥',1],
  ['🦄',2],['🐉',2],['🦚',2],['🦖',2],['🐳',2],['🦒',2],['🦓',2],
  ['🦀',0],['🐌',0],['🦭',1],['🦘',1],['🦌',1],['🦈',2],['🦅',2],['🌈',3],['🪐',3],['💎',3],['👑',3],['🔮',3]];
-function defState(){return {v:2,lang:'',name:'',buddy:'🦊',stars:0,settings:{slow:4,len:10,big:false,sound:true,vib:true,speak:false,breaks:true},
+function defState(){return {v:2,lang:'',name:'',buddy:'🦊',stars:0,settings:{slow:4,len:10,big:false,sound:true,vib:true,speak:false,breaks:true,examDur:45,examStuck:60,examBreaks:true},
   facts:{},history:[],badges:[],cups:{1:0,2:0,3:0},coll:{},wseen:{},wstats:{},days:[],missions:0,maxCombo:0,correct:0};}
 function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.facts){const d=defState();const o=Object.assign(d,s,{settings:Object.assign(d.settings,s.settings||{})});
   if(!s.v){o.lang=o.name?'ro':'';o.settings.len=10;o.v=2;} return o;}}catch(e){}return defState();}
@@ -841,6 +873,7 @@ function key(k){
   renderAns();
 }
 document.addEventListener('keydown',e=>{
+  if($('exam').classList.contains('on')&&E&&!E.done){if(/^[0-9]$/.test(e.key))eKey(e.key);else if(e.key==='Backspace')eKey('del');else if(e.key==='Enter')examConfirm();else if(e.key==='Tab'){e.preventDefault();eKey('next');}return;}
   if(!$('quiz').classList.contains('on'))return;
   if(cur&&cur.done){if(e.key==='Enter'||e.key===' '){e.preventDefault();nextQ();}return;}
   if(/^[0-9]$/.test(e.key))key(e.key);
@@ -1528,6 +1561,310 @@ da:{
 WTXT.ro.ach={shapes:'Maestra formelor',solids:'Arhitecta',sym:'Oglinda magică',area:'Constructoarea',clock:'Stăpâna timpului',money:'Casiera isteață',units:'Măsurătoarea',pioneer:'Pionieră 🌱',explorer:'Exploratoarea tuturor lumilor'};
 WTXT.da.ach={shapes:'Figurmester',solids:'Arkitekt',sym:'Det magiske spejl',area:'Bygmester',clock:'Tidens mester',money:'Den kloge kasserer',units:'Målemester',pioneer:'Pioner 🌱',explorer:'Opdager af alle verdener'};
 
+
+/* ======================================================================
+   NUMERE (3 cifre, șiruri, ecuații) + STATISTICĂ ȘI PROBABILITATE
+   ====================================================================== */
+WORLDS.unshift('numbers');WORLDS.push('stats');
+WE.numbers='🔢';WE.stats='📊';
+Object.assign(WTXT.ro.names,{numbers:'Numere',stats:'Statistică'});Object.assign(WTXT.da.names,{numbers:'Tal',stats:'Statistik'});
+Object.assign(WTXT.ro.subs,{numbers:'sute, zeci, șiruri',stats:'diagrame și șanse'});Object.assign(WTXT.da.subs,{numbers:'hundreder, tiere, talfølger',stats:'diagrammer og chancer'});
+Object.assign(WTXT.ro.ach,{numbers:'Stăpâna numerelor mari',stats:'Detectiva datelor'});Object.assign(WTXT.da.ach,{numbers:'Mester i store tal',stats:'Data-detektiv'});
+Object.assign(WTXT.ro,{
+  plc:['sutelor','zecilor','unităților'], ph:['S','Z','U'], colors:{r:'roșie',b:'albastră',g:'verde',y:'galbenă'}, chanceW:['sigur','posibil','imposibil'],
+  chance:[['Mâine dimineață va răsări soarele.',0],['Arunci un zar obișnuit și obții 7.',2],['Arunci o monedă și cade pe „cap”.',1],['Dintr-un sac cu numai bile roșii scoți o bilă roșie.',0],['Dintr-un sac cu numai bile albastre scoți o bilă roșie.',2],['Mâine va ploua.',1],['Arunci un zar și obții un număr mai mic decât 7.',0],['Luni vine după duminică.',0],['Pisica ta începe să vorbească românește.',2],['Arunci zarul și obții 6.',1]],
+  fair:[['Arunci o monedă. Tu câștigi la „cap”, prietenul la „pajură”.',1],['Arunci un zar. Tu câștigi doar la 6, prietenul la 1, 2, 3, 4 sau 5.',0],['Arunci un zar. Tu câștigi la număr par, prietenul la număr impar.',1],['Arunci un zar. Tu câștigi la 1 sau 2, prietenul la 3, 4, 5 sau 6.',0],['Arunci un zar. Tu câștigi la 1, 2 sau 3, prietenul la 4, 5 sau 6.',1]],
+  chartT:'Fructul preferat al copiilor din clasă'
+});
+Object.assign(WTXT.da,{
+  plc:['hundredernes','tiernes','enernes'], ph:['H','T','E'], colors:{r:'rød',b:'blå',g:'grøn',y:'gul'}, chanceW:['sikkert','muligt','umuligt'],
+  chance:[['Solen står op i morgen tidlig.',0],['Du slår med en almindelig terning og får 7.',2],['Du slår plat eller krone og får krone.',1],['Fra en pose med kun røde kugler trækker du en rød kugle.',0],['Fra en pose med kun blå kugler trækker du en rød kugle.',2],['Det regner i morgen.',1],['Du slår med en terning og får et tal, der er mindre end 7.',0],['Mandag kommer efter søndag.',0],['Din kat begynder at tale dansk.',2],['Du slår med terningen og får 6.',1]],
+  fair:[['Du slår plat eller krone. Du vinder ved krone, din ven ved plat.',1],['Du slår med en terning. Du vinder kun ved 6, din ven ved 1, 2, 3, 4 eller 5.',0],['Du slår med en terning. Du vinder ved lige tal, din ven ved ulige tal.',1],['Du slår med en terning. Du vinder ved 1 eller 2, din ven ved 3, 4, 5 eller 6.',0],['Du slår med en terning. Du vinder ved 1, 2 eller 3, din ven ved 4, 5 eller 6.',1]],
+  chartT:'Klassens yndlingsfrugt'
+});
+Object.assign(WTXT.ro.q,{
+  nuPlace:(n,p)=>`Care este cifra ${p} în numărul <b>${n}</b>?`, nuCompose:(h,z,u)=>`${h} sute + ${z} zeci + ${u} unități = ?`, nuCompare:'Care număr este cel mai mare?', nuSeq:'Ce număr urmează?',
+  nuMissing:'Ce număr lipsește?', nuOrder:'Care rând e ordonat de la cel mai mic la cel mai mare?', nuLine:'Ce număr arată săgeata?', nuRound:n=>`Rotunjește <b>${n}</b> la zeci.`, nuPattern:'Figurile cresc după o regulă. Câte pătrățele va avea figura 5?',
+  stRead:e=>`Câți copii au ales ${e}?`, stMost:'Ce fruct au ales cei mai mulți copii?', stTally:'Ce număr arată liniuțele?', stDiff:(a,b)=>`Cu câți copii mai mulți au ales ${a} decât ${b}?`, stTotal:'Câți copii au votat în total?',
+  stPicto:e=>`Fiecare 🙂 înseamnă 2 copii. Câți copii au ales ${e}?`, stChance:'Cât de probabil este?', stBag:'Scoți o bilă fără să te uiți. Ce culoare e cel mai probabil să iasă?', stFair:'Este jocul corect (aceleași șanse pentru amândoi)?'
+});
+Object.assign(WTXT.da.q,{
+  nuPlace:(n,p)=>`Hvilket ciffer står på ${p} plads i tallet <b>${n}</b>?`, nuCompose:(h,z,u)=>`${h} hundreder + ${z} tiere + ${u} enere = ?`, nuCompare:'Hvilket tal er størst?', nuSeq:'Hvilket tal kommer så?',
+  nuMissing:'Hvilket tal mangler?', nuOrder:'Hvilken række står fra mindst til størst?', nuLine:'Hvilket tal peger pilen på?', nuRound:n=>`Rund <b>${n}</b> af til nærmeste tier.`, nuPattern:'Figurerne vokser efter en regel. Hvor mange felter har figur 5?',
+  stRead:e=>`Hvor mange børn valgte ${e}?`, stMost:'Hvilken frugt valgte flest børn?', stTally:'Hvilket tal viser tællestregerne?', stDiff:(a,b)=>`Hvor mange flere børn valgte ${a} end ${b}?`, stTotal:'Hvor mange børn stemte i alt?',
+  stPicto:e=>`Hver 🙂 betyder 2 børn. Hvor mange børn valgte ${e}?`, stChance:'Hvor sandsynligt er det?', stBag:'Du trækker en kugle uden at kigge. Hvilken farve får du mest sandsynligt?', stFair:'Er spillet fair (lige store chancer for begge)?'
+});
+Object.assign(WTXT.ro.st,{
+  placeT:'Sute, zeci, unități', placeL:(n,h,z,u)=>`${n} = ${h} sute + ${z} zeci + ${u} unități`,
+  cmpNT:'Compară de la stânga', cmpNL:'Compară întâi sutele. Dacă sunt egale, compară zecile, apoi unitățile.',
+  seqT:'Găsește regula', seqL:(s,l,n)=>`Fiecare număr e cu ${Math.abs(s)} mai ${s>0?'mare':'mic'}: ${l} ${s>0?'+':'−'} ${Math.abs(s)} = <b>${n}</b>`,
+  invT:'Operația inversă', lineT:'Numără liniuțele', lineL:(lo,v)=>`Fiecare liniuță mică înseamnă 5. De la ${lo} numeri din 5 în 5 până la săgeată: <b>${v}</b>`,
+  roundT:'Rotunjirea', roundL:'Uită-te la cifra unităților: 0–4 rotunjești în jos, 5–9 rotunjești în sus.',
+  patT:'Regula figurilor', patL:(d,s)=>`La fiecare figură se adaugă ${d}: ${s}`,
+  barT:'Citește diagrama', barL:'Mergi cu degetul de la vârful barei spre stânga, până la numărul de pe axă.',
+  tallyT:'Grupuri de 5', tallyL:'Fiecare grup tăiat are 5 liniuțe. Numără din 5 în 5, apoi adaugă liniuțele rămase.',
+  pictoT:'Fiecare 🙂 = 2', pictoL:(k,n)=>`${k} × 2 = <b>${n}</b>`,
+  chanceT:'Sigur, posibil, imposibil', chanceL:'Sigur = se întâmplă mereu. Posibil = poate da, poate nu. Imposibil = nu se poate întâmpla niciodată.',
+  bagT:'Cele mai multe bile', bagL:'Culoarea din care sunt cele mai multe bile are cele mai mari șanse.',
+  fairT:'Numără rezultatele', fairL:'Numără câte rezultate îl fac pe fiecare să câștige. Dacă au la fel de multe, jocul e corect.'
+});
+Object.assign(WTXT.da.st,{
+  placeT:'Hundreder, tiere, enere', placeL:(n,h,z,u)=>`${n} = ${h} hundreder + ${z} tiere + ${u} enere`,
+  cmpNT:'Sammenlign fra venstre', cmpNL:'Sammenlign først hundrederne. Er de ens, så tierne og til sidst enerne.',
+  seqT:'Find reglen', seqL:(s,l,n)=>`Hvert tal er ${Math.abs(s)} ${s>0?'større':'mindre'}: ${l} ${s>0?'+':'−'} ${Math.abs(s)} = <b>${n}</b>`,
+  invT:'Den modsatte regneart', lineT:'Tæl stregerne', lineL:(lo,v)=>`Hver lille streg betyder 5. Fra ${lo} tæller du 5 ad gangen hen til pilen: <b>${v}</b>`,
+  roundT:'Afrunding', roundL:'Kig på enerne: 0–4 runder du ned, 5–9 runder du op.',
+  patT:'Figurernes regel', patL:(d,s)=>`Der kommer ${d} til ved hver figur: ${s}`,
+  barT:'Aflæs diagrammet', barL:'Følg toppen af søjlen vandret hen til tallet på aksen.',
+  tallyT:'Bundter med 5', tallyL:'Hvert bundt med en streg igennem er 5. Tæl 5 ad gangen, og læg så de sidste streger til.',
+  pictoT:'Hver 🙂 = 2', pictoL:(k,n)=>`${k} · 2 = <b>${n}</b>`,
+  chanceT:'Sikkert, muligt, umuligt', chanceL:'Sikkert = sker altid. Muligt = kan ske, men ikke altid. Umuligt = kan aldrig ske.',
+  bagT:'Flest kugler', bagL:'Den farve, der er flest kugler af, har den største chance.',
+  fairT:'Tæl udfaldene', fairL:'Tæl, hvor mange udfald hver af jer vinder ved. Er det lige mange, er spillet fair.'
+});
+/* --- desene --- */
+function placeTable(n){const d=[Math.floor(n/100),Math.floor(n/10)%10,n%10],h=WD().ph;return `<table class="ptab"><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr><tr>${d.map(x=>`<td>${x}</td>`).join('')}</tr></table>`;}
+function blocksSVG(h,z,u){let g='',x=4;
+  for(let i=0;i<h;i++){g+=`<rect x="${x}" y="4" width="40" height="40" fill="#4f7cff" stroke="#2b2350" stroke-width="1.5"/>`;for(let k=1;k<10;k++)g+=`<line x1="${x+k*4}" y1="4" x2="${x+k*4}" y2="44" stroke="#fff" stroke-width=".4"/><line x1="${x}" y1="${4+k*4}" x2="${x+40}" y2="${4+k*4}" stroke="#fff" stroke-width=".4"/>`;x+=44;}
+  x+=6;for(let i=0;i<z;i++){g+=`<rect x="${x}" y="4" width="6" height="40" fill="#ff8a3d" stroke="#2b2350" stroke-width="1.2"/>`;x+=9;}
+  x+=6;for(let i=0;i<u;i++){g+=`<rect x="${x+(i%2)*9}" y="${36-Math.floor(i/2)*9}" width="7" height="7" fill="#1fa463" stroke="#2b2350" stroke-width="1"/>`;}x+=20;
+  return svgW(g,x,48,Math.min(320,x*1.4));}
+function lineMarkSVG(lo,v){const W=600,X0=20,X=k=>X0+(k-lo)/100*(W-40);let g=`<line x1="${X0}" y1="60" x2="${W-20}" y2="60" stroke="#2b2350" stroke-width="3"/>`;
+  for(let k=lo;k<=lo+100;k+=5){const m=k%10===0;g+=`<line x1="${X(k)}" y1="${m?48:53}" x2="${X(k)}" y2="${m?72:67}" stroke="#2b2350" stroke-width="${m?2.5:1.5}"/>`;}
+  [lo,lo+50,lo+100].forEach(k=>g+=`<text x="${X(k)}" y="94" font-size="18" font-weight="900" text-anchor="middle">${k}</text>`);
+  g+=`<polygon points="${X(v)-9},14 ${X(v)+9},14 ${X(v)},40" fill="#e5484d"/>`;return svgW(g,W,100,330);}
+function barSVG(vals,ems){const W=300,H=210,max=Math.max(10,...vals),bw=44,gap=(W-40-vals.length*bw)/(vals.length+1),Y=v=>170-v/max*150;let g='';
+  for(let k=0;k<=max;k+=(max>10?2:1)){g+=`<line x1="34" y1="${Y(k)}" x2="${W}" y2="${Y(k)}" stroke="#e2dcfb" stroke-width="1"/><text x="28" y="${Y(k)+4}" font-size="11" font-weight="800" text-anchor="end" fill="#7a7399">${k}</text>`;}
+  vals.forEach((v,i)=>{const x=36+gap+i*(bw+gap);g+=`<rect x="${x}" y="${Y(v)}" width="${bw}" height="${170-Y(v)}" fill="${PAL[i%PAL.length]}" stroke="#2b2350" stroke-width="1.5"/><text x="${x+bw/2}" y="200" font-size="22" text-anchor="middle">${ems[i]}</text>`;});
+  g+=`<line x1="34" y1="170" x2="${W}" y2="170" stroke="#2b2350" stroke-width="2"/><line x1="34" y1="15" x2="34" y2="170" stroke="#2b2350" stroke-width="2"/>`;
+  return `<div style="text-align:center"><div class="muted" style="font-weight:800;font-size:14px">${WD().chartT}</div>${svgW(g,W,H,310)}</div>`;}
+function tallySVG(n){let g='',x=6;for(let k=0;k<Math.floor(n/5);k++){for(let j=0;j<4;j++)g+=`<line x1="${x+j*9}" y1="8" x2="${x+j*9}" y2="52" stroke="#2b2350" stroke-width="3.5" stroke-linecap="round"/>`;g+=`<line x1="${x-5}" y1="44" x2="${x+32}" y2="14" stroke="#e5484d" stroke-width="3.5" stroke-linecap="round"/>`;x+=52;}
+  for(let j=0;j<n%5;j++)g+=`<line x1="${x+j*9}" y1="8" x2="${x+j*9}" y2="52" stroke="#2b2350" stroke-width="3.5" stroke-linecap="round"/>`;x+=(n%5)*9+6;return svgW(g,x,60,Math.min(330,x*1.5));}
+function bagSVG(c){let g=`<path d="M30 40 Q20 150 90 150 Q160 150 150 40 Z" fill="#f6e7c8" stroke="#8a6a3a" stroke-width="3"/><path d="M40 40 Q90 20 140 40" fill="none" stroke="#8a6a3a" stroke-width="3"/>`;const col={r:'#e5484d',b:'#4f7cff',g:'#1fa463',y:'#f2c94c'};let i=0;
+  Object.entries(c).forEach(([k,n])=>{for(let j=0;j<n;j++){const x=52+(i%6)*15,y=130-Math.floor(i/6)*15;g+=`<circle cx="${x}" cy="${y}" r="7" fill="${col[k]}" stroke="#2b2350" stroke-width="1.2"/>`;i++;}});return svgW(g,180,160,170);}
+function patSVG(a,d){let g='',y=6;for(let f=1;f<=3;f++){const n=a+(f-1)*d;g+=`<text x="4" y="${y+14}" font-size="13" font-weight="900" fill="#7a7399">${f}</text>`;for(let k=0;k<n;k++)g+=`<rect x="${20+k*15}" y="${y}" width="13" height="13" fill="${PAL[f]}" stroke="#2b2350" stroke-width="1"/>`;y+=22;}return svgW(g,20+(a+2*d)*15+6,y,Math.min(330,(20+(a+2*d)*15)*1.5));}
+const FRUITS=['🍎','🍌','🍓','🍇','🍊'];
+const distinctMax=v=>v.filter(x=>x===Math.max(...v)).length===1;
+function barData(k){let v;do{v=Array.from({length:k},()=>1+rnd(9));}while(!distinctMax(v));return v.join('.');}
+/* --- generatoare --- */
+GEN.numbers={
+  place:[1,()=>[101+rnd(898),rnd(3)],([n,p])=>{const d=[Math.floor(n/100),Math.floor(n/10)%10,n%10];return {kind:'num',ans:d[p],prompt:wq('nuPlace',n,WD().plc[p]),vis:`<div class="bignum">${n}</div>`,short:`${n}: ${WD().ph[p]} = ${d[p]}`,strats:[card('🔢',ws('placeT'),ws('placeL',n,...d),placeTable(n))]};}],
+  compose:[1,()=>[1+rnd(9),rnd(10),rnd(10)],([h,z,u])=>{const n=h*100+z*10+u;return {kind:'num',ans:n,prompt:wq('nuCompose',h,z,u),vis:blocksSVG(h,z,u),short:`${h}·100 + ${z}·10 + ${u} = ${n}`,strats:[card('🧱',ws('placeT'),ws('placeL',n,h,z,u),placeTable(n))]};}],
+  compare:[1,()=>{const h=1+rnd(8);const s=new Set();while(s.size<3)s.add(h*100+rnd(100)+(Math.random()<.3?100:0));return [[...s].join('.')];},([code])=>{const ns=code.split('.').map(Number),m=Math.max(...ns);const r=mc(String(m),ns.filter(x=>x!==m).map(String));return {...r,prompt:wq('nuCompare'),vis:'',short:`${ns.join(', ')} → ${m}`,strats:[card('⚖️',ws('cmpNT'),ws('cmpNL'),placeTable(m))]};}],
+  seq:[1,()=>{const st=pick([2,5,10,100,-10,-5,-2,50,25,3]);const a=st<0?(100+rnd(400)):(st>=50?st*rnd(5):rnd(60)*(Math.abs(st)>=10?10:1)+ (st===25?0:rnd(5)));return [a,st];},
+    ([a,st])=>{const s=[0,1,2,3].map(k=>a+k*st);return {kind:'num',ans:a+4*st,prompt:wq('nuSeq'),vis:`<div class="bignum" style="font-size:32px">${s.join(', ')}, ?</div>`,short:`${s.join(', ')} → ${a+4*st}`,strats:[card('🔁',ws('seqT'),ws('seqL',st,a+3*st,a+4*st))]};}],
+  missing:[2,()=>{const k=pick(['add','sub','mul','div']);const x=2+rnd(8),y=2+rnd(8);return [k,x,y];},([k,x,y])=>{let eq,ans,inv;const X2=X();
+    if(k==='add'){eq=`${x} + □ = ${x+y}`;ans=y;inv=`${x+y} − ${x} = <b>${y}</b>`;}
+    if(k==='sub'){eq=`□ − ${x} = ${y}`;ans=x+y;inv=`${y} + ${x} = <b>${x+y}</b>`;}
+    if(k==='mul'){eq=`□ ${X2} ${x} = ${x*y}`;ans=y;inv=`${x*y} : ${x} = <b>${y}</b>`;}
+    if(k==='div'){eq=`${x*y} : □ = ${y}`;ans=x;inv=`${x*y} : ${y} = <b>${x}</b>`;}
+    return {kind:'num',ans,prompt:wq('nuMissing'),vis:`<div class="bignum" style="font-size:40px">${eq}</div>`,short:`${eq.replace('□','<b>'+ans+'</b>')}`,strats:[card('🔄',ws('invT'),[eq,inv])]};}],
+  order:[2,()=>{const d=shuffle([1+rnd(9),rnd(10),rnd(10)]);if(d[0]===0)d[0]=1+rnd(9);return [d.join('')];},([dg])=>{const ds=String(dg).split('').map(Number);let ns=new Set();
+    const perm=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];perm.forEach(p=>{if(ds[p[0]]>0)ns.add(ds[p[0]]*100+ds[p[1]]*10+ds[p[2]]);});ns=[...ns];if(ns.length<3){ns=[...new Set([...ns,ns[0]+111,ns[0]+10])];}
+    const three=shuffle(ns).slice(0,3),asc=three.slice().sort((a,b)=>a-b),f=a=>a.join(' < ');
+    const wrong=uniq([f([asc[0],asc[2],asc[1]]),f([asc[1],asc[0],asc[2]]),f(asc.slice().reverse())].filter(x=>x!==f(asc)),2);
+    const r=mc(f(asc),wrong);return {...r,prompt:wq('nuOrder'),vis:'',short:f(asc),strats:[card('⚖️',ws('cmpNT'),ws('cmpNL'))]};}],
+  line:[2,()=>{const lo=pick([0,100,200,300,500]);return [lo,lo+5*(1+rnd(19))];},([lo,v])=>{const ds=uniq([v+5,v-5,v+10,v-10].filter(x=>x>lo&&x<lo+100&&x!==v).map(String),3);const r=mc(String(v),ds);return {...r,prompt:wq('nuLine'),vis:lineMarkSVG(lo,v),short:`→ ${v}`,strats:[card('📏',ws('lineT'),ws('lineL',lo,v))]};}],
+  round:[3,()=>[11+rnd(888)],([n])=>{const r=Math.floor((n+5)/10)*10;return {kind:'num',ans:r,prompt:wq('nuRound',n),vis:'',short:`${n} → ${r}`,strats:[card('🎯',ws('roundT'),[ws('roundL'),`${n} → <b>${r}</b>`],numberLine(Math.floor(n/10)*10,[n%10||0,10-(n%10)].filter(Boolean)))]};}],
+  pattern:[3,()=>[1+rnd(3),1+rnd(3)],([a,d])=>({kind:'num',ans:a+4*d,prompt:wq('nuPattern'),vis:patSVG(a,d),short:`${a}, ${a+d}, ${a+2*d} … → ${a+4*d}`,strats:[card('🧩',ws('patT'),ws('patL',d,[0,1,2,3,4].map(k=>a+k*d).join(' → ')))]})]
+};
+GEN.stats={
+  read:[1,()=>[barData(4),rnd(4)],([code,i])=>{const v=code.split('.').map(Number);return {kind:'num',ans:v[i],prompt:wq('stRead',FRUITS[i]),vis:barSVG(v,FRUITS),short:`${FRUITS[i]} = ${v[i]}`,strats:[card('📊',ws('barT'),ws('barL'))]};}],
+  most:[1,()=>[barData(4)],([code])=>{const v=code.split('.').map(Number),m=v.indexOf(Math.max(...v));const r=mc(FRUITS[m],FRUITS.slice(0,4).filter((_,i)=>i!==m));return {...r,prompt:wq('stMost'),vis:barSVG(v,FRUITS),short:`→ ${FRUITS[m]}`,strats:[card('📊',ws('barT'),ws('barL'))]};}],
+  tally:[1,()=>[3+rnd(16)],([n])=>({kind:'num',ans:n,prompt:wq('stTally'),vis:tallySVG(n),short:`${n}`,strats:[card('✋',ws('tallyT'),[ws('tallyL'),Array.from({length:Math.floor(n/5)},(_,k)=>5*(k+1)).concat(n%5?[n]:[]).join(' → ')])]})],
+  chance:[1,()=>[rnd(10)],([i])=>{const [ev,k]=WD().chance[i],W3=WD().chanceW;const r=mc(W3[k],W3.filter((_,j)=>j!==k));return {...r,prompt:wq('stChance'),vis:`<div class="qprompt" style="font-size:20px;background:#faf8ff;border-radius:14px;padding:12px">🎲 ${ev}</div>`,short:`${ev} → ${W3[k]}`,say:`${wq('stChance')} ${ev}`,strats:[card('🎲',ws('chanceT'),ws('chanceL'))]};}],
+  diff:[2,()=>{const c=barData(4),v=c.split('.').map(Number);let a=rnd(4),b=rnd(4);while(v[a]===v[b]){a=rnd(4);b=rnd(4);}if(v[a]<v[b])[a,b]=[b,a];return [c,a,b];},([code,a,b])=>{const v=code.split('.').map(Number);return {kind:'num',ans:v[a]-v[b],prompt:wq('stDiff',FRUITS[a],FRUITS[b]),vis:barSVG(v,FRUITS),short:`${v[a]} − ${v[b]} = ${v[a]-v[b]}`,strats:[card('📊',ws('barT'),[ws('barL'),`${FRUITS[a]} ${v[a]} − ${FRUITS[b]} ${v[b]} = <b>${v[a]-v[b]}</b>`])]};}],
+  total:[2,()=>[barData(3)],([code])=>{const v=code.split('.').map(Number),s=v.reduce((a,b)=>a+b,0);return {kind:'num',ans:s,prompt:wq('stTotal'),vis:barSVG(v,FRUITS),short:`${v.join(' + ')} = ${s}`,strats:[card('📊',ws('barT'),`${v.join(' + ')} = <b>${s}</b>`)]};}],
+  picto:[2,()=>[[1+rnd(5),1+rnd(5),1+rnd(5)].join('.'),rnd(3)],([code,i])=>{const k=code.split('.').map(Number);
+    const vis=`<table class="picto">${k.map((n,j)=>`<tr><td style="font-size:26px">${FRUITS[j]}</td><td style="font-size:24px;text-align:left">${'🙂'.repeat(n)}</td></tr>`).join('')}</table><div class="muted" style="font-weight:800">🙂 = 2</div>`;
+    return {kind:'num',ans:k[i]*2,prompt:wq('stPicto',FRUITS[i]),vis,short:`${FRUITS[i]}: ${k[i]} × 2 = ${k[i]*2}`,strats:[card('🙂',ws('pictoT'),ws('pictoL',k[i],k[i]*2))]};}],
+  bag:[2,()=>{let c;do{c=[rnd(7),rnd(7),rnd(7)].map((x,i)=>i===0?x+1:x);}while(!distinctMax(c));return c;},([r,b,g])=>{const c={r,b,g},keys=['r','b','g'],m=keys[[r,b,g].indexOf(Math.max(r,b,g))];
+    const C=WD().colors;const rr=mc(C[m],keys.filter(k=>k!==m).map(k=>C[k]));return {...rr,prompt:wq('stBag'),vis:bagSVG(c),short:`${C.r} ${r}, ${C.b} ${b}, ${C.g} ${g} → ${C[m]}`,strats:[card('👜',ws('bagT'),ws('bagL'))]};}],
+  fair:[3,()=>[rnd(5)],([i])=>{const [txt,ok]=WD().fair[i];return {...YN(!!ok),prompt:wq('stFair'),vis:`<div class="qprompt" style="font-size:19px;background:#faf8ff;border-radius:14px;padding:12px">🎲 ${txt}</div>`,short:`${txt} ${ok?'✔':'✗'}`,say:`${txt} ${wq('stFair')}`,strats:[card('⚖️',ws('fairT'),ws('fairL'))]};}]
+};
+DISC_V.numbers=[()=>blocksSVG(3,4,7),()=>`<div class="bignum" style="font-size:36px">352 &lt; 418</div>`,()=>`<div class="bignum" style="font-size:30px">10, 20, 30, 40, <span style="color:#e5484d">50</span></div>`];
+DISC_V.stats=[()=>barSVG([4,7,3,5],FRUITS),()=>tallySVG(13),()=>`<div style="font-size:40px;text-align:center">☀️ 🎲 🐱💬</div>`];
+DISC_T.ro.numbers=[['Sute, zeci, unități','347 = 3 sute + 4 zeci + 7 unități. Fiecare cifră are locul ei: sutele, zecile, unitățile.'],['Care e mai mare?','Compară întâi sutele: 4 sute e mai mult decât 3 sute, deci 418 e mai mare decât 352.'],['Șiruri','Caută regula: aici fiecare număr e cu 10 mai mare, deci după 40 vine 50.']];
+DISC_T.da.numbers=[['Hundreder, tiere, enere','347 = 3 hundreder + 4 tiere + 7 enere. Hvert ciffer har sin plads: hundreder, tiere og enere.'],['Hvilket er størst?','Sammenlign først hundrederne: 4 hundreder er mere end 3 hundreder, så 418 er større end 352.'],['Talfølger','Find reglen: her bliver hvert tal 10 større, så efter 40 kommer 50.']];
+DISC_T.ro.stats=[['Diagrama cu bare','Cu cât e mai înaltă bara, cu atât mai mulți copii au ales acel fruct. Citești numărul pe axa din stânga.'],['Liniuțele de numărare','Numărăm cu liniuțe; a cincea liniuță taie grupul. Un grup = 5. Aici: 5 + 5 + 3 = 13.'],['Sigur, posibil, imposibil','Mâine răsare soarele: sigur. La zar iese 6: posibil. Pisica vorbește: imposibil!']];
+DISC_T.da.stats=[['Søjlediagrammet','Jo højere søjlen er, jo flere børn har valgt den frugt. Tallet aflæser du på aksen til venstre.'],['Tællestreger','Vi tæller med streger; den femte streg går på tværs af bundtet. Et bundt = 5. Her: 5 + 5 + 3 = 13.'],['Sikkert, muligt, umuligt','Solen står op i morgen: sikkert. Terningen viser 6: muligt. Katten taler: umuligt!']];
+
+
+/* ======================================================================
+   TESTUL CEL MARE / DEN STORE PRØVE  — ca testul național (45 min, 3 părți)
+   + strategia „sari peste și revino”
+   ====================================================================== */
+const EXT={
+ro:{title:'Testul cel mare', btn:'Test ca la școală', btnSub:'45 de minute · toată materia',
+  intro:'Testul național de matematică din Danemarca durează 45 de minute și are întrebări din trei părți: numere și calcul, geometrie și măsurare, statistică și probabilitate. Aici exersăm exact așa — iar tu înveți să nu te blochezi niciodată.',
+  big:'📝 Testul cel mare', bigSub:(m,n)=>`${m} minute · ${n} întrebări · toate cele 3 părți`, mini:'🎯 Antrenament de strategie', miniSub:'10 minute · înveți să sari peste și să revii', resume:'▶ Continuă testul început',
+  areas:{tal:'Numere și calcul',geo:'Geometrie și măsurare',stat:'Statistică și probabilitate'}, count:(i,n,m)=>`Întrebarea ${i} din ${n} · ⏱ ${m} min`,
+  skip:'⏭ Sari peste', ok:'✔ Mai departe',
+  stuck:['Pare grea. E perfect în regulă să sari peste ea și să revii la final! ⏭','Nu te bloca aici — apasă ⏭ și revino mai târziu. Așa fac campionii!','Hmm, asta durează. Sari peste — ne întoarcem la ea împreună. ⏭'],
+  skipped:['Strategie de campion! Revenim la ea la final. 💪','Bravo că ai sărit! Mergem mai departe. ⏭','Exact așa! O păstrăm pentru mai târziu. 🔁'],
+  saved:['✔','Bine, mai departe!','Super, următoarea!','✔ Salvat'],
+  review:n=>`Ai terminat prima tură! 🎉 Acum revenim la ${n===1?'întrebarea sărită':`cele ${n} întrebări sărite`}. Des, acum par mai ușoare!`,
+  final:(a,n,u)=>`Ai răspuns la ${a} din ${n}. ${u?`Mai ai ${u} fără răspuns. Sfat: alege răspunsul care ți se pare cel mai bun — o încercare poate aduce puncte, un gol nu!`:'Ai răspuns la toate! 🎉'}`,
+  goUn:'↩ La cele fără răspuns', submit:'📨 Predă testul', confirmQuit:'Pui testul pe pauză? Poți continua mai târziu exact de unde ai rămas.',
+  timeUp:'⏰ Timpul s-a terminat! Hai să vedem cum a mers.', resTitle:'📝 Rezultatul testului', score:(c,n)=>`<b>${c}</b> din ${n} corecte`,
+  stratT:'🧠 Strategia ta', stratL:(s,r)=>s?`Ai sărit peste ${s} ${s===1?'întrebare':'întrebări'} și ai revenit cu răspuns la ${r}. ${r===s?'Strategie perfectă! 🌟':'Data viitoare, la final încearcă să răspunzi la toate.'}`:'N-ai sărit nimic. Dacă te blochezi vreodată, amintește-ți de butonul ⏭!',
+  timeUsed:m=>`Timp folosit: ${m} min`, wrongT:'Întrebări de exersat (atinge pentru trucuri)', again:'📝 Încă un test', home:'Acasă', answered:'cu răspuns', skippedL:'sărite', empty:'fără răspuns',
+  coach:[['Planul de test 📝','Testul are multe întrebări. Nu trebuie să știi totul — trebuie doar să faci tot ce poți. Nu primești notă, doar exersăm.'],['Nu te bloca! ⏭','Dacă o întrebare e grea, apasă „Sari peste”. Nu e o greșeală — e o strategie de campion! Dacă stai prea mult, îți amintesc eu.'],['Revino la final 🔁','După ce treci prin toate, revenim împreună la cele sărite. Des, atunci par mai ușoare!'],['Nu lăsa goluri ✔','Dacă tot nu știi, alege răspunsul cel mai bun. O încercare poate aduce puncte, un gol nu.']],
+  start:'Încep testul! 🚀', brk:'Pauză scurtă între părți — ceasul testului e oprit. 🤸', bonus:k=>`+${k} ⭐ pentru strategie`,
+  setTitle:'Testul cel mare', setDur:'Durata testului (minute)', setStuck:'După câte secunde o întreb dacă vrea să sară peste', setBrk:'Pauze de mișcare între părți (testul real nu are pauze)',
+  ach:{exam1:'Primul test',strategist:'Campioana strategiei',examGold:'Test de aur'}, hist:'Test'},
+da:{title:'Den store prøve', btn:'Prøve som i skolen', btnSub:'45 minutter · alt stoffet',
+  intro:'Den nationale test i matematik varer 45 minutter og har opgaver fra tre områder: tal og algebra, geometri og måling samt statistik og sandsynlighed. Her øver vi præcis sådan — og du lærer aldrig at gå i stå.',
+  big:'📝 Den store prøve', bigSub:(m,n)=>`${m} minutter · ${n} opgaver · alle 3 områder`, mini:'🎯 Strategitræning', miniSub:'10 minutter · lær at springe over og komme tilbage', resume:'▶ Fortsæt den påbegyndte prøve',
+  areas:{tal:'Tal og algebra',geo:'Geometri og måling',stat:'Statistik og sandsynlighed'}, count:(i,n,m)=>`Opgave ${i} af ${n} · ⏱ ${m} min`,
+  skip:'⏭ Spring over', ok:'✔ Videre',
+  stuck:['Den ser svær ud. Det er helt okay at springe over og komme tilbage til sidst! ⏭','Gå ikke i stå her — tryk ⏭ og kom tilbage senere. Sådan gør mestre!','Hmm, den tager tid. Spring over — vi vender tilbage til den sammen. ⏭'],
+  skipped:['Mesterstrategi! Vi vender tilbage til den til sidst. 💪','Godt, at du sprang over! Vi fortsætter. ⏭','Præcis! Vi gemmer den til senere. 🔁'],
+  saved:['✔','Godt, videre!','Super, næste!','✔ Gemt'],
+  review:n=>`Du er færdig med første runde! 🎉 Nu går vi tilbage til ${n===1?'den opgave, du sprang over':`de ${n} opgaver, du sprang over`}. Tit er de lettere nu!`,
+  final:(a,n,u)=>`Du har svaret på ${a} af ${n}. ${u?`Der mangler svar på ${u}. Tip: vælg det svar, du synes er bedst — et forsøg kan give point, et tomt felt kan ikke!`:'Du har svaret på dem alle! 🎉'}`,
+  goUn:'↩ Til dem uden svar', submit:'📨 Aflever prøven', confirmQuit:'Vil du sætte prøven på pause? Du kan fortsætte senere, præcis hvor du slap.',
+  timeUp:'⏰ Tiden er gået! Lad os se, hvordan det gik.', resTitle:'📝 Prøvens resultat', score:(c,n)=>`<b>${c}</b> af ${n} rigtige`,
+  stratT:'🧠 Din strategi', stratL:(s,r)=>s?`Du sprang over ${s} ${s===1?'opgave':'opgaver'} og kom tilbage og svarede på ${r}. ${r===s?'Perfekt strategi! 🌟':'Næste gang: prøv at svare på dem alle til sidst.'}`:'Du sprang ikke noget over. Hvis du nogensinde går i stå, så husk knappen ⏭!',
+  timeUsed:m=>`Brugt tid: ${m} min`, wrongT:'Opgaver at øve (tryk for tricks)', again:'📝 En prøve til', home:'Hjem', answered:'besvaret', skippedL:'sprunget over', empty:'uden svar',
+  coach:[['Prøveplanen 📝','Prøven har mange opgaver. Du behøver ikke kunne alt — du skal bare gøre dit bedste. Du får ingen karakter, vi øver bare.'],['Gå ikke i stå! ⏭','Hvis en opgave er svær, så tryk „Spring over”. Det er ikke en fejl — det er en mesterstrategi! Hvis du bliver hængende for længe, minder jeg dig om det.'],['Kom tilbage til sidst 🔁','Når du er igennem dem alle, går vi sammen tilbage til dem, du sprang over. Tit er de lettere der!'],['Ingen tomme felter ✔','Hvis du stadig ikke ved det, så vælg det bedste svar. Et forsøg kan give point, et tomt felt kan ikke.']],
+  start:'Start prøven! 🚀', brk:'Kort pause mellem områderne — prøvens ur er stoppet. 🤸', bonus:k=>`+${k} ⭐ for strategi`,
+  setTitle:'Den store prøve', setDur:'Prøvens længde (minutter)', setStuck:'Efter hvor mange sekunder hun bliver spurgt, om hun vil springe over', setBrk:'Bevægelsespauser mellem områderne (den rigtige test har ingen pauser)',
+  ach:{exam1:'Første prøve',strategist:'Strategimester',examGold:'Guldprøve'}, hist:'Prøve'}};
+const EX=()=>EXT[S.lang]||EXT.ro;
+const exPick=k=>pick(EX()[k]);
+let E=null,eTimer=null,coachI=0,coachMini=false;
+function examN(dur){return Math.round(dur*0.66);}
+function examPlan(n,mini){
+  const tal=Math.round(n*.4),geo=Math.round(n*.4),stat=n-tal-geo,out=[];const used=new Set();
+  const lvl=()=>{const r=Math.random();return r<.6?1:r<.9?2:3;};
+  const fromW=(w,force)=>{for(let t=0;t<20;t++){const l=force||lvl();let ts=Object.keys(GEN[w]).filter(x=>GEN[w][x][0]===l);if(!ts.length)ts=Object.keys(GEN[w]);const k=newWorldKey(w,pick(ts));if(!used.has(k)){used.add(k);return k;}}return newWorldKey(w,pick(Object.keys(GEN[w])));};
+  const arith=()=>{for(let t=0;t<20;t++){const op=pick(['add','sub','mul','mul','div','rem']);let k;if((op==='add'||op==='sub')&&Math.random()<.4)k=bigKey();else k=pick(poolOf(op).filter(x=>{const q=makeQ(x);return q.a>1&&q.b>1&&q.b!==10;}));if(!used.has(k)){used.add(k);return k;}}return bigKey();};
+  const T=[];for(let i=0;i<tal;i++)T.push(i%2?fromW('numbers'):arith());
+  const GW=shuffle(['shapes','solids','sym','area','clock','money','units']),G=[];for(let i=0;i<geo;i++)G.push(fromW(GW[i%GW.length]));
+  const ST=[];for(let i=0;i<stat;i++)ST.push(fromW('stats'));
+  if(mini){T[1]=fromW('numbers',3);G[Math.min(2,G.length-1)]=fromW(pick(['area','solids','sym']),3);}   // 2 întrebări „grele” ca să exerseze săritul
+  shuffle(T).forEach(k=>out.push({area:'tal',key:k}));shuffle(G).forEach(k=>out.push({area:'geo',key:k}));shuffle(ST).forEach(k=>out.push({area:'stat',key:k}));
+  return out.map(o=>({...o,q:makeQ(o.key),v:['',''],f:0,ch:null,st:'new',t:0,skips:0,was:false,prompted:false}));
+}
+function openExamSetup(){go('examSetup');}
+function renderExamSetup(){
+  const d=S.settings.examDur||45,n=examN(d);
+  $('examSetupBox').innerHTML=`<h2>📝 ${EX().title}</h2><div class="buddy"><div class="av">${S.buddy}</div><div class="bubble" style="font-size:16px">${EX().intro}</div></div>
+   ${S.exam?`<button class="lvbtn" style="border-color:var(--gold)" onclick="resumeExam()"><span>${EX().resume}</span><small>${S.exam.qs.filter(x=>x.st==='ans').length}/${S.exam.qs.length} · ⏱ ${Math.ceil(S.exam.left/60000)} min</small></button>`:''}
+   <button class="lvbtn" onclick="startCoach(true)"><span>${EX().mini}</span><small>${EX().miniSub}</small></button>
+   <button class="lvbtn" onclick="startCoach(false)"><span>${EX().big}</span><small>${EX().bigSub(d,n)}</small></button>
+   <button class="btn sec" onclick="go('home')">${t('back')}</button>`;
+}
+function startCoach(mini){coachMini=mini;coachI=0;go('coach');renderCoach();}
+function renderCoach(){
+  const C=EX().coach,[ti,tx]=C[coachI],last=coachI===C.length-1;
+  $('coachBox').innerHTML=`<div class="path" style="margin-bottom:10px">${C.map((_,i)=>`<i class="${i<coachI?'d':i===coachI?'now':''}"></i>`).join('')}</div>
+   <div class="buddy"><div class="av">${S.buddy}</div><div class="bubble"><b>${ti}</b><br>${tx}</div></div>
+   ${coachI===1?`<div style="text-align:center;margin:10px 0"><span class="btn sec" style="display:inline-block">${EX().skip}</span></div>`:''}
+   <div class="row" style="justify-content:space-between;margin-top:12px"><button class="iconbtn" onclick="speak(${JSON.stringify(ti+'. '+tx).replace(/"/g,'&quot;')})">🔊</button>
+   <div class="row">${coachI>0?`<button class="btn sec" onclick="coachI--;renderCoach()">◀</button>`:''}${last?`<button class="btn ok" onclick="startExam(coachMini)">${EX().start}</button>`:`<button class="btn" onclick="coachI++;renderCoach()">${t('cont')}</button>`}</div></div>`;
+  if(S.settings.speak)speak(ti+'. '+tx);
+}
+function startExam(mini){
+  const dur=mini?10:(S.settings.examDur||45),n=mini?10:examN(dur);
+  E={mini,dur,left:dur*60000,qs:examPlan(n,mini),i:0,phase:1,started:Date.now(),breaks:[],bonus:0};
+  S.exam=E;save();resumeExam();
+}
+function resumeExam(){E=S.exam;if(!E)return go('examSetup');document.body.classList.add('focus');go('exam');$('eAv').textContent=S.buddy;eRender();
+  clearInterval(eTimer);let last=Date.now();eTimer=setInterval(()=>{const now=Date.now(),dt=now-last;last=now;if(!$('exam').classList.contains('on')||document.hidden||!E)return;
+    E.left-=dt;const x=E.qs[E.i];if(x&&!E.done){x.t+=dt/1000;if(!x.prompted&&now-(E.lastAct||now)>(S.settings.examStuck||60)*1000&&x.st!=='ans'){x.prompted=true;eSay(exPick('stuck'));$('eSkip').classList.add('hl');sound('ok');buzz(40);}}
+    eTime();if(E.left<=0){clearInterval(eTimer);eSay(EX().timeUp);setTimeout(()=>examFinish(),1800);}
+    if(Math.round(now/1000)%5===0)save();},1000);E.lastAct=Date.now();}
+function eTime(){const m=Math.max(0,Math.ceil(E.left/60000));$('eTimeBar').style.width=Math.max(0,E.left/(E.dur*60000)*100)+'%';
+  $('eCount').textContent=E.done?'':EX().count(E.i+1,E.qs.length,m);}
+function eSay(m,ms){const b=$('eBubble');b.textContent=m;b.classList.add('on');clearTimeout(b._t);if(ms)b._t=setTimeout(()=>b.classList.remove('on'),ms);}
+function eRender(){
+  const x=E.qs[E.i],q=x.q;E.done=false;E.lastAct=Date.now();$('eSkip').classList.remove('hl');
+  $('eArea').textContent=EX().areas[x.area];
+  $('eQ').classList.toggle('wq',!!q.w);
+  $('eQ').innerHTML=q.w?`<div class="qprompt">${q.prompt}</div>${q.vis?`<div class="qvis">${q.vis}</div>`:''}`:`${q.text} <span class="eq">=</span>`;
+  eAnsRender();
+  $('ePad').classList.toggle('hidden',q.kind==='mc');
+  if(q.kind!=='mc')$('ePad').innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="eKey('${n}')">${n}</button>`).join('')+`<button class="del" onclick="eKey('del')">⌫</button><button onclick="eKey('0')">0</button><button class="go" onclick="examConfirm()">✔</button>`;
+  $('eSkip').textContent=EX().skip;$('eOk').textContent=EX().ok;$('eSkip').classList.remove('hidden');$('eOk').classList.remove('hidden');$('ePad').style.display='';
+  eMapRender();eTime();updSpk();if(S.settings.speak)eSpeak();
+}
+function eHas(x){return x.q.kind==='mc'?x.ch!=null:(x.v[0]!==''&&(x.q.op!=='rem'||x.v[1]!==''));}
+function eAnsRender(){
+  const x=E.qs[E.i],q=x.q,w=$('eAns');
+  if(q.kind==='mc')w.innerHTML=`<div class="opts">${q.opts.map((o,i)=>`<button class="opt ${x.ch===i?'sel':''}" onclick="ePick(${i})">${o}</button>`).join('')}</div>`;
+  else if(q.op==='rem')w.innerHTML=`<div><div class="anslab">${t('quot')}</div><div class="ans ${x.f===0?'act':''}" onclick="eField(0)">${x.v[0]||'&nbsp;'}</div></div><div><div class="anslab">${t('rest')}</div><div class="ans ${x.f===1?'act':''}" onclick="eField(1)">${x.v[1]||'&nbsp;'}</div></div>`;
+  else w.innerHTML=`<div class="ans act">${x.v[0]||'&nbsp;'}</div>${q.unit?`<span class="unit">${q.unit}</span>`:''}`;
+  $('eOk').disabled=!eHas(x);
+}
+function ePick(i){const x=E.qs[E.i];x.ch=i;E.lastAct=Date.now();eAnsRender();}
+function eField(i){E.qs[E.i].f=i;eAnsRender();}
+function eKey(k){const x=E.qs[E.i];E.lastAct=Date.now();if(x.q.kind==='mc'){if(/^[1-9]$/.test(k)&&+k<=x.q.opts.length)ePick(+k-1);return;}
+  if(k==='del')x.v[x.f]=x.v[x.f].slice(0,-1);else if(k==='next'){if(x.q.op==='rem')x.f=1-x.f;}else if(x.v[x.f].length<4)x.v[x.f]+=k;eAnsRender();}
+function examConfirm(){const x=E.qs[E.i];if(!eHas(x)){if(x.q.op==='rem'&&x.v[0]!==''){x.f=1;eAnsRender();}return;}
+  stopSpeak();const wasSkip=x.st==='skip';x.st='ans';if(wasSkip){x.ret=true;}eSay((wasSkip?'🔁 ':'')+exPick('saved'),1300);save();eNext();}
+function examSkip(){const x=E.qs[E.i];stopSpeak();x.skips++;x.was=true;if(x.st!=='ans')x.st='skip';eSay(exPick('skipped'),2200);save();eNext(true);}
+function eNext(fromSkip){
+  const n=E.qs.length,prevArea=E.qs[E.i].area;
+  const go1=i=>{E.i=i;save();const a=E.qs[i].area;
+    if(!E.mini&&S.settings.examBreaks!==false&&E.phase===1&&a!==prevArea&&!E.breaks.includes(a)){E.breaks.push(a);save();clearInterval(eTimer);startBreak(()=>{resumeExam();eSay(EX().areas[a]+' 🚀',2500);});$('brkTxt').textContent=EX().brk+' '+$('brkTxt').textContent;return;}
+    setTimeout(eRender,fromSkip?350:250);};
+  if(E.phase===1){for(let i=E.i+1;i<n;i++)if(E.qs[i].st==='new')return go1(i);
+    const sk=E.qs.map((x,i)=>x.st==='skip'?i:-1).filter(i=>i>=0);
+    if(sk.length){E.phase=2;E.i=sk[0];save();setTimeout(()=>{eRender();eSay(EX().review(sk.length),6000);},400);return;}
+    return eFinal();}
+  const rest=E.qs.map((x,i)=>x.st!=='ans'?i:-1).filter(i=>i>=0&&i!==E.i);
+  if(rest.length){const nx=rest.find(i=>i>E.i);return go1(nx!=null?nx:rest[0]);}
+  if(E.qs[E.i].st!=='ans'&&!fromSkip)return go1(E.i);
+  eFinal();
+}
+function eFinal(){
+  E.done=true;stopSpeak();const a=E.qs.filter(x=>x.st==='ans').length,n=E.qs.length,u=n-a;
+  $('eArea').textContent='';$('eQ').classList.add('wq');$('eQ').innerHTML=`<div class="qprompt">${EX().final(a,n,u)}</div>`;$('eAns').innerHTML='';$('ePad').classList.add('hidden');
+  $('eSkip').classList.add('hidden');$('eOk').classList.add('hidden');
+  $('eAns').innerHTML=`<div class="row" style="justify-content:center">${u?`<button class="btn sec" onclick="eGoUn()">${EX().goUn}</button>`:''}<button class="btn ok" onclick="examFinish()">${EX().submit}</button></div>`;
+  eMapRender();eTime();if(S.settings.speak)speak(strip(EX().final(a,n,u)));
+}
+function eGoUn(){const i=E.qs.findIndex(x=>x.st!=='ans');if(i>=0){E.i=i;E.phase=2;eRender();}}
+function eMapRender(){
+  $('eMap').innerHTML=E.qs.map((x,i)=>`<button class="${x.st==='ans'?'a':x.st==='skip'?'s':''} ${i===E.i&&!E.done?'c':''}" onclick="eJump(${i})">${i+1}</button>`).join('')+
+   `<div class="legend" style="grid-column:1/-1;margin:2px 0"><span><i class="s4"></i>${EX().answered}</span><span><i class="s2"></i>${EX().skippedL}</span><span><i class="s0"></i>${EX().empty}</span></div>`;}
+function toggleMap(){$('eMap').classList.toggle('hidden');}
+function eJump(i){E.i=i;if(E.qs.every((x,j)=>j===i||x.st!=='new'))E.phase=2;$('eMap').classList.add('hidden');eRender();}
+function eSpeak(){const x=E.qs[E.i];if(!x||E.done)return;const q=x.q,sp=t('sp');let txt=q.say||`${q.a} ${sp[q.sign]||q.sign} ${q.b}`;
+  if(q.kind==='mc'&&!q.opts.some(o=>o.includes('<')))txt+=(/[?!.]\s*$/.test(txt)?' ':'. ')+q.opts.map(strip).join(', ');speak(txt);E.lastAct=Date.now();}
+function eToggleSpeak(){S.settings.speak=!S.settings.speak;save();updSpk();if(S.settings.speak)eSpeak();else stopSpeak();eSay(S.settings.speak?t('spkOn'):t('spkOff'),3000);}
+function examQuit(){if(confirm(EX().confirmQuit)){clearInterval(eTimer);stopSpeak();save();document.body.classList.remove('focus');go('home');}}
+function eRight(x){const q=x.q;if(x.st!=='ans')return false;if(q.kind==='mc')return x.ch===q.correct;if(q.op==='rem')return +x.v[0]===q.ans&&+x.v[1]===q.rest;return +x.v[0]===q.ans;}
+let lastExam=null;
+function examFinish(){
+  clearInterval(eTimer);stopSpeak();document.body.classList.remove('focus');if(!E)return;
+  const n=E.qs.length,res=E.qs.map(x=>({x,ok:eRight(x)})),c=res.filter(r=>r.ok).length;
+  res.forEach(({x,ok})=>{if(x.st==='ans'){try{record(x.q,ok,Math.max(x.t,0.1),false);}catch(e){}}});
+  const areas={};['tal','geo','stat'].forEach(a=>{const r=res.filter(z=>z.x.area===a);areas[a]=[r.filter(z=>z.ok).length,r.length];});
+  const sk=E.qs.filter(x=>x.was).length,ret=E.qs.filter(x=>x.was&&x.st==='ans').length;
+  const pct=c/n,cup=pct>=.85?3:pct>=.65?2:1,bonus=ret*2,stars=c*2+bonus;
+  S.stars+=stars;S.cups[cup]=(S.cups[cup]||0)+1;pendingChest=rollCreature(cup===3);
+  const used=Math.round((E.dur*60000-Math.max(0,E.left))/60000);
+  S.exams=(S.exams||[]);S.exams.unshift({d:Date.now(),mini:E.mini,n,c,areas,sk,ret,used,cup});S.exams=S.exams.slice(0,30);
+  S.history.unshift({d:Date.now(),m:'exam',k:'',n,fast:c,slow:0,bad:n-c,avg:0});
+  if(!S.days.includes(todayStr()))S.days.push(todayStr());
+  lastExam={res:res.map(({x,ok})=>({q:x.q,ok,st:x.st})),mini:E.mini};
+  S.exam=null;E=null;save();checkAch();updateHeader();
+  const A=EX().areas;
+  $('resBox').innerHTML=`<div class="reward"><div class="buddy" style="justify-content:center"><div class="av">${S.buddy}</div><div class="bubble" style="flex:0 1 auto">${msg('end')}</div></div>
+    <div class="cupbig">${cup===3?'🏆':cup===2?'🥈':'🥉'}</div><h2>${EX().resTitle}</h2><p style="font-size:22px">${EX().score(c,n)} · +${stars} ⭐</p>
+    <div id="chestBox"><div class="chest" onclick="openChest()">🎁</div><p class="muted">${t('tapChest')}</p></div></div>
+    ${Object.keys(areas).map(a=>{const [k,m]=areas[a];const p=m?Math.round(k/m*100):0;return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-weight:800"><span>${A[a]}</span><span>${k}/${m}</span></div><div class="wbar" style="height:14px"><div style="width:${p}%;background:${p>=80?'var(--ok)':p>=50?'var(--warn)':'var(--bad)'}"></div></div></div>`;}).join('')}
+    <div class="fb ${sk&&ret===sk?'good':'slow'}" style="margin-top:12px"><div class="title">${EX().stratT}</div><p style="margin:0">${EX().stratL(sk,ret)}${bonus?` <b>${EX().bonus(bonus)}</b>`:''}</p></div>
+    <p class="muted">${EX().timeUsed(used)}</p>
+    ${res.some(r=>!r.ok)?`<h3>${EX().wrongT}</h3><div class="list">${lastExam.res.map((r,i)=>r.ok?'':`<div class="li" onclick="examStrats(${i})"><span>${r.q.w?r.q.short:`${r.q.text} = ${ansText(r.q)}`}</span><span class="tag ${r.st==='ans'?'bad':'slow'}">${r.st==='ans'?t('wrongT'):EX().empty}</span></div>`).join('')}</div>`:''}
+    <div class="row" style="margin-top:16px"><button class="btn" onclick="go('examSetup')">${EX().again}</button><button class="btn sec" onclick="go('home')">${EX().home}</button></div>`;
+  go('results');setTimeout(()=>{sound('great');burst();},300);
+}
+function examStrats(i){const q=lastExam.res[i].q;openModal(q.w?q.short:`${q.text} = ${ansText(q)}`,stratsFor(q).map(stratHTML).join(''));}
+
 /* ---------- ecrane pentru lumi ---------- */
 let curWorld=null,discI=0;
 function renderWorlds(){
@@ -1623,13 +1960,16 @@ function renderParent(){
   $('legend').innerHTML=t('legend').map((x,i)=>`<span><i class="s${i}"></i>${x}</span>`).join('');
   const loc=t('locale');
   $('hist').innerHTML=S.history.length?'<div class="list">'+S.history.slice(0,10).map(x=>{const d=new Date(x.d);
-    return `<div class="li" style="cursor:default"><span>${d.toLocaleDateString(loc)} ${d.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'})} · ${x.m==='assess'?t('assess'):t('mission')}</span><span><span class="tag ok">${x.fast}⚡</span> <span class="tag slow">${x.slow}🐢</span> <span class="tag bad">${x.bad}✗</span></span></div>`;}).join('')+'</div>':`<p class="muted">${t('noHist')}</p>`;
+    return `<div class="li" style="cursor:default"><span>${d.toLocaleDateString(loc)} ${d.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'})} · ${x.m==='assess'?t('assess'):x.m==='exam'?EX().hist+` ${x.fast}/${x.n}`:t('mission')}</span><span><span class="tag ok">${x.fast}⚡</span> <span class="tag slow">${x.slow}🐢</span> <span class="tag bad">${x.bad}✗</span></span></div>`;}).join('')+'</div>':`<p class="muted">${t('noHist')}</p>`;
   $('langChips').innerHTML=[['ro','🇷🇴 Română'],['da','🇩🇰 Dansk']].map(([k,n])=>`<button class="chip ${S.lang===k?'on':''}" onclick="setLang('${k}');renderParent()">${n}</button>`).join('');
   $('setName').value=S.name;
   $('slowChips').innerHTML=[3,4,5,6,8].map(v=>`<button class="chip ${S.settings.slow===v?'on':''}" onclick="S.settings.slow=${v};save();renderParent()">${v} s</button>`).join('');
   $('lenChips').innerHTML=[5,10,15,20].map(v=>`<button class="chip ${S.settings.len===v?'on':''}" onclick="S.settings.len=${v};save();renderParent()">${v}</button>`).join('');
   const lastEx=S.lastExport||0;$('exportRemind').innerHTML=(Date.now()-lastEx>14*864e5)?`<p style="background:var(--warnl);border-radius:12px;padding:10px;font-weight:700">${lastEx?t('exportOld'):t('exportNever')}</p>`:'';
   $('bkList').innerHTML=backups().map((b,i)=>{let st='';try{st=JSON.parse(b.j).stars;}catch(e){}return `<div class="li"><span>${b.d} · ⭐ ${st}</span><button class="btn sec sm" onclick="restoreBackup(${i})">${t('restore')}</button></div>`;}).reverse().join('');
+  const ES=S.settings;$('examSet').innerHTML=`<h3 style="margin:16px 0 4px">📝 ${EX().setTitle}</h3><p style="margin:6px 0 4px"><b>${EX().setDur}</b></p><div class="chips">${[30,45,50].map(v=>`<button class="chip ${(ES.examDur||45)===v?'on':''}" onclick="S.settings.examDur=${v};save();renderParent()">${v}</button>`).join('')}</div>
+    <p style="margin:10px 0 4px"><b>${EX().setStuck}</b></p><div class="chips">${[45,60,90].map(v=>`<button class="chip ${(ES.examStuck||60)===v?'on':''}" onclick="S.settings.examStuck=${v};save();renderParent()">${v} s</button>`).join('')}</div>
+    <label class="ck" style="margin-top:6px"><input type="checkbox" ${ES.examBreaks!==false?'checked':''} onchange="S.settings.examBreaks=this.checked;save()"><span>${EX().setBrk}</span></label>`;
   $('ckSound').checked=S.settings.sound;$('ckVib').checked=S.settings.vib;$('ckSpeak').checked=S.settings.speak;$('ckBreaks').checked=S.settings.breaks;$('ckBig').checked=S.settings.big;
 }
 function saveSettings(silent){
@@ -1653,6 +1993,8 @@ function achList(){
     ['combo20','🌋',a.combo20,()=>S.maxCombo>=20],['c500','🧠',a.c500,()=>S.correct>=500],['m50','👑',a.m50,()=>S.missions>=50],['coll25','🦄',a.coll25,()=>c>=25]];
   for(let n=2;n<=10;n++)l.push(['mul'+n,'✖️',a.table(n),()=>{for(let x=1;x<=10;x++)if(status(`mul|${n}|${x}`)<4||status(`mul|${x}|${n}`)<4)return false;return true;}]);
   const wa=WD().ach;WORLDS.forEach(w=>l.push(['w_'+w,WE[w],wa[w],()=>((S.wstats[w]||{}).m||0)>=3]));
+  const xa=EX().ach,XS=()=>S.exams||[];
+  l.push(['exam1','📝',xa.exam1,()=>XS().length>=1],['strategist','🧠',xa.strategist,()=>XS().some(e=>e.sk>0&&e.ret===e.sk)],['examGold','🏅',xa.examGold,()=>XS().some(e=>!e.mini&&e.cup===3)]);
   l.push(['pioneer','🌱',wa.pioneer,()=>WORLDS.some(w=>((S.wstats[w]||{}).l3||0)>=1)],['explorer','🗺️',wa.explorer,()=>WORLDS.every(w=>S.wseen[w])]);
   l.push(['add','➕',a.add,()=>cnt('add')>=90],['sub','➖',a.sub,()=>cnt('sub')>=90],['div','➗',a.div,()=>cnt('div')>=90],['rem','🍬',a.rem,()=>cnt('rem')>=60]);
   return l;
@@ -1675,7 +2017,7 @@ function renderBuddies(){$('obBuddyTxt').textContent=t('obBuddy',S.name);$('obAv
 function obDone(){save();go('home');}
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0);
-  if(id!=='quiz'&&id!=='brk')document.body.classList.remove('focus');
+  if(id!=='quiz'&&id!=='brk'&&id!=='exam')document.body.classList.remove('focus');
   applyI18n();
   if(id==='home')renderHome();
   if(id==='missionSetup')renderMissions();
@@ -1684,6 +2026,8 @@ function go(id){
   if(id==='room')renderRoom();
   if(id==='explore'){renderExOps();renderExplore();}
   if(id==='worlds')renderWorlds();
+  if(id==='examSetup')renderExamSetup();
+  if(id!=='exam'&&id!=='brk'){clearInterval(eTimer);}
   if(id==='world')renderWorld();
 }
 function updateHeader(){$('hdrStars').textContent=`⭐ ${S.stars}`;}
@@ -1694,6 +2038,7 @@ function renderHome(){
   $('homeMsg').textContent=!seen?msg('homeFirst'):sk>=2?msg('homeStreak',{k:sk}):msg('home');
   $('homeStats').innerHTML=`<span class="pill">🎖️ ${level()}</span><span class="pill">🔥 ${sk} ${t('streakDays')}</span><span class="pill">🏆 ${(S.cups[1]||0)+(S.cups[2]||0)+(S.cups[3]||0)}</span><span class="pill">🐾 ${Object.keys(S.coll).length}/${CREATURES.length}</span>`;
   $('bAssess').classList.toggle('hl',!seen);
+  $('bExamT').textContent=EX().btn+(S.exam?' ⏸':'');$('bExamS').textContent=S.exam?EX().resume:EX().btnSub;
   $('bWorldsT').textContent=WD().btn;$('bWorldsS').textContent=WD().btnSub;$('bWorldsNew').innerHTML=WORLDS.some(w=>!S.wseen[w])?`<span class="newtag">${WD().isNew}</span>`:'';
 }
 function buddyTalk(){$('homeMsg').textContent=msg('tap');sound('ok');}
@@ -1735,7 +2080,7 @@ function speakQ(){if(!cur)return;const sp=t('sp');let txt=cur.say||`${cur.a} ${s
   if(cur.kind==='mc'&&!cur.opts.some(o=>o.includes('<')))txt+=(/[?!.]\s*$/.test(txt)?' ':'. ')+cur.opts.map(strip).join(', ');   // citește și variantele scrise
   speak(txt);cur.lastAct=performance.now();}
 function stopSpeak(){try{if(window.speechSynthesis)speechSynthesis.cancel();}catch(e){}}
-function updSpk(){const b=$('spkBtn');if(!b)return;b.textContent=S.settings.speak?'🔊':'🔇';b.classList.toggle('on',!!S.settings.speak);}
+function updSpk(){['spkBtn','eSpk'].forEach(id=>{const b=$(id);if(!b)return;b.textContent=S.settings.speak?'🔊':'🔇';b.classList.toggle('on',!!S.settings.speak);});}
 function toggleSpeak(){S.settings.speak=!S.settings.speak;save();updSpk();if(S.settings.speak)speakQ();else stopSpeak();say(S.settings.speak?t('spkOn'):t('spkOff'),3000);}
 function testVoice(){$('ttsInfo').textContent='…';speak(t('voiceSample',S.name||''),m=>{$('ttsInfo').textContent=m;});}
 if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}}
