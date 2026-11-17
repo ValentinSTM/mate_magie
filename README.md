@@ -5,6 +5,8 @@ Regnespil til 3. klasse på **rumænsk og dansk**: plus, minus, gange, division 
 
 **▶ Deschide / Åbn:** https://valentinstm.github.io/mate_magie/
 
+**🧪 Versiune de test / Testversion:** https://valentinstm.github.io/mate_magie/test/ — aici apar întâi noutățile. Are progres separat (o copie), deci nu atinge progresul adevărat.
+
 ## Pe telefon (Samsung / Android)
 1. Deschide linkul în Chrome sau Samsung Internet.
 2. Meniu ⋮ → **Adaugă pe ecranul de pornire / Instalează aplicația**.
@@ -29,3 +31,7 @@ Progresul se salvează pe dispozitivul folosit. Pentru a-l muta pe alt dispoziti
 - **Pentru părinți**: hărți colorate pentru fiecare operație, istoric și setări (prag de timp, lungimea misiunii, sunete, vibrații, voce, pauze).
 
 Fișiere: `index.html` (toată aplicația), `manifest.json`, `sw.js` (funcționare offline), `icon*.png/svg`.
+
+## Lumi noi (în versiunea de test)
+Forme · Corpuri · Simetrie · Arie și perimetru · Ceasul · Bani (kr / lei) · Măsurători — fiecare cu carduri „Descoperă” și 3 niveluri.
+Nivelul 3 (🌱) e pregătire pentru ce urmează (din programa de după clasa a 3-a): acolo nu se măsoară timpul.

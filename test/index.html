@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mate-Magie</title>
+<meta name="theme-color" content="#5b3cc4">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f4f0ff; --card:#fff; --ink:#2b2350; --muted:#7a7399;
+  --pri:#5b3cc4; --pri2:#8b6cf0; --ok:#1fa463; --okl:#d8f5e6; --warn:#f29d16; --warnl:#ffefd2;
+  --bad:#e5484d; --badl:#ffe1e2; --c1:#4f7cff; --c2:#ff8a3d; --c3:#c9c3e6; --gold:#ffc83d;
+  --r:18px; --sh:0 4px 14px rgba(60,40,140,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Nunito","Trebuchet MS","Segoe UI",Roboto,system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation;
+  overscroll-behavior-y:contain;padding-bottom:env(safe-area-inset-bottom)}
+button{font-family:inherit;cursor:pointer;border:0;touch-action:manipulation}
+input,select{user-select:text;-webkit-user-select:text}
+header{display:flex;align-items:center;gap:8px;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));background:var(--pri);color:#fff;position:sticky;top:0;z-index:5}
+header h1{font-size:19px;margin:0;flex:1;cursor:pointer;white-space:nowrap}
+.pill{background:rgba(255,255,255,.18);padding:6px 10px;border-radius:99px;font-weight:800;font-size:14px;white-space:nowrap}
+.lang-btn{background:rgba(255,255,255,.18);color:#fff;border-radius:99px;padding:6px 10px;font-weight:800;font-size:14px}
+body.focus header{display:none}
+main{max-width:760px;margin:0 auto;padding:14px}
+.screen{display:none}.screen.on{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:.3;transform:translateY(6px)}to{opacity:1}}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big-btn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:14px;border-radius:var(--r);
+  background:var(--card);box-shadow:var(--sh);color:var(--ink);font-size:17px;font-weight:800;transition:transform .1s;width:100%}
+.big-btn small{font-size:13px;font-weight:600;color:var(--muted)}
+.big-btn .ico{font-size:30px}
+.big-btn:active{transform:scale(.97)}
+.hero{background:linear-gradient(135deg,var(--pri),#8b5cf6);color:#fff;font-size:24px;padding:20px;align-items:center;text-align:center;margin-bottom:12px}
+.hero small{color:#efe9ff;font-size:15px}
+.hl{outline:3px solid var(--gold);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{outline-color:transparent}}
+.btn{background:var(--pri);color:#fff;font-size:18px;font-weight:800;padding:12px 20px;border-radius:14px}
+.btn.sec{background:#e9e3ff;color:var(--pri)}
+.btn.ok{background:var(--ok)}
+.btn.sm{font-size:15px;padding:8px 14px}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+h2{margin:4px 0 12px;font-size:22px}
+h3{margin:4px 0 8px;font-size:18px}
+.muted{color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:10px 14px;border-radius:12px;background:#eee9ff;color:var(--pri);font-weight:800;font-size:16px;border:2px solid transparent}
+.chip.on{background:var(--pri);color:#fff}
+/* buddy */
+.buddy{display:flex;align-items:flex-end;gap:10px;margin-bottom:12px}
+.buddy .av{font-size:56px;line-height:1;animation:bob 2.4s ease-in-out infinite;cursor:pointer}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.bubble{position:relative;background:#fff;border-radius:18px;padding:12px 14px;font-size:18px;font-weight:700;box-shadow:var(--sh);flex:1}
+.bubble::before{content:"";position:absolute;left:-8px;bottom:14px;border:8px solid transparent;border-right-color:#fff;border-left:0}
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.stat-row .pill{background:#fff;color:var(--ink);box-shadow:var(--sh);font-size:15px;padding:8px 12px}
+/* quiz */
+.qtop{display:flex;align-items:center;gap:8px}
+.path{flex:1;display:flex;align-items:center;gap:3px}
+.path i{flex:1;height:10px;border-radius:6px;background:#e2dcfb}
+.path i.d{background:var(--pri2)}.path i.now{background:var(--gold)}
+.path b{font-size:22px}
+.combo{font-weight:900;font-size:18px;min-width:44px;text-align:right;color:#e2602a}
+.iconbtn{width:42px;height:42px;border-radius:12px;background:#eee9ff;color:var(--pri);font-size:20px;font-weight:900;flex:none}
+.qbuddy{display:flex;align-items:center;gap:8px;min-height:46px;margin:8px 0 0}
+.qbuddy .av{font-size:36px}
+.qbuddy .bubble{font-size:16px;padding:8px 12px;opacity:0;transition:opacity .25s}
+.qbuddy .bubble.on{opacity:1}
+.qbox{text-align:center;padding:12px 10px}
+.bonus{display:inline-block;background:var(--gold);color:#5a3b00;font-weight:900;border-radius:10px;padding:3px 10px;font-size:15px}
+.qtext{font-size:clamp(40px,13vw,60px);font-weight:900;letter-spacing:1px;margin:4px 0 8px}
+.qtext .eq{color:var(--muted)}
+.answers{display:flex;justify-content:center;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.ans{min-width:110px;height:clamp(58px,15vw,72px);border-radius:16px;background:#fff;border:3px solid #ddd5ff;font-size:clamp(34px,10vw,44px);font-weight:900;
+  display:flex;align-items:center;justify-content:center;padding:0 12px;color:var(--ink)}
+.ans.act{border-color:var(--pri);box-shadow:0 0 0 4px #e3dbff}
+.ans.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.anslab{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:3px;text-align:center}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:360px;margin:14px auto 0}
+.pad button{height:clamp(54px,14vw,64px);border-radius:16px;background:#fff;box-shadow:var(--sh);font-size:30px;font-weight:900;color:var(--ink)}
+.pad button:active{transform:scale(.94);background:#eee9ff}
+.pad .go{background:var(--ok);color:#fff}
+.pad .del{background:#ffe9e9;color:var(--bad)}
+.fb{border-radius:var(--r);padding:14px;margin-top:12px;text-align:left}
+.fb.good{background:var(--okl)}.fb.slow{background:var(--warnl)}.fb.bad{background:var(--badl)}
+.fb .title{font-size:20px;font-weight:900;margin-bottom:6px}
+/* strategies */
+.strat{background:#faf8ff;border:2px solid #ebe5ff;border-radius:16px;padding:12px 14px;margin:10px 0}
+.strat h4{margin:0 0 6px;font-size:18px}
+.strat p{margin:4px 0;font-size:18px;line-height:1.45}
+.strat b{color:var(--pri);font-size:20px}
+.vis{margin-top:8px;overflow-x:auto}
+.dots{display:inline-grid;gap:4px;padding:8px;background:#fff;border-radius:12px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--c1);display:inline-block}
+.dot.b{background:var(--c2)}.dot.f{background:var(--c3)}.dot.x{background:var(--c3);opacity:.45;position:relative}
+.dot.x::after{content:"";position:absolute;left:-2px;right:-2px;top:6px;height:2px;background:var(--bad);transform:rotate(-35deg)}
+.frames{display:flex;gap:12px;flex-wrap:wrap}
+.frame{display:grid;grid-template-columns:repeat(5,26px);grid-template-rows:repeat(2,26px);gap:3px;padding:5px;background:#333a5c;border-radius:8px}
+.frame span{background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.frame span i{width:18px;height:18px;border-radius:50%;background:var(--c1);display:block}
+.frame span i.b{background:var(--c2)}
+.groups{display:flex;flex-wrap:wrap;gap:8px}
+.grp{border:2px dashed var(--pri2);border-radius:14px;padding:6px;display:flex;flex-wrap:wrap;gap:3px;max-width:96px;align-content:flex-start}
+.grp.rest{border-color:var(--c2);background:#fff3ea}
+.grp .lbl{width:100%;font-size:12px;font-weight:800;color:var(--c2)}
+.tbl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.tbl-chips span{padding:6px 10px;border-radius:10px;background:#eee;font-weight:800}
+.tbl-chips span.y{background:var(--okl);color:var(--ok)}
+.tbl-chips span.hit{background:var(--ok);color:#fff}
+.tbl-chips span.n{background:var(--badl);color:var(--bad);text-decoration:line-through}
+.fam{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:300px}
+.fam span{background:#fff;border-radius:10px;padding:6px 10px;font-weight:800;text-align:center;border:2px solid #e5dfff}
+svg text{font-family:inherit}
+/* heat */
+.heat{border-collapse:separate;border-spacing:2px;margin:0 auto}
+.heat td,.heat th{width:30px;height:30px;text-align:center;font-size:11px;font-weight:800;border-radius:6px}
+.heat th{color:var(--muted)}
+.heat td{cursor:pointer}
+.s0{background:#ece9f5;color:#aaa}.s1{background:var(--bad);color:#fff}.s2{background:var(--warn);color:#fff}
+.s3{background:#bfe8c9;color:#1c6b3d}.s4{background:var(--ok);color:#fff}.s5{background:#0d6b3c;color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:13px;margin:10px 0}
+.legend span{display:flex;align-items:center;gap:4px}
+.legend i{width:16px;height:16px;border-radius:5px;display:inline-block}
+.list{display:flex;flex-direction:column;gap:6px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#faf8ff;border-radius:12px;padding:12px;font-weight:800;cursor:pointer}
+.tag{font-size:13px;padding:3px 8px;border-radius:8px;white-space:nowrap}
+.tag.bad{background:var(--badl);color:var(--bad)}.tag.slow{background:var(--warnl);color:#a35f00}.tag.ok{background:var(--okl);color:var(--ok)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats div{background:#faf8ff;border-radius:14px;padding:10px 4px;font-size:14px}
+.stats b{display:block;font-size:28px}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:#fff7d6;border:2px solid #ffd75e;border-radius:12px;padding:6px 10px;font-weight:800;font-size:14px}
+.badge.off{background:#f1f0f5;border-color:#e0dde9;color:#b3afc5}
+.coll{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px}
+.coll div{aspect-ratio:1;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:32px;background:#f1f0f5;position:relative}
+.coll div.lock{filter:grayscale(1);opacity:.25}
+.coll div.r1{background:#e3f0ff}.coll div.r2{background:#f3e3ff}.coll div.r3{background:#fff2c2;box-shadow:0 0 0 2px var(--gold)}
+.coll div sup{position:absolute;right:4px;top:2px;font-size:11px;font-weight:900;color:var(--muted)}
+.cups{display:flex;gap:16px;justify-content:center;font-size:20px;font-weight:900}
+.cups span{display:flex;flex-direction:column;align-items:center}
+.cups span i{font-style:normal;font-size:40px}
+/* reward */
+.reward{text-align:center;padding:10px 0}
+.cupbig{font-size:84px;animation:pop .6s}
+@keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.chest{font-size:90px;cursor:pointer;display:inline-block;animation:wiggle 1.2s infinite}
+@keyframes wiggle{0%,100%{transform:rotate(0)}10%{transform:rotate(-12deg)}20%{transform:rotate(12deg)}30%{transform:rotate(-8deg)}40%{transform:rotate(0)}}
+.creature{font-size:96px;animation:pop .7s;display:inline-block}
+.glow3{filter:drop-shadow(0 0 18px var(--gold))}.glow2{filter:drop-shadow(0 0 14px #b67cff)}
+.rar{display:inline-block;border-radius:10px;padding:3px 10px;font-weight:900;font-size:14px;background:#eee}
+.rar.r1{background:#dbeaff;color:#2958c7}.rar.r2{background:#efdcff;color:#7a2fc4}.rar.r3{background:var(--gold);color:#5a3b00}
+/* break */
+.timer{width:150px;height:150px;border-radius:50%;margin:16px auto;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900;
+  background:conic-gradient(var(--ok) var(--p,100%),#e2dcfb 0)}
+.timer span{width:118px;height:118px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.modal{position:fixed;inset:0;background:rgba(30,20,70,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.modal.on{display:flex}
+.modal .sheet{background:#fff;width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px;padding-bottom:max(18px,env(safe-area-inset-bottom))}
+input[type=text],input[type=number]{font-family:inherit;font-size:20px;padding:12px;border-radius:12px;border:2px solid #ddd5ff;width:100%}
+.num-in{display:flex;align-items:center;gap:6px}
+.num-in input{width:80px;text-align:center;font-weight:900;font-size:26px;padding:8px}
+.num-in button{width:44px;height:44px;border-radius:12px;background:#eee9ff;color:var(--pri);font-size:24px;font-weight:900}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2b2350;color:#fff;padding:12px 18px;border-radius:14px;font-weight:800;z-index:30;display:none;max-width:90%;text-align:center}
+.burst{position:fixed;pointer-events:none;font-size:28px;z-index:25;animation:fly 1s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(260deg);opacity:0}}
+.hidden{display:none!important}
+label.ck{display:flex;align-items:center;gap:10px;font-weight:700;padding:7px 0}
+label.ck input{width:24px;height:24px;flex:none}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.langs{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.langs button{background:#fff;border-radius:18px;box-shadow:var(--sh);padding:16px 22px;font-size:20px;font-weight:900;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:6px;border:3px solid transparent}
+.langs button.on{border-color:var(--pri)}
+.langs button span{font-size:48px}
+.buddies{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.buddies button{font-size:38px;background:#fff;border-radius:16px;box-shadow:var(--sh);aspect-ratio:1;border:3px solid transparent}
+.buddies button.on{border-color:var(--pri);background:#efe9ff}
+.center{text-align:center}
+/* lumi */
+.qtext.wq{font-size:inherit;letter-spacing:0;margin:2px 0 6px}
+.qprompt{font-size:21px;font-weight:800;margin:4px 0 10px;line-height:1.35}
+.qvis{display:flex;justify-content:center;margin-bottom:6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px}
+.opt{background:#fff;border:3px solid #ddd5ff;border-radius:16px;padding:10px 6px;font-size:19px;font-weight:800;color:var(--ink);min-height:62px;display:flex;align-items:center;justify-content:center;text-align:center}
+.opt:active{transform:scale(.96)}
+.opt.ok{border-color:var(--ok);background:var(--okl)}.opt.bad{border-color:var(--bad);background:var(--badl)}.opt.dis{opacity:.3;pointer-events:none}
+.unit{font-size:26px;font-weight:900;color:var(--muted);align-self:center}
+.hero.w2{background:linear-gradient(135deg,#0f97ad,#1fa463)}
+.newtag{white-space:nowrap;display:inline-block;background:var(--gold);color:#5a3b00;border-radius:8px;padding:2px 8px;font-size:13px;font-weight:900;margin-left:6px}
+.wbar{height:8px;background:#e2dcfb;border-radius:6px;overflow:hidden;margin-top:6px;width:100%}.wbar>div{height:100%;background:var(--ok)}
+.lvbtn{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;background:#faf8ff;border-radius:14px;padding:14px;font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px;border:2px solid #ebe5ff}
+.lvbtn small{font-weight:600;color:var(--muted);font-size:14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1 onclick="go('home')" id="hdrTitle">🦉 Mate-Magie</h1>
+  <span class="pill" id="hdrStars">⭐ 0</span>
+  <button class="lang-btn" onclick="toggleLang()" id="hdrLang">DA</button>
+</header>
+
+<div id="testBanner" class="hidden" style="background:#ffd75e;color:#5a3b00;font-weight:800;text-align:center;padding:8px;font-size:14px"></div>
+<main>
+<!-- ONBOARDING -->
+<section class="screen" id="onboard">
+  <div class="card center" id="ob1">
+    <h2>🌍 Alege limba · Vælg sprog</h2>
+    <div class="langs">
+      <button onclick="setLang('ro');obStep(2)"><span>🇷🇴</span>Română</button>
+      <button onclick="setLang('da');obStep(2)"><span>🇩🇰</span>Dansk</button>
+    </div>
+  </div>
+  <div class="card hidden" id="ob2">
+    <div class="buddy"><div class="av">🦉</div><div class="bubble" data-t="obName"></div></div>
+    <input type="text" id="nameIn" autocomplete="off" autocapitalize="words" maxlength="20">
+    <div class="row" style="margin-top:12px"><button class="btn" onclick="obName()" data-t="next"></button></div>
+  </div>
+  <div class="card hidden" id="ob3">
+    <div class="buddy"><div class="av" id="obAv">🦉</div><div class="bubble" id="obBuddyTxt"></div></div>
+    <div class="buddies" id="buddyList"></div>
+    <div class="row" style="margin-top:14px"><button class="btn ok" onclick="obDone()" data-t="letsGo"></button></div>
+  </div>
+</section>
+
+<!-- HOME -->
+<section class="screen" id="home">
+  <div class="buddy"><div class="av" id="homeAv" onclick="buddyTalk()">🦊</div><div class="bubble" id="homeMsg"></div></div>
+  <div class="stat-row" id="homeStats"></div>
+  <button class="big-btn hero" id="bMission" onclick="go('missionSetup')"><span class="ico">🚀</span><span data-t="btnMission"></span><small data-t="btnMissionSub"></small></button>
+  <button class="big-btn hero w2" onclick="go('worlds')"><span class="ico">🗺️</span><span><span id="bWorldsT"></span><span id="bWorldsNew"></span></span><small id="bWorldsS"></small></button>
+  <div class="grid2">
+    <button class="big-btn" id="bAssess" onclick="go('assessSetup')"><span class="ico">🔍</span><span data-t="btnAssess"></span><small data-t="btnAssessSub"></small></button>
+    <button class="big-btn" onclick="openRoom()"><span class="ico">🏆</span><span data-t="btnRoom"></span><small data-t="btnRoomSub"></small></button>
+    <button class="big-btn" onclick="openExplore()"><span class="ico">💡</span><span data-t="btnTricks"></span><small data-t="btnTricksSub"></small></button>
+    <button class="big-btn" onclick="openParent()"><span class="ico">📊</span><span data-t="btnParent"></span><small data-t="btnParentSub"></small></button>
+  </div>
+</section>
+
+<!-- MISSION SETUP -->
+<section class="screen" id="missionSetup">
+  <div class="card">
+    <h2 data-t="chooseMission"></h2>
+    <div class="list" id="missionList"></div>
+    <p class="muted" data-t="missionNote"></p>
+    <button class="btn sec" onclick="go('home')" data-t="back"></button>
+  </div>
+</section>
+
+<!-- ASSESS SETUP -->
+<section class="screen" id="assessSetup">
+  <div class="card">
+    <h2>🔍 <span data-t="btnAssess"></span></h2>
+    <p data-t="assessIntro"></p>
+    <div class="list" id="assessList"></div>
+    <div class="row" style="margin-top:12px"><button class="btn sec" onclick="go('home')" data-t="back"></button></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="screen" id="quiz">
+  <div class="card qbox">
+    <div class="qtop">
+      <button class="iconbtn" onclick="quitSession()" aria-label="stop">✖</button>
+      <div class="path" id="qPath"></div>
+      <span class="combo" id="qCombo"></span>
+      <button class="iconbtn" onclick="speakQ()" aria-label="read">🔊</button>
+    </div>
+    <div class="qbuddy"><span class="av" id="qAv">🦊</span><div class="bubble" id="qBubble"></div></div>
+    <div id="qBonus"></div>
+    <div class="qtext" id="qText"></div>
+    <div class="answers" id="ansWrap"></div>
+    <div class="pad" id="pad"></div>
+    <div class="row" style="justify-content:center;margin-top:10px" id="hintRow"><button class="btn sec sm" onclick="showHint()" data-t="hint"></button></div>
+    <div id="fb"></div>
+  </div>
+</section>
+
+<!-- LUMI -->
+<section class="screen" id="worlds"><div class="card"><h2>🗺️ <span id="wTitle"></span></h2><div class="list" id="worldList"></div><div class="row" style="margin-top:12px"><button class="btn sec" onclick="go('home')" data-t="back"></button></div></div></section>
+<section class="screen" id="world"><div class="card" id="worldBox"></div></section>
+<section class="screen" id="disc"><div class="card" id="discBox"></div></section>
+
+<!-- BREAK -->
+<section class="screen" id="brk">
+  <div class="card center">
+    <h2 data-t="breakTitle"></h2>
+    <p class="muted" data-t="breakSub"></p>
+    <div style="font-size:70px" id="brkEmoji"></div>
+    <p style="font-size:22px;font-weight:800" id="brkTxt"></p>
+    <div class="timer" id="brkTimer"><span id="brkSec">20</span></div>
+    <button class="btn ok" onclick="endBreak()" data-t="breakDone"></button>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="screen" id="results"><div class="card" id="resBox"></div></section>
+
+<!-- ROOM -->
+<section class="screen" id="room">
+  <div class="card"><h2>🏆 <span data-t="btnRoom"></span></h2><div class="cups" id="roomCups"></div></div>
+  <div class="card"><h3 id="collTitle"></h3><div class="coll" id="roomColl"></div></div>
+  <div class="card"><h3 data-t="achievements"></h3><div class="badges" id="roomAch"></div></div>
+</section>
+
+<!-- EXPLORE -->
+<section class="screen" id="explore">
+  <div class="card">
+    <h2>💡 <span data-t="exTitle"></span></h2>
+    <p class="muted" data-t="exIntro"></p>
+    <div class="chips" id="exOps"></div>
+    <div class="row" style="margin:14px 0;justify-content:center">
+      <div class="num-in"><button onclick="exStep('A',-1)">−</button><input type="number" inputmode="numeric" id="exA" value="7" min="0" max="100"><button onclick="exStep('A',1)">+</button></div>
+      <span style="font-size:30px;font-weight:900" id="exSign">×</span>
+      <div class="num-in"><button onclick="exStep('B',-1)">−</button><input type="number" inputmode="numeric" id="exB" value="8" min="0" max="100"><button onclick="exStep('B',1)">+</button></div>
+    </div>
+    <div class="row" style="justify-content:center"><button class="btn" onclick="renderExplore()" data-t="exShow"></button><button class="btn sec" onclick="exRandom()" data-t="exOther"></button></div>
+  </div>
+  <div id="exOut"></div>
+</section>
+
+<!-- PARENT -->
+<section class="screen" id="parent">
+  <div class="card">
+    <h2>📊 <span data-t="pTitle"></span></h2>
+    <div class="tabs" id="pTabs"></div>
+    <div id="pOut"></div>
+    <div class="legend" id="legend"></div>
+    <p class="muted" style="font-size:14px" data-t="tapCell"></p>
+  </div>
+  <div class="card"><h3>🗓️ <span data-t="history"></span></h3><div id="hist"></div></div>
+  <div class="card">
+    <h3>⚙️ <span data-t="settings"></span></h3>
+    <p style="margin:6px 0"><b data-t="language"></b></p>
+    <div class="chips" id="langChips"></div>
+    <p style="margin:12px 0 4px"><b data-t="childName"></b></p>
+    <input type="text" id="setName" maxlength="20">
+    <p style="margin:12px 0 4px"><b data-t="thrTitle"></b></p>
+    <p class="muted" style="margin:0 0 6px;font-size:14px" data-t="thrNote"></p>
+    <div class="chips" id="slowChips"></div>
+    <p style="margin:12px 0 4px"><b data-t="lenTitle"></b></p>
+    <div class="chips" id="lenChips"></div>
+    <div style="margin-top:8px">
+      <label class="ck"><input type="checkbox" id="ckSound"><span data-t="sound"></span></label>
+      <label class="ck"><input type="checkbox" id="ckVib"><span data-t="vib"></span></label>
+      <label class="ck"><input type="checkbox" id="ckSpeak"><span data-t="speak"></span></label>
+      <div class="row" style="margin:2px 0 8px 34px"><button class="btn sec sm" onclick="testVoice()" data-t="testVoice"></button></div>
+      <p id="ttsInfo" class="muted" style="font-size:14px;margin:0 0 8px"></p>
+      <label class="ck"><input type="checkbox" id="ckBreaks"><span data-t="breaks"></span></label>
+      <label class="ck"><input type="checkbox" id="ckBig"><span data-t="big"></span></label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn sm" onclick="saveSettings()" data-t="save"></button>
+      <button class="btn sec sm" onclick="exportData()" data-t="export"></button>
+      <button class="btn sec sm" onclick="document.getElementById('impFile').click()" data-t="import"></button>
+      <input type="file" id="impFile" accept=".json,application/json" class="hidden" onchange="importData(this)">
+      <button class="btn sec sm" style="color:var(--bad)" onclick="resetAll()" data-t="reset"></button>
+    </div>
+    <p class="muted" style="font-size:13px" data-t="storeNote"></p>
+    <div id="exportRemind"></div>
+    <h3 style="margin-top:14px">🛟 <span data-t="bkTitle"></span></h3>
+    <div class="list" id="bkList"></div>
+  </div>
+  <div class="card"><h3>🧠 <span data-t="adhdTitle"></span></h3><div data-t="adhdNote" style="font-size:15px;line-height:1.5"></div></div>
+</section>
+</main>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 id="mTitle"></h3><button class="btn sec sm" onclick="closeModal()">✖</button></div><div id="mBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ======================================================================
+   TEXTE / TEKSTER  (ro = română, da = dansk)
+   ====================================================================== */
+const I18N={
+ro:{
+  app:'Mate-Magie', obName:'Bună! Eu sunt bufnița Mate-Magie. 🦉 Cum te cheamă? Scrie-ți numele aici:', next:'Mai departe ➜',
+  obBuddy:n=>`Încântat de cunoștință, ${n}! 🎉 Alege-ți un prieten care te ajută la matematică:`, letsGo:'Începem! 🚀',
+  btnMission:'Misiune nouă', btnMissionSub:'câteva minute + un cufăr surpriză 🎁', btnAssess:'Evaluare', btnAssessSub:'Aflăm ce știi deja',
+  btnRoom:'Trofeele mele', btnRoomSub:'Cupe și colecția ta', btnTricks:'Trucuri', btnTricksSub:'Mai multe feluri de a calcula',
+  btnParent:'Pentru părinți', btnParentSub:'Progres și setări',
+  streakDays:'zile la rând', chooseMission:'Ce misiune alegi?', missionNote:'Aleg eu calculele la care ai nevoie de ajutor și le amestec cu cele pe care le știi deja.',
+  back:'Înapoi',
+  missions:{mix:['🎲','Amestec','din toate câte puțin'],mul:['✖️','Înmulțiri','tabla înmulțirii'],div:['➗','Împărțiri','fără rest'],addsub:['➕','Plus și minus','până la 20'],rem:['🍬','Împărțiri cu rest','cât și rest']},
+  assessIntro:'Răspunde cât de bine poți. Nu e niciun ceas pe ecran — doar aflăm ce știi deja „din cap" și ce mai calculezi. 🙂',
+  assessItems:{mul:['✖️ Tabla înmulțirii','36 de calcule'],div:['➗ Împărțiri','24 de calcule'],add:['➕ Adunări','24 de calcule'],sub:['➖ Scăderi','24 de calcule'],rem:['🍬 Împărțiri cu rest','12 calcule'],mix:['🎲 Amestec','câte 6 din fiecare']},
+  hint:'💡 Indiciu', quot:'CÂT', rest:'REST', bonusQ:'🌟 Întrebare bonus: stele duble!',
+  slowIntro:'Uite un truc ca data viitoare să meargă mai repede:', wrongIntro:'Hai să vedem cum îl putem afla ușor:',
+  oneMore:'Încă un truc', moreN:k=>`Alte ${k} trucuri`, moreWays:'mai multe drumuri', cont:'Mai departe ➜',
+  breakTitle:'🤸 Pauză de mișcare!', breakSub:'Creierul lucrează mai bine după puțină mișcare.', breakDone:'Gata! ➜',
+  assessDone:'🔍 Rezultatul evaluării', earned:k=>`Ai câștigat <b>${k} ⭐</b>`,
+  fastL:'din cap ⚡', slowL:'calculate 🐢', badL:'greșite',
+  avg:(a,t)=>`Timp mediu la răspunsurile corecte: ${a} s (prag „rapid": ${t} s)`,
+  toWork:'De exersat (atinge pentru trucuri)', heatMulT:'Harta înmulțirii', trainHard:'Exersează ce a fost greu 🎯',
+  another:'Încă o misiune ▶', home:'Acasă', wrongT:'greșit', slowT:'lent',
+  cupN:{3:'Cupa de aur',2:'Cupa de argint',1:'Cupa de bronz'}, youWon:c=>`Ai câștigat ${c}!`,
+  tapChest:'Atinge cufărul ca să-l deschizi! 🎁', newCreature:'Un prieten nou în colecție!', dup:'Îl ai deja — primești +5 ⭐',
+  rar:['obișnuit','rar','epic','legendar'], achievements:'Realizări', coll:(k,t)=>`🐾 Colecția mea (${k} din ${t})`,
+  exTitle:'Trucuri de calcul', exIntro:'Alege o operație și două numere. Îți arăt mai multe drumuri până la același răspuns.',
+  exOps:{add:'+ Plus',sub:'− Minus',mul:'× Ori',div:': Împărțit'}, exShow:'Arată trucurile', exOther:'🎲 Altul',
+  pTitle:'Progres', tapCell:'Atinge o căsuță ca să vezi trucurile pentru acel calcul.',
+  legend:['neîncercat','greșit recent','lent / pe degete','corect','rapid','stăpânit'],
+  opsN:{add:'Adunări',sub:'Scăderi',mul:'Înmulțiri',div:'Împărțiri',rem:'Cu rest'},
+  summary:(m,t,s)=>`<b>${m}</b> din ${t} rapide · ${s} încercate`,
+  subNote:'Rânduri: cât scazi · Coloane: rezultatul', divNote:'Rânduri: împărțitorul · Coloane: câtul · În căsuță: deîmpărțitul',
+  big100:(ok,n,t)=>`Până la 100: ${ok}/${n} corecte, ~${t} s`, never:'neîncercat', corrOf:(ok,n)=>`${ok}/${n} corecte`, fastN:k=>`${k} rapide`,
+  history:'Ultimele sesiuni', noHist:'Încă nicio sesiune.', mission:'Misiune', assess:'Evaluare', toWorkP:'De exersat',
+  settings:'Setări', language:'Limba', childName:'Numele copilului', thrTitle:'Prag „rapid" (secunde)',
+  thrNote:'Peste acest timp, un răspuns corect e considerat „calculat", nu „știut".', lenTitle:'Întrebări pe misiune',
+  sound:'Sunete', vib:'Vibrații (telefon)', speak:'Citește întrebările cu voce tare', breaks:'Pauze de mișcare între misiuni', big:'Include adunări/scăderi până la 100',
+  save:'Salvează', export:'⬇️ Exportă', import:'⬆️ Importă', reset:'🗑️ Șterge tot',
+  storeNote:'Progresul se salvează doar pe acest dispozitiv. Folosește Export/Import ca să-l muți pe alt dispozitiv.',
+  testVoice:'🔊 Testează vocea', voiceSample:n=>`Bună, ${n}! Eu îți citesc întrebările.`,
+  ttsNone:'Acest browser nu poate citi cu voce. Deschide aplicația în Chrome.',
+  ttsNoVoice:'Nu am găsit pe telefon o voce în limba română. Pe Samsung: Setări → Gestionare generală → Limbă → Ieșire text în vorbire → motor preferat „Google” → ⚙️ → Instalare date vocale → Română. Apoi închide și redeschide aplicația.',
+  ttsOk:v=>`Vocea folosită: ${v}. Dacă nu se aude nimic, dă mai tare volumul media al telefonului 🔉.`, ttsErr:e=>`Vocea nu a pornit (${e}). Verifică volumul media și motorul text-în-vorbire al telefonului.`,
+  bkTitle:'Copii de siguranță automate', restore:'Restaurează', restored:'Progres restaurat ✔', confirmRestore:d=>`Înlocuiești progresul actual cu copia din ${d}?`,
+  exportOld:'⚠️ Ultimul export e mai vechi de 2 săptămâni. Fă unul acum, ca progresul ei să fie salvat și în afara telefonului.', exportNever:'⚠️ Nu ai făcut încă niciun export. Îți recomand unul acum (⬇️ Exportă) și păstrează fișierul pe e-mail sau în cloud.',
+  testBanner:'🧪 VERSIUNE DE TEST — progresul de aici e o copie separată; cel adevărat nu e atins.',
+  saved:'Salvat ✔', imported:'Progres importat ✔', invalid:'Fișier invalid', confirmReset:'Ștergi tot progresul de pe acest dispozitiv?', deleted:'Șters',
+  newAch:t=>`🏆 Trofeu nou: ${t}!`,
+  adhdTitle:'Cum ajută aplicația concentrarea',
+  adhdNote:`<p>Am construit aplicația după ce recomandă cercetarea pentru copiii cu dificultăți de atenție (ADD/ADHD):</p><ul>
+   <li><b>Misiuni scurte</b> (10 întrebări, 3–5 minute), cu final clar și vizibil (drumul spre cufăr).</li>
+   <li><b>Recompensă imediată</b> la fiecare răspuns: stele, combo 🔥, mesaje de încurajare cu numele ei.</li>
+   <li><b>Surprize variabile</b>: întrebări bonus, cufere cu creaturi de colecție, cupe.</li>
+   <li><b>Pauze de mișcare</b> de 20 de secunde între misiuni.</li>
+   <li><b>Ecran fără distrageri</b> în timpul misiunii (meniul dispare).</li>
+   <li><b>„Stop și gândește"</b>: dacă răspunde greșit foarte repede, primește încă o șansă fără penalizare.</li>
+   <li><b>Revenire blândă</b>: dacă se pierde mai mult de 25 de secunde, prietenul ei o cheamă înapoi.</li>
+   <li><b>Citire cu voce</b> a întrebărilor (🔊), dacă ajută.</li>
+   <li><b>Alegere</b>: își alege singură misiunea și prietenul.</li></ul>
+   <p class="muted">Sfat: 1–2 misiuni pe zi, la aceeași oră, sunt mai eficiente decât o sesiune lungă. Aplicația nu înlocuiește o evaluare de specialitate.</p>`,
+  levels:['Ucenic','Explorator','Detectiv','Magician','Mare Magician','Maestru'],
+  sp:{'+':'plus','−':'minus','×':'ori',':':'împărțit la'}, speechLang:'ro-RO', locale:'ro-RO', mulSign:'×',
+  msg:{
+    fast:['Fulger, {n}! ⚡','{n}, asta a fost din cap! 🧠','Wow, {n}! Super rapid!','Bravo, {n}! 🌟','Ești pe val, {n}! 🏄‍♀️','Creierul tău merge ca o rachetă, {n}! 🚀','Perfect, {n}! ✨'],
+    slow:['Corect, {n}! 👍 Data viitoare o să meargă și mai repede.','Ai reușit, {n}! 💪','Bine gândit, {n}! 🧠'],
+    wrong:['Nicio problemă, {n} — așa învață creierul! 🌱','Aproape, {n}! Hai să vedem trucul împreună.','Greșelile ne ajută să creștem, {n}. 💜'],
+    combo:['{k} la rând, {n}! 🔥 +3 ⭐','Combo de {k}! Ești de neoprit, {n}! 🔥','Uau, {k} corecte una după alta! 🔥'],
+    impulsive:['Ups, prea repede! Mai uită-te o dată 👀','Stai puțin, {n} — respiră și mai încearcă o dată 🙂'],
+    idle:['Ești aici, {n}? 🙂 Te aștept!','Hei, {n}! Mai ai doar {k} și deschidem cufărul! 🎁','{n}, hai înapoi la misiune — poți! 💪'],
+    near:['Încă {k} și deschidem cufărul! 🎁','Aproape gata, {n}! Mai sunt {k}! 🏁'],
+    half:['Jumătate din misiune, {n}! Merge super! ⭐','Ai trecut de jumătate! 🎉'],
+    end:['Misiune îndeplinită, {n}! Ai muncit super! 💪','Bravo, {n}! Azi ai devenit mai bună la mate!','{n}, ești o adevărată magiciană a numerelor! 🪄','Ce mândrie, {n}! Uite ce ai câștigat:'],
+    home:['Bună, {n}! Ești gata de o misiune scurtă? 🚀','Hei, {n}! Deschidem azi un cufăr nou? 🎁','{n}, fiecare misiune îți face creierul mai puternic! 💪','Mi-a fost dor de tine, {n}! 🤗','{n}, hai să mai prindem o creatură în colecție! 🐾'],
+    homeStreak:['{n}, ai {k} zile la rând! 🔥 Hai să nu rupem lanțul!'],
+    homeFirst:['Bună, {n}! Hai întâi să vedem ce știi deja — fără nicio grabă! 🔍'],
+    tap:['Hihi, mă gâdili! 😄','Tu poți, {n}! 💜','Știai că și creierul crește când exersezi? 🧠','Îmi place să lucrez cu tine, {n}!']
+  },
+  moves:[['🦘','Fă 10 sărituri pe loc!'],['🦒','Întinde-te spre tavan ca o girafă!'],['🐸','Fă 5 sărituri de broscuță!'],['🌬️','Rotește brațele ca o morișcă!'],['🦩','Stai într-un picior ca un flamingo, apoi pe celălalt!'],['🎈','Respiră adânc de 5 ori, ca un balon!'],['👏','Bate din palme de 10 ori deasupra capului!'],['💃','Dansează până se termină timpul!'],['🐢','Mergi încet ca o broască țestoasă până la ușă și înapoi!']],
+  ach:{first:'Prima misiune',m10:'10 misiuni',m50:'50 de misiuni',assess:'Prima evaluare',streak3:'3 zile la rând',streak7:'7 zile la rând',
+       combo10:'Combo de 10',combo20:'Combo de 20',c100:'100 de răspunsuri corecte',c500:'500 de răspunsuri corecte',gold5:'5 cupe de aur',
+       coll10:'10 creaturi',coll25:'25 de creaturi',table:n=>`Tabla lui ${n}`,add:'Maestra adunărilor',sub:'Maestra scăderilor',div:'Maestra împărțirilor',rem:'Vânătoare de resturi'},
+  st:{
+    swap:(a,b)=>`Schimbă locul: ${a} × ${b} = ${b} × ${a} (rezultatul e același!)`,
+    m0t:'Ori 0', m0a:'Orice număr înmulțit cu 0 dă 0.', m1t:'Ori 1', m1a:'Un număr înmulțit cu 1 rămâne la fel.',
+    m2t:'Dublul', m2h:g=>`ori 2 înseamnă ${g} + ${g}`, m2a:g=>`Ori 2 înseamnă dublul: ${g} + ${g}`,
+    m10t:'Ori 10', m10h:'pune un 0 la coadă', m10a:'Ori 10: pui un 0 după număr.',
+    m5t:'Jumătate din ori 10', m5h:g=>`află ${g} × 10, apoi ia jumătate`, m5a:(g,x)=>`Întâi ori 10: ${g} × 10 = ${x}`, m5b:(x,P)=>`Ori 5 e jumătate din asta: jumătate din ${x} = <b>${P}</b>`,
+    m4t:'Dublezi de 2 ori', m4h:g=>`dublează ${g}, apoi dublează iar`, m4a:'Ori 4 = dublul dublului.',
+    m8t:'Dublezi de 3 ori', m8h:g=>`dublează ${g} de trei ori`, m8a:'Ori 8 = dublezi, dublezi, dublezi.',
+    m9t:'Ori 10, minus o dată', m9h:g=>`${g} × 10, apoi scazi ${g}`, m9b:(g,x,P)=>`Am pus un ${g} în plus, îl scot: ${x} − ${g} = <b>${P}</b>`,
+    m3t:'Dublul + încă o dată', m3h:g=>`${g} × 2, apoi mai adaugi ${g}`,
+    m6t:'Ori 5 + încă o dată', m6h:g=>`${g} × 5, apoi mai adaugi ${g}`,
+    m7t:'Ori 5 + ori 2', m7h:g=>`${g} × 5 și ${g} × 2, apoi le aduni`, m7a:'Despart 7 în 5 și 2.',
+    sqT:'Pornește de la pătrat', sqH:m=>`${m} × ${m}, apoi încă un ${m}`, sqA:(m,s)=>`${m} × ${m} = ${s} (un pătrat)`, sqB:(M,m,s,P)=>`${M} × ${m} e cu un ${m} mai mult: ${s} + ${m} = <b>${P}</b>`,
+    grT:'Grupe egale', grH:b=>`numără din ${b} în ${b}`, grA:(a,b)=>`${a} × ${b} înseamnă ${a} rânduri a câte ${b}.`, grB:(b,s,P)=>`Numeri din ${b} în ${b}: ${s} → <b>${P}</b>`,
+    dNo:'Nu se poate', d0:'Nu putem împărți la 0.', dzT:'0 împărțit', dz:'0 împărțit la orice număr dă 0.',
+    d1t:'Împărțit la 1', d1a:'Un număr împărțit la 1 rămâne la fel.',
+    dmT:'Gândește la înmulțire', dmH:(b,n)=>`ce număr × ${b} dă ${n}?`, dmA:(b,n)=>`Întreabă-te: <b>? × ${b} = ${n}</b>`, dmB:(q,b,n)=>`Știi că ${q} × ${b} = ${n}`, dmC:(n,b,q)=>`Deci ${n} : ${b} = <b>${q}</b>`,
+    d2t:'Jumătate', d2h:': 2 înseamnă jumătate', d2a:': 2 înseamnă jumătate.', d2b:(n,q)=>`Jumătate din ${n} = <b>${q}</b>`,
+    d4t:'Jumătate din jumătate', d4h:'înjumătățește de două ori', d8t:'Înjumătățești de 3 ori', d8h:'înjumătățește de trei ori',
+    d10t:'Taie zeroul', d10h:'scoate 0 de la coadă', d5aT:': 10, apoi dublezi', d5bT:'Dublezi, apoi : 10',
+    dgT:'Împarte în grupe egale', dgH:(n,b)=>`împarte ${n} bomboane la ${b} copii`, dgA:(n,b)=>`Împarți ${n} bomboane la ${b} copii, la fel de multe fiecăruia.`, dgB:q=>`Fiecare primește <b>${q}</b>.`,
+    djT:b=>`Sari din ${b} în ${b}`, djH:(b,n)=>`numără din ${b} în ${b} până la ${n}`, djB:q=>`Ai făcut ${q} sărituri → <b>${q}</b>`,
+    rtT:b=>`Caută în tabla lui ${b}`, rtH:(b,n)=>`cel mai mare număr din tabla lui ${b} care nu trece de ${n}`,
+    rtA:(b,n,x,q)=>`Caut cel mai mare număr din tabla lui ${b} care nu trece de ${n}: <b>${x}</b> (${q} × ${b})`, rtB:q=>`Câtul este <b>${q}</b>.`, rtC:(n,x,r)=>`Restul: ${n} − ${x} = <b>${r}</b>`,
+    rgT:'Grupe + ce rămâne', rgH:b=>`fă grupe de câte ${b}`, rgA:(b,q)=>`Fac grupe de câte ${b}: ies ${q} grupe întregi.`, rgB:r=>`Rămân ${r} — acesta e <b>restul</b>.`,
+    rvT:'Verificarea', rvB:(r,b)=>`Restul (${r}) trebuie să fie <b>mai mic</b> decât ${b} ✔`, restLbl:'rest', restWord:'rest',
+    swapAdd:(a,b)=>`Începe cu numărul mai mare: ${a} + ${b} = ${b} + ${a}`,
+    a10T:'Fă 10', a10H:b=>`câte îi lipsesc lui ${b} până la 10?`, a10A:(b,k)=>`Lui ${b} îi mai trebuie ${k} până la 10.`, a10B:(s,k,r)=>`Desparți ${s} în ${k} și ${r}.`, a10C:(b,k,r,s)=>`${b} + ${k} = 10, apoi 10 + ${r} = <b>${s}</b>`,
+    dblT:'Dublu', dblH:a=>`dublul lui ${a}`, dblA:(a,s)=>`${a} + ${a} este dublul lui ${a} = <b>${s}</b>`, dblB:a=>`(la fel ca ${a} × 2)`,
+    ndT:'Aproape dublu', ndH:m=>`${m} + ${m}, plus 1`, ndB:(B,x,s)=>`${B} e cu 1 mai mare, deci ${x} + 1 = <b>${s}</b>`,
+    dmidT:'Dublul din mijloc', dmidH:(B,m)=>`mută 1 de la ${B} la ${m}`, dmidA:(B,m,a,b,k)=>`Mut 1 de la ${B} la ${m}: ${a} + ${b} = ${k} + ${k}`,
+    p9H:'adaugă 10, apoi scade 1', p9B:(x,s)=>`Am pus 1 în plus: ${x} − 1 = <b>${s}</b>`, p8H:'adaugă 10, apoi scade 2',
+    cfT:'Numără înainte de la cel mare', cfH:b=>`pornește de la ${b}`, cfA:(b,k,s)=>`Pornești de la ${b} și faci ${k} pași: ${s}`,
+    nlT:'Pe axa numerelor', nlA:'Sari până la 10, apoi restul.', nlB:(b,k,s)=>`Pornește de la ${b} și sari ${k}: <b>${s}</b>`,
+    tuT:'Întâi zecile, apoi unitățile', tuH:(a,z,u)=>`${a} + ${z}, apoi + ${u}`,
+    ttT:'Zeci cu zeci, unități cu unități', ttH:'adună separat zecile și unitățile', ttA:'Zeci', ttB:'Unități',
+    rndT:'Rotunjește', rndH:(b,r)=>`${b} e aproape de ${r}`, rndB:(x,k,s)=>`Am pus ${k} în plus: ${x} − ${k} = <b>${s}</b>`,
+    swarnT:'Atenție', swarnA:'Primul număr trebuie să fie mai mare.',
+    cuT:'Gândește la adunare (numără în sus)', cuA:(b,c)=>`Întreabă-te: <b>${b} + ? = ${c}</b>`, cuB:(b,k)=>`De la ${b} la 10 sunt ${k}.`, cuC:(c,k)=>`De la 10 la ${c} sunt ${k}.`,
+    t10T:'Treci prin 10', t10H:'coboară întâi până la 10', t10A:(b,f,r)=>`Desparți ${b} în ${f} și ${r}.`,
+    thT:'Gândește la adunare', thB:(b,d,c)=>`${b} + ${d} = ${c}, deci ${c} − ${b} = <b>${d}</b>`,
+    diT:'Dublul invers', diB:(c,b)=>`Deci ${c} − ${b} = <b>${b}</b>`,
+    m9sH:'scade 10, apoi adaugă 1', m9sB:(x,d)=>`Am scos 1 prea mult: ${x} + 1 = <b>${d}</b>`, m8sH:'scade 10, apoi adaugă 2',
+    cbT:'Numără înapoi', stuT:'Scazi zecile, apoi unitățile', stuH:(c,z,u)=>`${c} − ${z}, apoi − ${u}`,
+    srndB:(x,k,d)=>`Am scos ${k} prea mult: ${x} + ${k} = <b>${d}</b>`, cupT:'Numără în sus'
+  }
+},
+da:{
+  app:'Matte-Magi', obName:'Hej! Jeg er Matte-Magi-uglen. 🦉 Hvad hedder du? Skriv dit navn her:', next:'Videre ➜',
+  obBuddy:n=>`Hyggeligt at møde dig, ${n}! 🎉 Vælg en ven, der hjælper dig med matematik:`, letsGo:'Lad os starte! 🚀',
+  btnMission:'Ny mission', btnMissionSub:'få minutter + en skattekiste 🎁', btnAssess:'Test', btnAssessSub:'Find ud af, hvad du kan',
+  btnRoom:'Mine trofæer', btnRoomSub:'Pokaler og din samling', btnTricks:'Tricks', btnTricksSub:'Flere måder at regne på',
+  btnParent:'For forældre', btnParentSub:'Fremskridt og indstillinger',
+  streakDays:'dage i træk', chooseMission:'Hvilken mission vælger du?', missionNote:'Jeg vælger de opgaver, du har brug for hjælp til, og blander dem med dem, du allerede kan.',
+  back:'Tilbage',
+  missions:{mix:['🎲','Blandet','lidt af det hele'],mul:['✖️','Gange','gangetabellen'],div:['➗','Division','uden rest'],addsub:['➕','Plus og minus','op til 20'],rem:['🍬','Division med rest','svar og rest']},
+  assessIntro:'Svar så godt du kan. Der er intet ur på skærmen — vi finder bare ud af, hvad du kan udenad, og hvad du stadig regner ud. 🙂',
+  assessItems:{mul:['✖️ Gangetabellen','36 opgaver'],div:['➗ Division','24 opgaver'],add:['➕ Plus','24 opgaver'],sub:['➖ Minus','24 opgaver'],rem:['🍬 Division med rest','12 opgaver'],mix:['🎲 Blandet','6 af hver slags']},
+  hint:'💡 Hjælp', quot:'SVAR', rest:'REST', bonusQ:'🌟 Bonusopgave: dobbelt stjerner!',
+  slowIntro:'Her er et trick, så det går hurtigere næste gang:', wrongIntro:'Lad os se, hvordan man nemt finder det:',
+  oneMore:'Ét trick mere', moreN:k=>`${k} tricks mere`, moreWays:'flere veje', cont:'Videre ➜',
+  breakTitle:'🤸 Bevægelsespause!', breakSub:'Hjernen arbejder bedre efter lidt bevægelse.', breakDone:'Færdig! ➜',
+  assessDone:'🔍 Testresultat', earned:k=>`Du har tjent <b>${k} ⭐</b>`,
+  fastL:'udenad ⚡', slowL:'regnet ud 🐢', badL:'forkerte',
+  avg:(a,t)=>`Gennemsnitstid for rigtige svar: ${a} s (grænse for „hurtig": ${t} s)`,
+  toWork:'Øv mere (tryk for tricks)', heatMulT:'Gangetabel-kort', trainHard:'Øv det svære 🎯',
+  another:'En mission til ▶', home:'Hjem', wrongT:'forkert', slowT:'langsom',
+  cupN:{3:'Guldpokalen',2:'Sølvpokalen',1:'Bronzepokalen'}, youWon:c=>`Du har vundet ${c}!`,
+  tapChest:'Tryk på skattekisten for at åbne den! 🎁', newCreature:'En ny ven i samlingen!', dup:'Den har du allerede — du får +5 ⭐',
+  rar:['almindelig','sjælden','episk','legendarisk'], achievements:'Præstationer', coll:(k,t)=>`🐾 Min samling (${k} af ${t})`,
+  exTitle:'Regnetricks', exIntro:'Vælg en regningsart og to tal. Jeg viser dig flere veje til det samme svar.',
+  exOps:{add:'+ Plus',sub:'− Minus',mul:'· Gange',div:': Division'}, exShow:'Vis tricks', exOther:'🎲 Et andet',
+  pTitle:'Fremskridt', tapCell:'Tryk på et felt for at se tricks til den opgave.',
+  legend:['ikke prøvet','forkert for nylig','langsom / på fingrene','rigtigt','hurtigt','mestret'],
+  opsN:{add:'Plus',sub:'Minus',mul:'Gange',div:'Division',rem:'Med rest'},
+  summary:(m,t,s)=>`<b>${m}</b> af ${t} hurtige · ${s} prøvet`,
+  subNote:'Rækker: hvad du trækker fra · Kolonner: resultatet', divNote:'Rækker: det du deler med · Kolonner: svaret · I feltet: tallet der deles',
+  big100:(ok,n,t)=>`Op til 100: ${ok}/${n} rigtige, ~${t} s`, never:'ikke prøvet', corrOf:(ok,n)=>`${ok}/${n} rigtige`, fastN:k=>`${k} hurtige`,
+  history:'Seneste sessioner', noHist:'Ingen sessioner endnu.', mission:'Mission', assess:'Test', toWorkP:'Øv mere',
+  settings:'Indstillinger', language:'Sprog', childName:'Barnets navn', thrTitle:'Grænse for „hurtig" (sekunder)',
+  thrNote:'Over denne tid regnes et rigtigt svar som „regnet ud", ikke „kunne udenad".', lenTitle:'Opgaver pr. mission',
+  sound:'Lyde', vib:'Vibration (telefon)', speak:'Læs opgaverne højt', breaks:'Bevægelsespauser mellem missioner', big:'Tag plus/minus op til 100 med',
+  save:'Gem', export:'⬇️ Eksportér', import:'⬆️ Importér', reset:'🗑️ Slet alt',
+  storeNote:'Fremskridt gemmes kun på denne enhed. Brug Eksportér/Importér for at flytte det til en anden enhed.',
+  testVoice:'🔊 Test stemmen', voiceSample:n=>`Hej ${n}! Jeg læser opgaverne højt for dig.`,
+  ttsNone:'Denne browser kan ikke læse op. Åbn appen i Chrome.',
+  ttsNoVoice:'Jeg kunne ikke finde en dansk stemme på telefonen. På Samsung: Indstillinger → Generel administration → Sprog → Tekst-til-tale → foretrukken motor „Google” → ⚙️ → Installer stemmedata → Dansk. Luk og åbn appen igen.',
+  ttsOk:v=>`Stemme: ${v}. Hvis der ikke kommer lyd, så skru op for telefonens medielydstyrke 🔉.`, ttsErr:e=>`Stemmen startede ikke (${e}). Tjek medielydstyrken og telefonens tekst-til-tale.`,
+  bkTitle:'Automatiske sikkerhedskopier', restore:'Gendan', restored:'Fremskridt gendannet ✔', confirmRestore:d=>`Vil du erstatte det nuværende fremskridt med kopien fra ${d}?`,
+  exportOld:'⚠️ Sidste eksport er over 2 uger gammel. Lav en nu, så hendes fremskridt også er gemt uden for telefonen.', exportNever:'⚠️ Du har ikke lavet en eksport endnu. Jeg anbefaler at lave en nu (⬇️ Eksportér) og gemme filen på mail eller i skyen.',
+  testBanner:'🧪 TESTVERSION — fremskridtet her er en separat kopi; det rigtige bliver ikke rørt.',
+  saved:'Gemt ✔', imported:'Fremskridt importeret ✔', invalid:'Ugyldig fil', confirmReset:'Vil du slette alt fremskridt på denne enhed?', deleted:'Slettet',
+  newAch:t=>`🏆 Nyt trofæ: ${t}!`,
+  adhdTitle:'Sådan hjælper appen koncentrationen',
+  adhdNote:`<p>Appen er bygget efter det, forskningen anbefaler for børn med opmærksomhedsvanskeligheder (ADD/ADHD):</p><ul>
+   <li><b>Korte missioner</b> (10 opgaver, 3–5 minutter) med en tydelig slutning (vejen til skattekisten).</li>
+   <li><b>Øjeblikkelig belønning</b> for hvert svar: stjerner, combo 🔥 og opmuntring med hendes navn.</li>
+   <li><b>Varierende overraskelser</b>: bonusopgaver, skattekister med samledyr, pokaler.</li>
+   <li><b>Bevægelsespauser</b> på 20 sekunder mellem missioner.</li>
+   <li><b>Skærm uden forstyrrelser</b> under missionen (menuen forsvinder).</li>
+   <li><b>„Stop og tænk"</b>: svarer hun forkert meget hurtigt, får hun en chance til uden straf.</li>
+   <li><b>Blid tilbagevenden</b>: er hun væk i mere end 25 sekunder, kalder hendes ven hende tilbage.</li>
+   <li><b>Oplæsning</b> af opgaverne (🔊), hvis det hjælper.</li>
+   <li><b>Valgfrihed</b>: hun vælger selv mission og ven.</li></ul>
+   <p class="muted">Tip: 1–2 missioner om dagen på samme tidspunkt virker bedre end én lang session. Appen erstatter ikke en faglig udredning.</p>`,
+  levels:['Lærling','Opdager','Detektiv','Tryllekunstner','Stor tryllekunstner','Mester'],
+  sp:{'+':'plus','−':'minus','·':'gange',':':'divideret med'}, speechLang:'da-DK', locale:'da-DK', mulSign:'·',
+  msg:{
+    fast:['Lynhurtigt, {n}! ⚡','{n}, det kunne du udenad! 🧠','Wow, {n}! Super hurtigt!','Flot, {n}! 🌟','Du er på bølgen, {n}! 🏄‍♀️','Din hjerne kører som en raket, {n}! 🚀','Perfekt, {n}! ✨'],
+    slow:['Rigtigt, {n}! 👍 Næste gang går det endnu hurtigere.','Du klarede det, {n}! 💪','Godt tænkt, {n}! 🧠'],
+    wrong:['Ingen problem, {n} — sådan lærer hjernen! 🌱','Tæt på, {n}! Lad os se tricket sammen.','Fejl hjælper os med at vokse, {n}. 💜'],
+    combo:['{k} i træk, {n}! 🔥 +3 ⭐','Combo på {k}! Du er ustoppelig, {n}! 🔥','Wow, {k} rigtige i træk! 🔥'],
+    impulsive:['Ups, lidt for hurtigt! Kig én gang til 👀','Vent lidt, {n} — træk vejret og prøv igen 🙂'],
+    idle:['Er du der, {n}? 🙂 Jeg venter på dig!','Hej {n}! Kun {k} tilbage, så åbner vi skattekisten! 🎁','{n}, kom tilbage til missionen — du kan godt! 💪'],
+    near:['Kun {k} tilbage til skattekisten! 🎁','Næsten færdig, {n}! {k} tilbage! 🏁'],
+    half:['Halvvejs, {n}! Det går super! ⭐','Du er over halvvejs! 🎉'],
+    end:['Mission fuldført, {n}! Du har knoklet! 💪','Sejt, {n}! Du blev bedre til matematik i dag!','{n}, du er en ægte talmagiker! 🪄','Hvor er jeg stolt, {n}! Se hvad du har vundet:'],
+    home:['Hej {n}! Er du klar til en kort mission? 🚀','Hej {n}! Skal vi åbne en ny skattekiste i dag? 🎁','{n}, hver mission gør din hjerne stærkere! 💪','Jeg har savnet dig, {n}! 🤗','{n}, lad os fange et nyt dyr til samlingen! 🐾'],
+    homeStreak:['{n}, du har {k} dage i træk! 🔥 Lad os holde kæden!'],
+    homeFirst:['Hej {n}! Lad os først se, hvad du allerede kan — helt uden stress! 🔍'],
+    tap:['Hihi, det kilder! 😄','Du kan godt, {n}! 💜','Vidste du, at hjernen vokser, når du øver dig? 🧠','Jeg kan godt lide at regne med dig, {n}!']
+  },
+  moves:[['🦘','Lav 10 hop på stedet!'],['🦒','Stræk dig mod loftet som en giraf!'],['🐸','Lav 5 frøhop!'],['🌬️','Drej armene rundt som en vindmølle!'],['🦩','Stå på ét ben som en flamingo, og så på det andet!'],['🎈','Træk vejret dybt 5 gange, som en ballon!'],['👏','Klap 10 gange over hovedet!'],['💃','Dans, til tiden er gået!'],['🐢','Gå langsomt som en skildpadde hen til døren og tilbage!']],
+  ach:{first:'Første mission',m10:'10 missioner',m50:'50 missioner',assess:'Første test',streak3:'3 dage i træk',streak7:'7 dage i træk',
+       combo10:'Combo på 10',combo20:'Combo på 20',c100:'100 rigtige svar',c500:'500 rigtige svar',gold5:'5 guldpokaler',
+       coll10:'10 dyr',coll25:'25 dyr',table:n=>`${n}-tabellen`,add:'Plus-mester',sub:'Minus-mester',div:'Divisions-mester',rem:'Rest-jæger'},
+  st:{
+    swap:(a,b)=>`Byt om: ${a} · ${b} = ${b} · ${a} (resultatet er det samme!)`,
+    m0t:'Gange 0', m0a:'Alle tal gange 0 giver 0.', m1t:'Gange 1', m1a:'Et tal gange 1 forbliver det samme.',
+    m2t:'Det dobbelte', m2h:g=>`gange 2 betyder ${g} + ${g}`, m2a:g=>`Gange 2 er det dobbelte: ${g} + ${g}`,
+    m10t:'Gange 10', m10h:'sæt et 0 bagpå', m10a:'Gange 10: sæt et 0 efter tallet.',
+    m5t:'Halvdelen af gange 10', m5h:g=>`find ${g} · 10, og tag halvdelen`, m5a:(g,x)=>`Først gange 10: ${g} · 10 = ${x}`, m5b:(x,P)=>`Gange 5 er halvdelen af det: halvdelen af ${x} = <b>${P}</b>`,
+    m4t:'Fordobl 2 gange', m4h:g=>`fordobl ${g}, og fordobl igen`, m4a:'Gange 4 = det dobbelte af det dobbelte.',
+    m8t:'Fordobl 3 gange', m8h:g=>`fordobl ${g} tre gange`, m8a:'Gange 8 = fordobl, fordobl, fordobl.',
+    m9t:'Gange 10, minus én gang', m9h:g=>`${g} · 10, og træk ${g} fra`, m9b:(g,x,P)=>`Der er én ${g} for meget, den tager vi væk: ${x} − ${g} = <b>${P}</b>`,
+    m3t:'Det dobbelte + én gang til', m3h:g=>`${g} · 2, og læg ${g} til`,
+    m6t:'Gange 5 + én gang til', m6h:g=>`${g} · 5, og læg ${g} til`,
+    m7t:'Gange 5 + gange 2', m7h:g=>`${g} · 5 og ${g} · 2, læg dem sammen`, m7a:'Del 7 op i 5 og 2.',
+    sqT:'Start fra kvadrattallet', sqH:m=>`${m} · ${m}, og så én ${m} mere`, sqA:(m,s)=>`${m} · ${m} = ${s} (et kvadrattal)`, sqB:(M,m,s,P)=>`${M} · ${m} er én ${m} mere: ${s} + ${m} = <b>${P}</b>`,
+    grT:'Lige store grupper', grH:b=>`tæl ${b} ad gangen`, grA:(a,b)=>`${a} · ${b} betyder ${a} rækker med ${b} i hver.`, grB:(b,s,P)=>`Tæl ${b} ad gangen: ${s} → <b>${P}</b>`,
+    dNo:'Det kan man ikke', d0:'Man kan ikke dividere med 0.', dzT:'0 divideret', dz:'0 divideret med et tal giver 0.',
+    d1t:'Divideret med 1', d1a:'Et tal divideret med 1 forbliver det samme.',
+    dmT:'Tænk gange', dmH:(b,n)=>`hvilket tal · ${b} giver ${n}?`, dmA:(b,n)=>`Spørg dig selv: <b>? · ${b} = ${n}</b>`, dmB:(q,b,n)=>`Du ved, at ${q} · ${b} = ${n}`, dmC:(n,b,q)=>`Så ${n} : ${b} = <b>${q}</b>`,
+    d2t:'Halvdelen', d2h:': 2 betyder halvdelen', d2a:': 2 betyder halvdelen.', d2b:(n,q)=>`Halvdelen af ${n} = <b>${q}</b>`,
+    d4t:'Halvdelen af halvdelen', d4h:'halver to gange', d8t:'Halver 3 gange', d8h:'halver tre gange',
+    d10t:'Fjern nullet', d10h:'fjern 0 bagerst', d5aT:': 10, og fordobl', d5bT:'Fordobl, og : 10',
+    dgT:'Del lige ud', dgH:(n,b)=>`del ${n} slik ud til ${b} børn`, dgA:(n,b)=>`Del ${n} slik ud til ${b} børn, så alle får lige mange.`, dgB:q=>`Hver får <b>${q}</b>.`,
+    djT:b=>`Hop ${b} ad gangen`, djH:(b,n)=>`tæl ${b} ad gangen op til ${n}`, djB:q=>`Du hoppede ${q} gange → <b>${q}</b>`,
+    rtT:b=>`Kig i ${b}-tabellen`, rtH:(b,n)=>`det største tal i ${b}-tabellen, som ikke er større end ${n}`,
+    rtA:(b,n,x,q)=>`Find det største tal i ${b}-tabellen, som ikke er større end ${n}: <b>${x}</b> (${q} · ${b})`, rtB:q=>`Svaret er <b>${q}</b>.`, rtC:(n,x,r)=>`Resten: ${n} − ${x} = <b>${r}</b>`,
+    rgT:'Grupper + det, der er tilbage', rgH:b=>`lav grupper med ${b} i hver`, rgA:(b,q)=>`Lav grupper med ${b} i hver: det giver ${q} hele grupper.`, rgB:r=>`Der er ${r} tilbage — det er <b>resten</b>.`,
+    rvT:'Tjek', rvB:(r,b)=>`Resten (${r}) skal være <b>mindre</b> end ${b} ✔`, restLbl:'rest', restWord:'rest',
+    swapAdd:(a,b)=>`Start med det største tal: ${a} + ${b} = ${b} + ${a}`,
+    a10T:'10-venner', a10H:b=>`hvor mange mangler ${b} for at nå 10?`, a10A:(b,k)=>`${b} mangler ${k} for at nå 10.`, a10B:(s,k,r)=>`Del ${s} op i ${k} og ${r}.`, a10C:(b,k,r,s)=>`${b} + ${k} = 10, og så 10 + ${r} = <b>${s}</b>`,
+    dblT:'Dobbelt', dblH:a=>`det dobbelte af ${a}`, dblA:(a,s)=>`${a} + ${a} er det dobbelte af ${a} = <b>${s}</b>`, dblB:a=>`(det samme som ${a} · 2)`,
+    ndT:'Næsten dobbelt', ndH:m=>`${m} + ${m}, plus 1`, ndB:(B,x,s)=>`${B} er 1 større, så ${x} + 1 = <b>${s}</b>`,
+    dmidT:'Dobbelt i midten', dmidH:(B,m)=>`flyt 1 fra ${B} til ${m}`, dmidA:(B,m,a,b,k)=>`Flyt 1 fra ${B} til ${m}: ${a} + ${b} = ${k} + ${k}`,
+    p9H:'læg 10 til, og træk 1 fra', p9B:(x,s)=>`Vi lagde 1 for meget til: ${x} − 1 = <b>${s}</b>`, p8H:'læg 10 til, og træk 2 fra',
+    cfT:'Tæl videre fra det største tal', cfH:b=>`start ved ${b}`, cfA:(b,k,s)=>`Start ved ${b} og tag ${k} skridt: ${s}`,
+    nlT:'På tallinjen', nlA:'Hop op til 10, og så resten.', nlB:(b,k,s)=>`Start ved ${b} og hop ${k}: <b>${s}</b>`,
+    tuT:'Først tierne, så enerne', tuH:(a,z,u)=>`${a} + ${z}, og så + ${u}`,
+    ttT:'Tiere for sig, enere for sig', ttH:'læg tierne og enerne sammen hver for sig', ttA:'Tiere', ttB:'Enere',
+    rndT:'Rund op', rndH:(b,r)=>`${b} er tæt på ${r}`, rndB:(x,k,s)=>`Vi lagde ${k} for meget til: ${x} − ${k} = <b>${s}</b>`,
+    swarnT:'Hov', swarnA:'Det første tal skal være størst.',
+    cuT:'Tænk plus (tæl op)', cuA:(b,c)=>`Spørg dig selv: <b>${b} + ? = ${c}</b>`, cuB:(b,k)=>`Fra ${b} til 10 er der ${k}.`, cuC:(c,k)=>`Fra 10 til ${c} er der ${k}.`,
+    t10T:'Gå via 10', t10H:'gå først ned til 10', t10A:(b,f,r)=>`Del ${b} op i ${f} og ${r}.`,
+    thT:'Tænk plus', thB:(b,d,c)=>`${b} + ${d} = ${c}, så ${c} − ${b} = <b>${d}</b>`,
+    diT:'Dobbelt baglæns', diB:(c,b)=>`Så ${c} − ${b} = <b>${b}</b>`,
+    m9sH:'træk 10 fra, og læg 1 til', m9sB:(x,d)=>`Vi trak 1 for meget fra: ${x} + 1 = <b>${d}</b>`, m8sH:'træk 10 fra, og læg 2 til',
+    cbT:'Tæl baglæns', stuT:'Træk tierne fra, så enerne', stuH:(c,z,u)=>`${c} − ${z}, og så − ${u}`,
+    srndB:(x,k,d)=>`Vi trak ${k} for meget fra: ${x} + ${k} = <b>${d}</b>`, cupT:'Tæl op'
+  }
+}};
+
+/* ================= STATE ================= */
+const IS_TEST=/\/test\//.test(location.pathname);
+const LS=IS_TEST?'mateMagie_test':'mateMagie_v1', BK=LS+'_backup';
+// versiunea de test pornește cu o COPIE a progresului adevărat (doar citire)
+if(IS_TEST){try{if(!localStorage.getItem(LS)&&localStorage.getItem('mateMagie_v1'))localStorage.setItem(LS,localStorage.getItem('mateMagie_v1'));}catch(e){}}
+const OPS=['add','sub','mul','div','rem'];
+const LEVELS=[0,60,150,300,500,800];
+const BUDDIES=['🦊','🐱','🦄','🐼','🐸','🐧','🐶','🐉','🐰','🦋'];
+const CREATURES=[ // [emoji, raritate 0..3]
+ ['🐱',0],['🐶',0],['🐰',0],['🐹',0],['🐻',0],['🐼',0],['🐨',0],['🐸',0],['🐵',0],['🐤',0],['🐧',0],['🐢',0],['🐞',0],['🦋',0],['🐝',0],['🐠',0],
+ ['🦊',1],['🦁',1],['🐯',1],['🦉',1],['🐬',1],['🦜',1],['🦩',1],['🦦',1],['🐙',1],['🦔',1],['🐿️',1],['🦥',1],
+ ['🦄',2],['🐉',2],['🦚',2],['🦖',2],['🐳',2],['🦒',2],['🦓',2],
+ ['🦀',0],['🐌',0],['🦭',1],['🦘',1],['🦌',1],['🦈',2],['🦅',2],['🌈',3],['🪐',3],['💎',3],['👑',3],['🔮',3]];
+function defState(){return {v:2,lang:'',name:'',buddy:'🦊',stars:0,settings:{slow:4,len:10,big:false,sound:true,vib:true,speak:false,breaks:true},
+  facts:{},history:[],badges:[],cups:{1:0,2:0,3:0},coll:{},wseen:{},wstats:{},days:[],missions:0,maxCombo:0,correct:0};}
+function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.facts){const d=defState();const o=Object.assign(d,s,{settings:Object.assign(d.settings,s.settings||{})});
+  if(!s.v){o.lang=o.name?'ro':'';o.settings.len=10;o.v=2;} return o;}}catch(e){}return defState();}
+let S=load();
+function save(){try{const j=JSON.stringify(S);localStorage.setItem(LS,j);backupDaily(j);}catch(e){}}
+// copie de siguranță automată: una pe zi, ultimele 5 zile
+function backupDaily(j){try{const day=new Date().toISOString().slice(0,10);let b=JSON.parse(localStorage.getItem(BK)||'[]');
+  if(b.length&&b[b.length-1].d===day)b[b.length-1].j=j;else b.push({d:day,j});b=b.slice(-5);localStorage.setItem(BK,JSON.stringify(b));}catch(e){}}
+function backups(){try{return JSON.parse(localStorage.getItem(BK)||'[]');}catch(e){return [];}}
+function restoreBackup(i){const b=backups()[i];if(!b)return;if(!confirm(t('confirmRestore',b.d)))return;localStorage.setItem(LS,b.j);S=load();save();toast(t('restored'));applyI18n();renderParent();updateHeader();}
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const L=()=>I18N[S.lang]||I18N.ro;
+function t(k,...a){const v=L()[k];return typeof v==='function'?v(...a):(v==null?k:v);}
+function st(k,...a){const v=L().st[k];return typeof v==='function'?v(...a):v;}
+function msg(k,vars={}){return pick(L().msg[k]).replace(/\{n\}/g,S.name||'').replace(/\{k\}/g,vars.k??'');}
+const X=()=>L().mulSign;
+function applyI18n(){
+  document.documentElement.lang=S.lang||'ro';
+  document.querySelectorAll('[data-t]').forEach(el=>{const v=t(el.dataset.t);if(el.dataset.t==='adhdNote')el.innerHTML=v;else el.textContent=v;});
+  $('nameIn').placeholder=S.lang==='da'?'Dit navn':'Numele tău';
+  $('hdrTitle').textContent='🦉 '+t('app');document.title=t('app');
+  $('hdrLang').textContent=S.lang==='da'?'🇷🇴 RO':'🇩🇰 DA';
+  if(IS_TEST)$('testBanner').textContent=t('testBanner');
+}
+function setLang(l){S.lang=l;save();applyI18n();}
+function toggleLang(){setLang(S.lang==='da'?'ro':'da');const cur=document.querySelector('.screen.on');if(cur)go(cur.id==='quiz'?'quiz':cur.id);}
+
+/* ================= FACTS ================= */
+function poolOf(op){
+  const k=[];
+  if(op==='add')for(let a=1;a<=10;a++)for(let b=1;b<=10;b++)k.push(`add|${a}|${b}`);
+  if(op==='sub')for(let b=1;b<=10;b++)for(let d=1;d<=10;d++)k.push(`sub|${b+d}|${b}`);
+  if(op==='mul')for(let a=1;a<=10;a++)for(let b=1;b<=10;b++)k.push(`mul|${a}|${b}`);
+  if(op==='div')for(let b=1;b<=10;b++)for(let q=1;q<=10;q++)k.push(`div|${b*q}|${b}`);
+  if(op==='rem')for(let b=2;b<=9;b++)for(let q=1;q<=9;q++)for(let r=1;r<b;r++)k.push(`rem|${b*q+r}|${b}`);
+  return k;
+}
+function bigKey(){
+  if(Math.random()<.5){const a=10+rnd(80),b=10+rnd(Math.max(1,90-a));return `add|${a}|${Math.max(1,Math.min(b,99-a))}`;}
+  const c=20+rnd(80),b=10+rnd(c-10);return `sub|${c}|${b}`;
+}
+function makeQ(key){
+  if(key.startsWith('w|'))return worldQ(key);
+  const [op,x,y]=key.split('|');const a=+x,b=+y;const q={key,op,a,b};
+  if(op==='add'){q.sign='+';q.ans=a+b;}
+  if(op==='sub'){q.sign='−';q.ans=a-b;}
+  if(op==='mul'){q.sign=X();q.ans=a*b;}
+  if(op==='div'){q.sign=':';q.ans=a/b;}
+  if(op==='rem'){q.sign=':';q.ans=Math.floor(a/b);q.rest=a%b;}
+  q.text=`${a} ${q.sign} ${b}`;
+  q.big=(op==='add'||op==='sub')&&(a>20||b>10);
+  return q;
+}
+function ansText(q){if(q.w)return q.kind==='mc'?q.ansText:`${q.ans}${q.unit?' '+q.unit:''}`;return q.op==='rem'?`${q.ans} ${st('restWord')} ${q.rest}`:q.ans;}
+function thr(q){if(q.w)return q.ahead?1e9:S.settings.slow*3;return S.settings.slow*((q.op==='rem'||q.big)?2:1);}
+const rec=k=>S.facts[k];
+function weakness(k){
+  const f=rec(k);if(!f)return null;
+  let w=(5-f.box)*2+(f.lastSlow?3:0)+(f.lastWrong?4:0);
+  w+=Math.min((Date.now()-f.last)/864e5*0.7*(f.box+1),6); // faptele știute revin după câteva zile
+  return w+Math.random();
+}
+function status(k){const f=rec(k);if(!f)return 0;if(f.lastWrong)return 1;if(f.lastSlow||f.box<=1)return 2;if(f.box===2)return 3;if(f.box>=5)return 5;return 4;}
+function record(q,ok,tm,assess){
+  if(ok)S.correct++;
+  if(q.big){const k=`big|${q.op}`;const f=S.facts[k]||(S.facts[k]={n:0,ok:0,ema:null});f.n++;if(ok){f.ok++;f.ema=f.ema==null?tm:f.ema*.7+tm*.3;}return ok&&tm<=thr(q);}
+  const f=S.facts[q.fk||q.key]||(S.facts[q.fk||q.key]={n:0,ok:0,ema:null,box:0,last:0,slowN:0,wrongN:0});
+  const fast=ok&&tm<=thr(q);
+  f.n++;f.last=Date.now();f.lastT=tm;
+  if(ok){f.ok++;f.ema=f.ema==null?tm:f.ema*.6+tm*.4;}
+  f.lastWrong=!ok;f.lastSlow=ok&&!fast;
+  if(!ok){f.wrongN++;f.box=0;}
+  else if(!fast){f.slowN++;f.box=Math.max(1,Math.min(f.box,2));}
+  else f.box=assess?Math.max(f.box+1,3):Math.min(5,f.box+1);
+  return fast;
+}
+
+/* ================= SESSION BUILDER ================= */
+function buildSession(pool,len,forced){
+  const seen=pool.filter(rec),unseen=shuffle(pool.filter(k=>!rec(k)));
+  const nF=len>=20?4:len>=10?3:2;
+  const byWeak=arr=>arr.map(k=>[k,weakness(k)]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+  let focus=[];
+  if(forced&&forced.length)focus=forced.slice(0,nF);
+  else{
+    focus=byWeak(seen.filter(k=>rec(k).box<3)).slice(0,nF);
+    while(focus.length<nF&&unseen.length)focus.push(unseen.pop());
+    if(focus.length<nF)focus.push(...byWeak(seen.filter(k=>!focus.includes(k))).slice(0,nF-focus.length));
+  }
+  const reps=len>=10?3:2,nR=Math.max(0,len-focus.length*reps);
+  let review=shuffle(byWeak(seen.filter(k=>!focus.includes(k))).slice(0,nR*2)).slice(0,nR);
+  while(review.length<nR&&unseen.length)review.push(unseen.pop());
+  if(S.settings.big&&pool.some(k=>k.startsWith('add')||k.startsWith('sub')))for(let i=0;i<review.length;i++)if(Math.random()<.3)review[i]=bigKey();
+  const fq=[];for(let r=0;r<reps;r++)fq.push(...focus);
+  const out=[];let ri=0,fi=0;
+  while(fi<fq.length||ri<review.length){
+    if(fi<fq.length)out.push(fq[fi++]);
+    if(ri<review.length&&(out.length%3===2||fi>=fq.length))out.push(review[ri++]);
+  }
+  while(out.length<len&&pool.length)out.push(pick(pool));
+  return out.slice(0,len);
+}
+const MISSION_OPS={mix:OPS,mul:['mul'],div:['div'],addsub:['add','sub'],rem:['rem']};
+function poolFor(m){let p=[];(MISSION_OPS[m]||OPS).forEach(op=>p=p.concat(poolOf(op)));return p;}
+
+/* ================= QUIZ ENGINE ================= */
+let sess=null,cur=null,idleT=null;
+function startMission(type,forced){
+  const pool=forced?[...new Set(forced.concat(poolFor('mix')))]:poolFor(type);
+  const len=S.settings.len;
+  sess={mode:'practice',type,queue:buildSession(pool,len,forced),i:0,res:[],stars:0,combo:0,maxC:0,len,
+        bonusIdx:2+rnd(Math.max(1,len-3)),halfDone:false,breakDone:false};
+  startQuiz();
+}
+function startAssess(kind){
+  let keys=[];
+  const two=(lo,hi)=>{const o=[];for(let a=lo;a<=hi;a++)for(let b=a;b<=hi;b++)o.push(Math.random()<.5?[a,b]:[b,a]);return o;};
+  if(kind==='mul')keys=two(2,9).map(([a,b])=>`mul|${a}|${b}`);
+  if(kind==='div')keys=shuffle(two(2,9)).slice(0,24).map(([b,q])=>`div|${b*q}|${b}`);
+  if(kind==='add')keys=shuffle(two(2,9)).slice(0,24).map(([a,b])=>`add|${a}|${b}`);
+  if(kind==='sub')keys=shuffle(two(2,9)).slice(0,24).map(([b,d])=>`sub|${b+d}|${b}`);
+  if(kind==='rem')keys=shuffle(poolOf('rem')).slice(0,12);
+  if(kind==='mix')OPS.forEach(op=>{keys=keys.concat(shuffle(poolOf(op).filter(k=>{const q=makeQ(k);return q.a!==1&&q.b!==1&&q.b!==10;})).slice(0,6));});
+  sess={mode:'assess',kind,queue:shuffle(keys),i:0,res:[],stars:0,combo:0,maxC:0,bonusIdx:-1,halfDone:true,breakDone:true};
+  startQuiz();
+}
+function startQuiz(){document.body.classList.add('focus');$('qAv').textContent=S.buddy;go('quiz');showQ();}
+function showQ(){
+  if(sess.i>=sess.queue.length)return endSession();
+  // pauză de mișcare la jumătatea misiunilor lungi
+  if(sess.mode==='practice'&&!sess.breakDone&&sess.len>=15&&sess.i===Math.floor(sess.len/2)&&S.settings.breaks){sess.breakDone=true;return startBreak(()=>{go('quiz');showQ();});}
+  cur=makeQ(sess.queue[sess.i]);cur.choice=null;cur.dis=[];cur.vals=['',''];cur.field=0;cur.hint=false;cur.done=false;cur.retried=false;cur.idleShown=false;
+  cur.bonus=sess.i===sess.bonusIdx;
+  renderPath();
+  $('qBonus').innerHTML=cur.bonus?`<span class="bonus">${t('bonusQ')}</span>`:'';
+  $('qText').classList.toggle('wq',!!cur.w);
+  $('qText').innerHTML=cur.w?`<div class="qprompt">${cur.prompt}</div>${cur.vis?`<div class="qvis">${cur.vis}</div>`:''}`:`${cur.text} <span class="eq">=</span>`;
+  $('fb').innerHTML='';$('pad').classList.toggle('hidden',cur.kind==='mc');
+  $('hintRow').classList.toggle('hidden',sess.mode==='assess');
+  $('qCombo').textContent=sess.combo>=2?`🔥${sess.combo}`:'';
+  renderAns();buildPad();
+  const left=sess.queue.length-sess.i;
+  if(sess.mode==='practice'&&left===2)say(msg('near',{k:2}));
+  else if(sess.mode==='practice'&&!sess.halfDone&&sess.i===Math.floor(sess.queue.length/2)){sess.halfDone=true;say(msg('half'));}
+  else hideSay();
+  if(cur.ahead&&sess.i===0)say(WD().ahead,7000);
+  cur.t0=performance.now();cur.lastAct=cur.t0;
+  if(S.settings.speak)speakQ();
+  clearInterval(idleT);idleT=setInterval(checkIdle,1000);
+}
+function renderPath(){
+  const n=sess.queue.length;let h='';
+  if(n<=24)for(let i=0;i<n;i++)h+=`<i class="${i<sess.i?'d':i===sess.i?'now':''}"></i>`;
+  else h=`<div class="progress" style="flex:1;height:10px;background:#e2dcfb;border-radius:9px;overflow:hidden"><div style="height:100%;width:${sess.i/n*100}%;background:var(--pri2)"></div></div>`;
+  $('qPath').innerHTML=h+(sess.mode==='practice'?'<b>🎁</b>':'<b>🏁</b>');
+}
+function say(m,ms){const b=$('qBubble');b.textContent=m;b.classList.add('on');clearTimeout(b._t);if(ms)b._t=setTimeout(hideSay,ms);}
+function hideSay(){$('qBubble').classList.remove('on');}
+function checkIdle(){
+  if(!cur||cur.done||!$('quiz').classList.contains('on')){return;}
+  if(!cur.idleShown&&performance.now()-cur.lastAct>25000){cur.idleShown=true;say(msg('idle',{k:sess.queue.length-sess.i}));sound('ok');buzz(40);}
+}
+function renderAns(){
+  const w=$('ansWrap');
+  if(cur.kind==='mc'){w.innerHTML=`<div class="opts">${cur.opts.map((o,i)=>`<button class="opt ${cur.dis.includes(i)?'dis':''} ${cur.done&&i===cur.correct?'ok':''} ${cur.done&&i===cur.choice&&i!==cur.correct?'bad':''}" onclick="pickOpt(${i})">${o}</button>`).join('')}</div>`;return;}
+  if(cur.w){w.innerHTML=`<div class="ans act">${cur.vals[0]||'&nbsp;'}</div>${cur.unit?`<span class="unit">${cur.unit}</span>`:''}`;return;}
+  if(cur.op==='rem')w.innerHTML=`<div><div class="anslab">${t('quot')}</div><div class="ans ${cur.field===0?'act':''}" onclick="setField(0)">${cur.vals[0]||'&nbsp;'}</div></div>
+      <div><div class="anslab">${t('rest')}</div><div class="ans ${cur.field===1?'act':''}" onclick="setField(1)">${cur.vals[1]||'&nbsp;'}</div></div>`;
+  else w.innerHTML=`<div class="ans act">${cur.vals[0]||'&nbsp;'}</div>`;
+}
+function pickOpt(i){if(!cur||cur.done||cur.dis.includes(i))return;cur.lastAct=performance.now();cur.choice=i;submit();}
+function setField(i){if(cur.done)return;cur.field=i;renderAns();}
+function buildPad(){
+  $('pad').innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="key('${n}')">${n}</button>`).join('')+
+   `<button class="del" onclick="key('del')">⌫</button><button onclick="key('0')">0</button><button class="go" onclick="key('ok')">✔</button>`;
+}
+function key(k){
+  if(!cur||cur.done)return;
+  cur.lastAct=performance.now();
+  if(cur.kind==='mc'){if(/^[1-9]$/.test(k)&&+k<=cur.opts.length)pickOpt(+k-1);return;}
+  const f=cur.field;
+  if(k==='del')cur.vals[f]=cur.vals[f].slice(0,-1);
+  else if(k==='ok'){if(cur.op==='rem'&&f===0&&cur.vals[0]!==''&&cur.vals[1]===''){cur.field=1;renderAns();return;}return submit();}
+  else if(k==='next'){if(cur.op==='rem'){cur.field=1-cur.field;renderAns();}return;}
+  else if(cur.vals[f].length<3)cur.vals[f]+=k;
+  renderAns();
+}
+document.addEventListener('keydown',e=>{
+  if(!$('quiz').classList.contains('on'))return;
+  if(cur&&cur.done){if(e.key==='Enter'||e.key===' '){e.preventDefault();nextQ();}return;}
+  if(/^[0-9]$/.test(e.key))key(e.key);
+  else if(e.key==='Backspace')key('del');
+  else if(e.key==='Enter')key('ok');
+  else if(e.key==='Tab'||e.key===' '){e.preventDefault();key('next');}
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cur&&!cur.done){cur.t0=performance.now();cur.lastAct=cur.t0;}});
+function submit(){
+  if(cur.kind==='mc'){if(cur.choice==null)return;}
+  else if(cur.vals[0]===''||(cur.op==='rem'&&cur.vals[1]===''))return;
+  const tm=(performance.now()-cur.t0)/1000;
+  const ok=cur.kind==='mc'?cur.choice===cur.correct:cur.op==='rem'?(+cur.vals[0]===cur.ans&&+cur.vals[1]===cur.rest):(+cur.vals[0]===cur.ans);
+  // „Stop și gândește": greșeală foarte rapidă → încă o șansă
+  if(!ok&&tm<1.6&&!cur.retried&&sess.mode==='practice'){
+    cur.retried=true;cur.vals=['',''];cur.field=0;if(cur.kind==='mc'){cur.dis.push(cur.choice);cur.choice=null;}renderAns();
+    document.querySelectorAll('.ans').forEach(a=>{a.classList.add('shake');setTimeout(()=>a.classList.remove('shake'),450);});
+    say(msg('impulsive'),2600);buzz(30);return;
+  }
+  const tt=(cur.hint||cur.retried)?Math.max(tm,thr(cur)+.1):tm;
+  const fast=record(cur,ok,tt,sess.mode==='assess');
+  cur.done=true;clearInterval(idleT);if(cur.kind==='mc')renderAns();
+  sess.res.push({key:cur.key,ok,t:tt,fast,big:cur.big});
+  let stars=ok?(fast?2:1):0;if(cur.bonus)stars*=2;
+  if(ok){sess.combo++;sess.maxC=Math.max(sess.maxC,sess.combo);S.maxCombo=Math.max(S.maxCombo||0,sess.combo);}else sess.combo=0;
+  let comboMsg='';
+  if(ok&&sess.combo>=5&&sess.combo%5===0){stars+=3;comboMsg=msg('combo',{k:sess.combo});}
+  sess.stars+=stars;S.stars+=stars;
+  $('qCombo').textContent=sess.combo>=2?`🔥${sess.combo}`:'';
+  save();updateHeader();checkAch();
+  if(ok){sound(fast?'great':'ok');buzz(fast?25:15);if(fast)burst();}else{sound('bad');buzz([50,40,50]);}
+  if(comboMsg)say(comboMsg,2500);
+  if(sess.mode==='assess'){
+    $('fb').innerHTML=ok?`<div class="fb good"><div class="title">✓</div></div>`:`<div class="fb bad"><div class="title">${cur.text} = ${ansText(cur)}</div></div>`;
+    setTimeout(nextQ,ok?500:1500);return;
+  }
+  $('pad').classList.add('hidden');$('hintRow').classList.add('hidden');
+  const strats=stratsFor(cur);const best=strats[0];
+  if(ok&&fast){
+    $('fb').innerHTML=`<div class="fb good"><div class="title">${msg('fast')} +${stars} ⭐</div></div>`;
+    setTimeout(()=>{if(cur&&cur.done)nextQ();},comboMsg?1600:1000);return;
+  }
+  if(!ok){const pos=Math.min(sess.queue.length,sess.i+3);sess.queue.splice(pos,0,cur.key);} // revine peste 3 întrebări
+  $('fb').innerHTML=`<div class="fb ${ok?'slow':'bad'}">
+     <div class="title">${ok?msg('slow')+` +${stars} ⭐`:msg('wrong')}</div>
+     ${ok?'':`<p style="font-size:22px;font-weight:900;margin:4px 0">${cur.w?`${WD().rightAns}: ${ansText(cur)}`:`${cur.text} = ${ansText(cur)}`}</p>`}
+     <p style="margin:0 0 6px">${ok?t('slowIntro'):t('wrongIntro')}</p>
+     ${best?stratHTML(best):''}
+     <div class="row" style="margin-top:10px">
+       <button class="btn ok" onclick="nextQ()">${t('cont')}</button>
+       ${strats.length>1?`<button class="btn sec sm" onclick="showAllStrats('${cur.key}')">${strats.length===2?t('oneMore'):t('moreN',strats.length-1)}</button>`:''}
+     </div></div>`;
+}
+function nextQ(){if(!sess)return;sess.i++;showQ();window.scrollTo(0,0);}
+function showHint(){if(cur.done)return;cur.hint=true;cur.lastAct=performance.now();const s=stratsFor(cur)[0];if(s)say(`💡 ${s.t}: ${s.hint||strip(s.l[0])}`,6000);}
+const strip=h=>String(h).replace(/<[^>]+>/g,'');
+function quitSession(){clearInterval(idleT);document.body.classList.remove('focus');if(sess&&sess.res.length)endSession(true);else{sess=null;go('home');}}
+
+/* ================= END / REWARDS ================= */
+function todayStr(d=new Date()){return d.toISOString().slice(0,10);}
+function streak(){const set=new Set(S.days);let n=0;const d=new Date();if(!set.has(todayStr(d)))d.setDate(d.getDate()-1);while(set.has(todayStr(d))){n++;d.setDate(d.getDate()-1);}return n;}
+function rollCreature(boost){
+  const w=boost?[45,35,15,5]:[60,28,10,2];let r=Math.random()*100,rar=0;
+  for(let i=0;i<4;i++){if(r<w[i]){rar=i;break;}r-=w[i];}
+  return pick(CREATURES.filter(c=>c[1]===rar));
+}
+let pendingChest=null;
+function endSession(quit){
+  clearInterval(idleT);document.body.classList.remove('focus');
+  const r=sess.res,n=r.length,fast=r.filter(x=>x.fast).length,slow=r.filter(x=>x.ok&&!x.fast).length,bad=r.filter(x=>!x.ok).length;
+  const okR=r.filter(x=>x.ok),avg=okR.length?okR.reduce((s,x)=>s+x.t,0)/okR.length:0;
+  S.history.unshift({d:Date.now(),m:sess.mode,k:sess.world||sess.kind||sess.type||'',w:sess.world||'',n,fast,slow,bad,avg:+avg.toFixed(1)});S.history=S.history.slice(0,60);
+  const complete=!quit||sess.i>=sess.queue.length-1;
+  let cup=0;
+  if(sess.mode==='practice'&&complete&&n>=3){
+    const pct=fast/n;cup=pct>=.8&&bad<=1?3:pct>=.5?2:1;S.cups[cup]=(S.cups[cup]||0)+1;S.missions=(S.missions||0)+1;
+    pendingChest=rollCreature(cup===3);
+  }else pendingChest=null;
+  if(sess.mode==='assess')S.assessDone=true;
+  if(sess.world&&complete&&n>=3){const st=S.wstats[sess.world]||(S.wstats[sess.world]={m:0,l3:0});st.m++;if(sess.lvl===3)st.l3++;}
+  if(n>0&&!S.days.includes(todayStr())){S.days.push(todayStr());S.days=S.days.slice(-120);}
+  save();checkAch();
+  const last={};r.forEach(x=>{if(!x.big)last[x.key]=x;});
+  const probs=Object.values(last).filter(x=>!x.ok||!x.fast).sort((a,b)=>(a.ok-b.ok)||(b.t-a.t));
+  const focusKeys=[...new Set(r.filter(x=>!x.ok&&!x.big).map(x=>x.key).concat(probs.map(x=>x.key)))];
+  let h='';
+  if(cup){
+    h+=`<div class="reward"><div class="buddy" style="justify-content:center"><div class="av">${S.buddy}</div><div class="bubble" style="flex:0 1 auto">${msg('end')}</div></div>
+        <div class="cupbig">${cup===3?'🏆':cup===2?'🥈':'🥉'}</div><h2>${t('youWon',t('cupN')[cup])}</h2>
+        <div id="chestBox"><div class="chest" onclick="openChest()">🎁</div><p class="muted">${t('tapChest')}</p></div></div>`;
+  }else h+=`<h2>${sess.mode==='assess'?t('assessDone'):'⭐'}</h2>`;
+  h+=`<p style="font-size:20px;text-align:center">${t('earned',sess.stars)}</p>
+    <div class="stats"><div><b style="color:var(--ok)">${fast}</b>${t('fastL')}</div><div><b style="color:var(--warn)">${slow}</b>${t('slowL')}</div><div><b style="color:var(--bad)">${bad}</b>${t('badL')}</div></div>
+    <p class="muted" style="font-size:14px">${t('avg',avg.toFixed(1),S.settings.slow)}</p>`;
+  if(probs.length)h+=`<h3 style="margin-top:12px">${t('toWork')}</h3><div class="list">`+probs.slice(0,10).map(x=>{const q=makeQ(x.key);
+      return `<div class="li" onclick="showAllStrats('${x.key}')"><span>${q.w?q.short:`${q.text} = ${ansText(q)}`}</span><span class="tag ${x.ok?'slow':'bad'}">${x.ok?x.t.toFixed(1)+' s':t('wrongT')}</span></div>`;}).join('')+`</div>`;
+  if(sess.mode==='assess'&&sess.kind==='mul')h+=`<h3 style="margin-top:12px">${t('heatMulT')}</h3>`+heatMul();
+  h+=`<div class="row" style="margin-top:16px">`+
+     (focusKeys.length?`<button class="btn ok" onclick='afterResults(${JSON.stringify(focusKeys.slice(0,3))},"${sess.world||''}",${sess.lvl||0})'>${t('trainHard')}</button>`:'')+
+     `<button class="btn" onclick='afterResults(null,"${sess.world||''}",${sess.lvl||0})'>${t('another')}</button><button class="btn sec" onclick="go('home')">${t('home')}</button></div>`;
+  $('resBox').innerHTML=h;sess=null;cur=null;go('results');
+  if(cup)setTimeout(()=>{sound('great');burst();},300);
+}
+function openChest(){
+  if(!pendingChest)return;const [e,rar]=pendingChest;pendingChest=null;
+  const had=S.coll[e];S.coll[e]=(S.coll[e]||0)+1;if(had)S.stars+=5;save();updateHeader();checkAch();
+  $('chestBox').innerHTML=`<div class="creature ${rar>=3?'glow3':rar>=2?'glow2':''}">${e}</div>
+    <div><span class="rar r${rar}">${t('rar')[rar]}</span></div><p style="font-weight:800">${had?t('dup'):t('newCreature')}</p>`;
+  sound('great');burst();buzz([30,30,60]);
+}
+function afterResults(forced,world,lvl){
+  const go2=world?()=>forced?startWorld(world,lvl,forced):openWorld(world):()=>forced?startMission('mix',forced):go('missionSetup');
+  if(S.settings.breaks)startBreak(go2);else go2();
+}
+/* --- pauză de mișcare --- */
+let brkT=null,brkCb=null;
+function startBreak(cb){
+  brkCb=cb;const [e,txt]=pick(L().moves);$('brkEmoji').textContent=e;$('brkTxt').textContent=txt;
+  go('brk');document.body.classList.add('focus');if(S.settings.speak)speak(txt);
+  let left=20;const tick=()=>{$('brkSec').textContent=left;$('brkTimer').style.setProperty('--p',(left/20*100)+'%');if(left<=0){clearInterval(brkT);sound('ok');buzz(60);}left--;};
+  clearInterval(brkT);tick();brkT=setInterval(tick,1000);
+}
+function endBreak(){clearInterval(brkT);document.body.classList.remove('focus');const cb=brkCb;brkCb=null;if(cb)cb();else go('home');}
+
+/* ================= STRATEGIES ================= */
+function stratsFor(q){
+  if(q.strats)return q.strats;
+  if(q.op==='add')return addStrats(q.a,q.b);
+  if(q.op==='sub')return subStrats(q.a,q.b);
+  if(q.op==='mul')return mulStrats(q.a,q.b);
+  if(q.op==='div')return divStrats(q.a,q.b);
+  if(q.op==='rem')return remStrats(q.a,q.b);
+  return [];
+}
+function stratHTML(s){return `<div class="strat"><h4>${s.e} ${s.t}</h4>${s.l.map(x=>`<p>${x}</p>`).join('')}${s.v?`<div class="vis">${s.v}</div>`:''}</div>`;}
+function showAllStrats(k){const q=makeQ(k);openModal(q.w?q.short:`${q.text} = ${ansText(q)}`,stratsFor(q).map(stratHTML).join(''));}
+/* vizualuri */
+function dots(rows,cols,split,mode){
+  if(rows<=0||cols<=0)return '';
+  let h=`<div class="dots" style="grid-template-columns:repeat(${cols},14px)">`;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){let cl='dot';if(split!=null&&c>=split)cl+=mode==='half'?' f':mode==='cross'?' x':' b';h+=`<span class="${cl}"></span>`;}
+  return h+'</div>';
+}
+function tenFrames(big,sm){
+  const need=Math.min(sm,10-big),rest=sm-need;
+  const fr=fill=>`<div class="frame">${fill.map(c=>`<span>${c?`<i class="${c==='b'?'b':''}"></i>`:''}</span>`).join('')}</div>`;
+  const f1=[];for(let i=0;i<10;i++)f1.push(i<big?'a':i<big+need?'b':'');
+  let h=`<div class="frames">${fr(f1)}`;
+  if(rest>0){const f2=[];for(let i=0;i<10;i++)f2.push(i<rest?'b':'');h+=fr(f2);}
+  return h+'</div>';
+}
+function groups(nG,per,rest){
+  let h='<div class="groups">';
+  for(let g=0;g<nG;g++)h+=`<div class="grp">${'<span class="dot"></span>'.repeat(per)}</div>`;
+  if(rest)h+=`<div class="grp rest"><span class="lbl">${st('restLbl')}</span>${'<span class="dot b"></span>'.repeat(rest)}</div>`;
+  return h+'</div>';
+}
+function numberLine(start,jumps){
+  const pts=[start];jumps.forEach(j=>pts.push(pts[pts.length-1]+j));
+  let lo=Math.min(...pts),hi=Math.max(...pts);const pad=Math.max(1,Math.round((hi-lo)*.08));lo-=pad;hi+=pad;
+  const W=600,Xp=v=>20+(v-lo)/(hi-lo)*(W-40),Y=80;
+  let s=`<svg viewBox="0 0 ${W} 120" width="100%" style="max-width:600px;background:#fff;border-radius:12px"><line x1="10" y1="${Y}" x2="${W-10}" y2="${Y}" stroke="#2b2350" stroke-width="3"/>`;
+  const step=hi-lo<=24?1:hi-lo<=60?5:10;
+  for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step){const major=v%10===0;
+    s+=`<line x1="${Xp(v)}" y1="${Y-(major?9:5)}" x2="${Xp(v)}" y2="${Y+(major?9:5)}" stroke="#7a7399" stroke-width="${major?2.5:1.5}"/>`;
+    if(step===1&&!pts.includes(v))s+=`<text x="${Xp(v)}" y="${Y+24}" font-size="12" fill="#b3afc5" text-anchor="middle">${v}</text>`;}
+  jumps.forEach((d,i)=>{const x1=Xp(pts[i]),x2=Xp(pts[i+1]),mid=(x1+x2)/2,hg=Math.min(55,18+Math.abs(x2-x1)*.35),col=d>=0?'#1fa463':'#e5484d';
+    s+=`<path d="M${x1} ${Y-4} Q ${mid} ${Y-hg*1.6} ${x2} ${Y-4}" fill="none" stroke="${col}" stroke-width="3"/>`;
+    s+=`<polygon points="${x2},${Y-3} ${x2+(d>=0?-9:9)},${Y-12} ${x2+(d>=0?-2:2)},${Y-14}" fill="${col}"/>`;
+    s+=`<text x="${mid}" y="${Y-hg*.8-6}" font-size="17" font-weight="800" fill="${col}" text-anchor="middle">${d>=0?'+':'−'}${Math.abs(d)}</text>`;});
+  pts.forEach((p,i)=>{const last=i===pts.length-1;
+    s+=`<circle cx="${Xp(p)}" cy="${Y}" r="${last?7:5}" fill="${last?'#5b3cc4':'#2b2350'}"/><text x="${Xp(p)}" y="${Y+28}" font-size="${last?20:16}" font-weight="900" fill="${last?'#5b3cc4':'#2b2350'}" text-anchor="middle">${p}</text>`;});
+  return s+'</svg>';
+}
+function tableChips(b,n){let h='<div class="tbl-chips">';const q=Math.floor(n/b);
+  for(let k=1;k<=Math.min(10,q+1);k++){const v=k*b;h+=`<span class="${v===q*b?'hit':v<=n?'y':'n'}">${k}${X()}${b}=${v}</span>`;}return h+'</div>';}
+function family(q,b,n){const x=X();return `<div class="fam"><span>${q} ${x} ${b} = ${n}</span><span>${b} ${x} ${q} = ${n}</span><span>${n} : ${b} = ${q}</span><span>${n} : ${q} = ${b}</span></div>`;}
+const seq=(step,cnt)=>Array.from({length:cnt},(_,i)=>(i+1)*step).join(', ');
+/* înmulțire */
+const RANK={0:0,1:0,10:1,2:2,5:3,4:4,3:5,9:6,8:7,6:8,7:9};
+function mulRule(f,g,a,b){
+  const P=a*b,x=X();
+  switch(f){
+    case 0:return {e:'🕳️',t:st('m0t'),l:[st('m0a'),`${a} ${x} ${b} = <b>0</b>`]};
+    case 1:return {e:'☝️',t:st('m1t'),l:[st('m1a'),`${a} ${x} ${b} = <b>${P}</b>`]};
+    case 2:return {e:'👯',t:st('m2t'),hint:st('m2h',g),l:[st('m2a',g),`${g} + ${g} = <b>${P}</b>`],v:dots(g,2,1)};
+    case 10:return {e:'🔟',t:st('m10t'),hint:st('m10h'),l:[st('m10a'),`${g} → <b>${P}</b>`],v:dots(g,10)};
+    case 5:return {e:'✋',t:st('m5t'),hint:st('m5h',g),l:[st('m5a',g,g*10),st('m5b',g*10,P)],v:dots(g,10,5,'half')};
+    case 4:return {e:'🔁',t:st('m4t'),hint:st('m4h',g),l:[st('m4a'),`${g} ${x} 2 = ${g*2}`,`${g*2} ${x} 2 = <b>${P}</b>`],v:dots(g,4,2)};
+    case 8:return {e:'🚀',t:st('m8t'),hint:st('m8h',g),l:[st('m8a'),`${g} → ${g*2} → ${g*4} → <b>${P}</b>`],v:dots(g,8,4)};
+    case 9:return {e:'🎯',t:st('m9t'),hint:st('m9h',g),l:[`${g} ${x} 10 = ${g*10}`,st('m9b',g,g*10,P)],v:dots(g,10,9,'cross')};
+    case 3:return {e:'➕',t:st('m3t'),hint:st('m3h',g),l:[`${g} ${x} 2 = ${g*2}`,`${g*2} + ${g} = <b>${P}</b>`],v:dots(g,3,2)};
+    case 6:return {e:'🖐️',t:st('m6t'),hint:st('m6h',g),l:[`${g} ${x} 5 = ${g*5}`,`${g*5} + ${g} = <b>${P}</b>`],v:dots(g,6,5)};
+    case 7:return {e:'🧩',t:st('m7t'),hint:st('m7h',g),l:[st('m7a'),`${g} ${x} 5 = ${g*5}`,`${g} ${x} 2 = ${g*2}`,`${g*5} + ${g*2} = <b>${P}</b>`],v:dots(g,7,5)};
+  }
+  return null;
+}
+function mulStrats(a,b){
+  const out=[],P=a*b;
+  const fs=a===b?[a]:[a,b].sort((p,q)=>(RANK[p]??9)-(RANK[q]??9));
+  fs.forEach((f,i)=>{const g=f===a?b:a;const r=mulRule(f,g,a,b);if(!r)return;
+    if(i===0&&f===a&&a!==b&&a>1)r.l.unshift(st('swap',a,b));out.push(r);});
+  if(Math.abs(a-b)===1&&Math.min(a,b)>=3){const m=Math.min(a,b),M=Math.max(a,b);
+    out.push({e:'🟪',t:st('sqT'),hint:st('sqH',m),l:[st('sqA',m,m*m),st('sqB',M,m,m*m,P)],v:dots(m,M,m)});}
+  if(a>0&&b>0&&a<=10&&b<=10)out.push({e:'🟣',t:st('grT'),hint:st('grH',b),l:[st('grA',a,b),st('grB',b,seq(b,a),P)],v:dots(a,b)});
+  return out.slice(0,5);
+}
+/* împărțire */
+function divStrats(n,b){
+  if(b===0)return [{e:'🚫',t:st('dNo'),l:[st('d0')]}];
+  if(n===0)return [{e:'🕳️',t:st('dzT'),l:[st('dz')]}];
+  const q=n/b,out=[];
+  if(b===1)out.push({e:'☝️',t:st('d1t'),l:[st('d1a'),`${n} : 1 = <b>${n}</b>`]});
+  out.push({e:'🔄',t:st('dmT'),hint:st('dmH',b,n),l:[st('dmA',b,n),st('dmB',q,b,n),st('dmC',n,b,q)],v:family(q,b,n)});
+  if(b===2)out.push({e:'✂️',t:st('d2t'),hint:st('d2h'),l:[st('d2a'),st('d2b',n,q)]});
+  if(b===4)out.push({e:'✂️',t:st('d4t'),hint:st('d4h'),l:[`${n} → ${n/2} → <b>${q}</b>`]});
+  if(b===8)out.push({e:'✂️',t:st('d8t'),hint:st('d8h'),l:[`${n} → ${n/2} → ${n/4} → <b>${q}</b>`]});
+  if(b===10)out.push({e:'🔟',t:st('d10t'),hint:st('d10h'),l:[`${n} → <b>${q}</b>`]});
+  if(b===5)out.push(n%10===0?{e:'✋',t:st('d5aT'),hint:`${n} : 10, ${X()} 2`,l:[`${n} : 10 = ${n/10}`,`${n/10} ${X()} 2 = <b>${q}</b>`]}
+                            :{e:'✋',t:st('d5bT'),hint:`${n} ${X()} 2, : 10`,l:[`${n} ${X()} 2 = ${n*2}`,`${n*2} : 10 = <b>${q}</b>`]});
+  out.push({e:'🍬',t:st('dgT'),hint:st('dgH',n,b),l:[st('dgA',n,b),st('dgB',q)],v:groups(b,q)});
+  if(q<=10)out.push({e:'🦘',t:st('djT',b),hint:st('djH',b,n),l:[seq(b,q),st('djB',q)]});
+  return out;
+}
+function remStrats(n,b){
+  if(b<=0||n%b===0)return divStrats(n,b);
+  const q=Math.floor(n/b),r=n%b;
+  return [
+    {e:'🔎',t:st('rtT',b),hint:st('rtH',b,n),l:[st('rtA',b,n,q*b,q),st('rtB',q),st('rtC',n,q*b,r)],v:tableChips(b,n)},
+    {e:'🍬',t:st('rgT'),hint:st('rgH',b),l:[st('rgA',b,q),st('rgB',r)],v:groups(q,b,r)},
+    {e:'✅',t:st('rvT'),l:[`${q} ${X()} ${b} + ${r} = ${q*b} + ${r} = ${n} ✔`,st('rvB',r,b)]}
+  ];
+}
+/* adunare */
+function addStrats(a,b){
+  const s=a+b,big=Math.max(a,b),sm=Math.min(a,b),out=[];
+  if(a<=10&&b<=10){
+    const swap=a<b?st('swapAdd',a,b):null;
+    if(big<10&&s>10){const need=10-big;
+      out.push({e:'🔟',t:st('a10T'),hint:st('a10H',big),l:[swap,st('a10A',big,need),st('a10B',sm,need,sm-need),st('a10C',big,need,sm-need,s)].filter(Boolean),v:tenFrames(big,sm)});}
+    if(a===b)out.push({e:'👯',t:st('dblT'),hint:st('dblH',a),l:[st('dblA',a,s),st('dblB',a)]});
+    else if(big-sm===1)out.push({e:'👯',t:st('ndT'),hint:st('ndH',sm),l:[`${sm} + ${sm} = ${sm*2}`,st('ndB',big,sm*2,s)]});
+    else if(big-sm===2)out.push({e:'⚖️',t:st('dmidT'),hint:st('dmidH',big,sm),l:[st('dmidA',big,sm,a,b,sm+1),`${sm+1} + ${sm+1} = <b>${s}</b>`]});
+    if(big===9&&sm>0)out.push({e:'🎯',t:'+9 = +10 − 1',hint:st('p9H'),l:[`${sm} + 10 = ${sm+10}`,st('p9B',sm+10,s)],v:numberLine(sm,[10,-1])});
+    else if(big===8&&sm>=2)out.push({e:'🎯',t:'+8 = +10 − 2',hint:st('p8H'),l:[`${sm} + 10 = ${sm+10}`,`${sm+10} − 2 = <b>${s}</b>`],v:numberLine(sm,[10,-2])});
+    if(sm>0&&sm<=3)out.push({e:'🦘',t:st('cfT'),hint:st('cfH',big),l:[swap,st('cfA',big,sm,Array.from({length:sm},(_,i)=>big+i+1).join(' → '))].filter(Boolean),v:numberLine(big,Array(sm).fill(1))});
+    if(big<10&&s>10)out.push({e:'📏',t:st('nlT'),l:[st('nlA')],v:numberLine(big,[10-big,s-10])});
+    if(!out.length)out.push({e:'📏',t:st('nlT'),l:[st('nlB',big,sm,s)],v:numberLine(big,[sm])});
+    return out;
+  }
+  const z=Math.floor(b/10)*10,u=b%10,az=Math.floor(a/10)*10,au=a%10;
+  out.push({e:'🪜',t:st('tuT'),hint:st('tuH',a,z,u),l:[`${a} + ${z} = ${a+z}`,u?`${a+z} + ${u} = <b>${s}</b>`:`= <b>${s}</b>`],v:numberLine(a,u?[z,u]:[z])});
+  out.push({e:'🧱',t:st('ttT'),hint:st('ttH'),l:[`${st('ttA')}: ${az} + ${z} = ${az+z}`,`${st('ttB')}: ${au} + ${u} = ${au+u}`,`${az+z} + ${au+u} = <b>${s}</b>`]});
+  if(u>=8){const rb=b+10-u;out.push({e:'🎯',t:st('rndT'),hint:st('rndH',b,rb),l:[st('rndH',b,rb)+'.',`${a} + ${rb} = ${a+rb}`,st('rndB',a+rb,10-u,s)],v:numberLine(a,[rb,-(10-u)])});}
+  return out;
+}
+/* scădere */
+function subStrats(c,b){
+  const d=c-b,out=[];
+  if(d<0)return [{e:'🤔',t:st('swarnT'),l:[st('swarnA')]}];
+  if(c<=20&&b<=10){
+    if(c>10&&b>c-10){const first=c-10,rest=b-first;
+      out.push({e:'🔄',t:st('cuT'),hint:`${b} + ? = ${c}`,l:[st('cuA',b,c),st('cuB',b,10-b),st('cuC',c,c-10),`${10-b} + ${c-10} = <b>${d}</b>`],v:numberLine(b,[10-b,c-10])});
+      out.push({e:'🔟',t:st('t10T'),hint:st('t10H'),l:[st('t10A',b,first,rest),`${c} − ${first} = 10`,`10 − ${rest} = <b>${d}</b>`],v:numberLine(c,[-first,-rest])});
+    }else out.push({e:'🔄',t:st('thT'),hint:`${b} + ? = ${c}`,l:[st('cuA',b,c),st('thB',b,d,c)],v:d>0?numberLine(b,[d]):''});
+    if(c===2*b)out.push({e:'👯',t:st('diT'),l:[`${b} + ${b} = ${c}`,st('diB',c,b)]});
+    if(b===9&&c>=10)out.push({e:'🎯',t:'−9 = −10 + 1',hint:st('m9sH'),l:[`${c} − 10 = ${c-10}`,st('m9sB',c-10,d)],v:numberLine(c,[-10,1])});
+    if(b===8&&c>=10)out.push({e:'🎯',t:'−8 = −10 + 2',hint:st('m8sH'),l:[`${c} − 10 = ${c-10}`,`${c-10} + 2 = <b>${d}</b>`],v:numberLine(c,[-10,2])});
+    if(b<=3&&b>0)out.push({e:'🦘',t:st('cbT'),l:[Array.from({length:b+1},(_,i)=>c-i).join(' → ')],v:numberLine(c,Array(b).fill(-1))});
+    return out;
+  }
+  const z=Math.floor(b/10)*10,u=b%10;
+  out.push({e:'🪜',t:st('stuT'),hint:st('stuH',c,z,u),l:[`${c} − ${z} = ${c-z}`,u?`${c-z} − ${u} = <b>${d}</b>`:`= <b>${d}</b>`],v:numberLine(c,u?[-z,-u]:[-z])});
+  if(u>=8){const rb=b+10-u;out.push({e:'🎯',t:st('rndT'),hint:st('rndH',b,rb),l:[st('rndH',b,rb)+'.',`${c} − ${rb} = ${c-rb}`,st('srndB',c-rb,10-u,d)],v:numberLine(c,[-rb,10-u])});}
+  const nt=Math.ceil(b/10)*10;
+  if(nt>b&&nt<=c)out.push({e:'🔄',t:st('cupT'),hint:`${b} + ? = ${c}`,l:[`${b} + ? = ${c}`,`${b} → ${nt} (+${nt-b}) → ${c} (+${c-nt})`,`${nt-b} + ${c-nt} = <b>${d}</b>`],v:numberLine(b,[nt-b,c-nt].filter(Boolean))});
+  return out;
+}
+
+/* ======================================================================
+   LUMI NOI / NYE VERDENER — geometrie, ceas, bani, măsurători
+   ====================================================================== */
+const WORLDS=['shapes','solids','sym','area','clock','money','units'];
+const WE={shapes:'🔷',solids:'🧊',sym:'🪞',area:'📐',clock:'🕐',money:'💰',units:'📏'};
+const WTXT={
+ro:{
+  title:'Lumi de descoperit', btn:'Lumi noi', btnSub:'forme, ceas, bani și multe altele', discover:'🌱 Descoperă', lvl:n=>`Nivelul ${n}`,
+  lvlSub:{1:'ce faci deja la școală',2:'un pas mai departe',3:'🌱 pregătire pentru ce urmează'},
+  isNew:'Nou ✨', ahead:'E ceva nou — e normal să nu știi încă! Aici timpul nu contează și fiecare încercare îți aduce stele. 🌱',
+  tryIt:'Hai să încercăm! 🚀', yes:'Da', no:'Nu', same:'La fel', rightAns:'Răspunsul corect', done:'gata',
+  names:{shapes:'Forme',solids:'Corpuri',sym:'Simetrie',area:'Arie și perimetru',clock:'Ceasul',money:'Bani',units:'Măsurători'},
+  subs:{shapes:'triunghi, pătrat, cerc…',solids:'cub, sferă, cilindru…',sym:'oglinda magică',area:'pătrățele și margini',clock:'cât e ceasul?',money:'monede și bancnote',units:'cm, kg, minute'},
+  shape:{tri:'triunghi',rtri:'triunghi',square:'pătrat',rect:'dreptunghi',circle:'cerc',oval:'oval',pent:'pentagon',hex:'hexagon',oct:'octogon',rhomb:'romb'},
+  solid:{cube:'cub',cuboid:'cuboid',sphere:'sferă',cylinder:'cilindru',cone:'con',pyramid:'piramidă'},
+  q:{
+    shName:'Cum se numește figura?', shSides:'Câte laturi are figura?', shCorners:'Câte colțuri are figura?', shFind:n=>`Atinge figura: <b>${n}</b>`, shRight:'Câte unghiuri drepte are figura?',
+    soName:'Cum se numește corpul?', soObj:'Ce formă are obiectul?', soFaces:'Câte fețe are corpul?', soVert:'Câte vârfuri (colțuri) are corpul?', soEdges:'Câte muchii are corpul?',
+    soBase:'Ce formă are partea de jos (baza)?', soNet:'Care desen se poate plia într-un cub? 📦',
+    syLetter:'Este litera la fel de ambele părți ale liniei?', syLine:'Este linia punctată o axă de simetrie?', syMirror:'Care desen e oglindit corect față de linie? 🪞',
+    arCount:'Câte pătrățele acoperă figura?', arCompare:'Care figură are aria mai mare (mai multe pătrățele)?', arPerim:'Cât este perimetrul (drumul de jur împrejur)?',
+    arArea:'Cât este aria dreptunghiului?', arMissing:(A,w)=>`Aria este ${A} cm². O latură are ${w} cm. Cât are cealaltă latură?`,
+    clRead:'Cât arată ceasul?', clSet:n=>`Care ceas arată <b>${n}</b>?`, clLater:(a,d)=>`Acum e <b>${a}</b>. Cât va fi ceasul peste <b>${d}</b>?`, clH24:n=>`Ceasul digital arată <b>${n}</b>. Care ceas cu limbi arată la fel?`,
+    moCount:'Câți bani sunt în total?', moAfford:(e,n,p,c)=>`Îți ajung banii pentru ${e} ${n} care costă <b>${p} ${c}</b>?`, moChange:(e,n,p,pay,c)=>`Cumperi ${e} ${n} cu <b>${p} ${c}</b> și plătești cu <b>${pay} ${c}</b>. Cât rest primești?`,
+    moTotal:(e1,p1,e2,p2,c)=>`${e1} costă ${p1} ${c}, ${e2} costă ${p2} ${c}. Cât costă împreună?`, moPay:(n,c)=>`Care grămadă face exact <b>${n} ${c}</b>?`,
+    moFewest:(n,c)=>`Vrei să plătești exact <b>${n} ${c}</b> cu cât mai puține monede și bancnote. De câte ai nevoie?`, moBudget:(h,k,e,p,c)=>`Ai <b>${h} ${c}</b>. Cumperi ${k} × ${e} a câte ${p} ${c}. Câți bani îți rămân?`,
+    unRuler:'Cât de lung este creionul?', unPick:x=>`Ce unitate folosești pentru: <b>${x}</b>?`, unFact:x=>x, unCompare:'Ce e mai mult?', unEstimate:x=>x, unConvert:x=>`${x} = ?`
+  },
+  dur:{15:'un sfert de oră',30:'30 de minute',45:'45 de minute',60:'1 oră',75:'1 oră și 15 minute',90:'1 oră și jumătate',120:'2 ore'},
+  timeWords:(h,m)=>{const n=h%12+1,mw=x=>x<20?'minute':'de minute';if(m===0)return `${h} fix`;if(m===15)return `${h} și un sfert`;if(m===30)return `${h} și jumătate`;if(m===45)return `${n} fără un sfert`;
+    return m<30?`${h} și ${m} ${mw(m)}`:`${n} fără ${60-m} ${mw(60-m)}`;},
+  items:{'🍎':'un măr','🧃':'un suc','🍦':'o înghețată','✏️':'un creion','📒':'un caiet','🧸':'un ursuleț','🍫':'o ciocolată','⚽':'o minge','🍪':'un biscuit','🎈':'un balon'},
+  st:{
+    shapeFacts:{tri:'3 laturi și 3 colțuri — „tri” înseamnă trei.',rtri:'3 laturi, 3 colțuri — și un unghi drept, ca un colț de caiet.',square:'4 laturi la fel de lungi și 4 unghiuri drepte.',rect:'4 laturi: două lungi și două scurte, plus 4 unghiuri drepte.',
+      circle:'Nicio latură dreaptă și niciun colț — e perfect rotund.',oval:'Ca un ou 🥚: rotund, dar alungit. Nu are colțuri.',pent:'5 laturi și 5 colțuri — „penta” înseamnă cinci.',hex:'6 laturi și 6 colțuri — „hexa” înseamnă șase (ca la fagurele de miere 🐝).',
+      oct:'8 laturi și 8 colțuri — „octo” înseamnă opt, ca brațele caracatiței 🐙.',rhomb:'4 laturi la fel de lungi, dar „înclinat” — nu are unghiuri drepte.'},
+    shapeT:'Cum o recunoști', countT:'Numără cu degetul', countL:'Pune degetul pe un colț și mergi de jur împrejur, numărând fiecare latură până ajungi înapoi.',
+    rightT:'Unghiul drept', rightL:'Un unghi drept arată ca un colț de caiet 📒 sau ca litera L. Pune colțul unei foi pe unghi: dacă se potrivește exact, e drept.',
+    solidFacts:{cube:'6 fețe pătrate, 12 muchii, 8 vârfuri — ca un zar 🎲.',cuboid:'6 fețe dreptunghiulare, 12 muchii, 8 vârfuri — ca o cutie 📦.',sphere:'Complet rotundă, fără fețe plate — ca o minge ⚽.',
+      cylinder:'Două cercuri plate (sus și jos) și o parte rotunjită — ca o conservă 🥫.',cone:'Un cerc plat jos și un vârf sus — ca un cornet 🍦.',pyramid:'Baza pătrată și 4 triunghiuri care se întâlnesc sus: 5 fețe, 8 muchii, 5 vârfuri.'},
+    facesT:'Numără fețele', facesL:'Pentru cub și cuboid: sus, jos, față, spate, stânga, dreapta = 6 fețe.',
+    netT:'Desfășurarea cubului', netL:'Un cub are 6 fețe. O desfășurare bună nu are niciodată 4 pătrate strânse într-un bloc 2×2 și nici 5 pătrate pe un rând.',
+    symT:'Testul plierii', symL:'Imaginează-ți că pliezi foaia pe linie. Dacă cele două jumătăți se suprapun perfect, linia e o axă de simetrie.',
+    diagL:'Atenție: diagonala unui dreptunghi NU e axă de simetrie — dacă pliezi, colțurile nu se potrivesc.',
+    mirrorT:'Oglinda', mirrorL:'În oglindă, pătrățelul cel mai apropiat de linie rămâne cel mai apropiat de linie. Verifică rând cu rând.',
+    areaT:'Rânduri × coloane', areaL:(h,w,A)=>`${h} rânduri a câte ${w} pătrățele: ${h} × ${w} = <b>${A}</b>`,
+    perimT:'Mergi de jur împrejur', perimL:(w,h,P)=>`${w} + ${h} + ${w} + ${h} = <b>${P}</b> cm`, perimL2:(w,h,P)=>`Mai repede: (${w} + ${h}) × 2 = <b>${P}</b> cm`,
+    missT:'Gândește la înmulțire', missL:(w,A,h)=>`? × ${w} = ${A}, deci ${A} : ${w} = <b>${h}</b> cm`,
+    cmpT:'Numără pătrățelele', cmpL:(a,b)=>`A are ${a} pătrățele, B are ${b} pătrățele.`,
+    clockT:'Cele două limbi', clockL:['Limba scurtă arată ora.','Limba lungă arată minutele: fiecare cifră înseamnă 5 minute (numeri din 5 în 5).'],
+    halfL:'Când limba lungă e la 6, a trecut jumătate de oră: „și jumătate”. Limba scurtă stă atunci între două cifre — ora e cifra mai mică.',
+    quartL:'Limba lungă la 3 = „și un sfert” (15 minute). La 9 = „fără un sfert” (45 de minute, mai e un sfert până la ora următoare).',
+    laterT:'Socotește minutele', laterL:(a,d,b)=>`${a} + ${d} = <b>${b}</b>`, h24T:'Ceasul de 24 de ore', h24L:(h,k)=>`După ora 12 la prânz scazi 12: ${h} − 12 = ${k}, deci ora ${k} după-amiaza.`,
+    moneyT:'Începe cu banii mari', moneyL:'Pune banii în ordine de la mare la mic și adună pe rând:',
+    changeT:'Numără în sus', changeL:(p,pay)=>`De la ${p} numeri în sus până la ${pay}:`,
+    affordT:'Compară', affordL:(s,p,c)=>`Ai ${s} ${c}. Prețul e ${p} ${c}. ${s>=p?'Ajung ✔':'Nu ajung ✗'}`,
+    fewT:'Alege mereu cel mai mare', fewL:'Ia de fiecare dată cea mai mare monedă sau bancnotă care încape:',
+    budgetT:'Întâi înmulțește, apoi scade',
+    rulerT:'Rigla începe de la 0', rulerL:(a,b)=>a===0?`Creionul începe la 0 și se termină la ${b}: <b>${b} cm</b>.`:`Creionul NU începe la 0! Se termină la ${b} și începe la ${a}: ${b} − ${a} = <b>${b-a} cm</b>.`,
+    unitsT:'Unitățile de măsură', unitsL:['Lungime: mm < cm < m < km','Greutate: g < kg','Timp: secunde < minute < ore < zile'],
+    convT:'Ține minte', convL:['1 m = 100 cm','1 km = 1000 m','1 kg = 1000 g','1 oră = 60 minute','1 minut = 60 secunde']
+  },
+  un:{mm:'mm',cm:'cm',m:'m',km:'km',g:'g',kg:'kg',s:'secunde',min:'minute',h:'ore',d:'zile'},
+  pick:[['lungimea unui creion','cm'],['distanța până în alt oraș','km'],['înălțimea unei uși','m'],['greutatea unui măr','g'],['greutatea unui câine','kg'],['cât durează să te speli pe dinți','min'],['cât durează somnul de noapte','h'],['lungimea unei furnici','mm'],['lungimea unei piscine','m'],['greutatea unui sac de cartofi','kg'],['cât durează vacanța de vară','d'],['cât durează să clipești','s']],
+  facts:[['O oră are câte minute?',60],['O zi are câte ore?',24],['Un minut are câte secunde?',60],['O săptămână are câte zile?',7],['Un an are câte luni?',12],['1 metru are câți centimetri?',100]],
+  facts2:[['1 kilogram are câte grame?',1000],['1 kilometru are câți metri?',1000],['O jumătate de oră are câte minute?',30],['Un sfert de oră are câte minute?',15]],
+  est:[['Cât de înaltă e o ușă?',['2 m','20 cm','20 m','2 km']],['Cât cântărește un măr?',['150 g','15 kg','1 g','150 kg']],['Cât cântărește o pisică?',['4 kg','40 g','400 kg','4 g']],['Cât durează pauza mare?',['15 minute','15 secunde','15 ore','15 zile']],['Cât de lungă e o radieră?',['4 cm','4 m','40 m','4 km']],['Cât de lung e un autobuz?',['12 m','12 cm','12 km','120 m']],['Cât durează un film pentru copii?',['1 oră și jumătate','1 minut','10 secunde','2 zile']]]
+},
+da:{
+  title:'Verdener at udforske', btn:'Nye verdener', btnSub:'figurer, klokken, penge og meget mere', discover:'🌱 Opdag', lvl:n=>`Niveau ${n}`,
+  lvlSub:{1:'det, du allerede laver i skolen',2:'et skridt videre',3:'🌱 klar til det, der kommer'},
+  isNew:'Ny ✨', ahead:'Det er noget nyt — det er helt okay ikke at kunne det endnu! Her tæller tiden ikke, og hvert forsøg giver stjerner. 🌱',
+  tryIt:'Lad os prøve! 🚀', yes:'Ja', no:'Nej', same:'Lige store', rightAns:'Det rigtige svar', done:'færdig',
+  names:{shapes:'Figurer',solids:'Rumlige figurer',sym:'Spejling',area:'Areal og omkreds',clock:'Klokken',money:'Penge',units:'Måling'},
+  subs:{shapes:'trekant, kvadrat, cirkel…',solids:'terning, kugle, cylinder…',sym:'det magiske spejl',area:'felter og kanter',clock:'hvad er klokken?',money:'mønter og sedler',units:'cm, kg, minutter'},
+  shape:{tri:'trekant',rtri:'trekant',square:'kvadrat',rect:'rektangel',circle:'cirkel',oval:'oval',pent:'femkant',hex:'sekskant',oct:'ottekant',rhomb:'rombe'},
+  solid:{cube:'terning',cuboid:'kasse',sphere:'kugle',cylinder:'cylinder',cone:'kegle',pyramid:'pyramide'},
+  q:{
+    shName:'Hvad hedder figuren?', shSides:'Hvor mange sider har figuren?', shCorners:'Hvor mange hjørner har figuren?', shFind:n=>`Tryk på figuren: <b>${n}</b>`, shRight:'Hvor mange rette vinkler har figuren?',
+    soName:'Hvad hedder figuren?', soObj:'Hvilken form har tingen?', soFaces:'Hvor mange flader har figuren?', soVert:'Hvor mange hjørner har figuren?', soEdges:'Hvor mange kanter har figuren?',
+    soBase:'Hvilken form har bunden?', soNet:'Hvilken tegning kan foldes til en terning? 📦',
+    syLetter:'Er bogstavet ens på begge sider af linjen?', syLine:'Er den stiplede linje en symmetriakse?', syMirror:'Hvilken tegning er spejlet rigtigt i linjen? 🪞',
+    arCount:'Hvor mange felter dækker figuren?', arCompare:'Hvilken figur har det største areal (flest felter)?', arPerim:'Hvad er omkredsen (vejen hele vejen rundt)?',
+    arArea:'Hvad er arealet af rektanglet?', arMissing:(A,w)=>`Arealet er ${A} cm². Den ene side er ${w} cm. Hvor lang er den anden side?`,
+    clRead:'Hvad er klokken?', clSet:n=>`Hvilket ur viser <b>${n}</b>?`, clLater:(a,d)=>`Klokken er <b>${a}</b>. Hvad er klokken om <b>${d}</b>?`, clH24:n=>`Det digitale ur viser <b>${n}</b>. Hvilket ur med visere viser det samme?`,
+    moCount:'Hvor mange penge er der i alt?', moAfford:(e,n,p,c)=>`Har du penge nok til ${e} ${n}, der koster <b>${p} ${c}</b>?`, moChange:(e,n,p,pay,c)=>`Du køber ${e} ${n} til <b>${p} ${c}</b> og betaler med <b>${pay} ${c}</b>. Hvor mange penge får du tilbage?`,
+    moTotal:(e1,p1,e2,p2,c)=>`${e1} koster ${p1} ${c}, ${e2} koster ${p2} ${c}. Hvad koster de tilsammen?`, moPay:(n,c)=>`Hvilken bunke er præcis <b>${n} ${c}</b>?`,
+    moFewest:(n,c)=>`Du vil betale præcis <b>${n} ${c}</b> med så få mønter og sedler som muligt. Hvor mange skal du bruge?`, moBudget:(h,k,e,p,c)=>`Du har <b>${h} ${c}</b>. Du køber ${k} × ${e} til ${p} ${c} stykket. Hvor mange penge har du tilbage?`,
+    unRuler:'Hvor lang er blyanten?', unPick:x=>`Hvilken enhed bruger du til: <b>${x}</b>?`, unFact:x=>x, unCompare:'Hvad er mest?', unEstimate:x=>x, unConvert:x=>`${x} = ?`
+  },
+  dur:{15:'et kvarter',30:'30 minutter',45:'45 minutter',60:'1 time',75:'1 time og 15 minutter',90:'halvanden time',120:'2 timer'},
+  timeWords:(h,m)=>{const n=h%12+1;if(m===0)return `klokken ${h}`;if(m===15)return `kvart over ${h}`;if(m===30)return `halv ${n}`;if(m===45)return `kvart i ${n}`;
+    if(m===25)return `5 minutter i halv ${n}`;if(m===35)return `5 minutter over halv ${n}`;return m<30?`${m} minutter over ${h}`:`${60-m} minutter i ${n}`;},
+  items:{'🍎':'et æble','🧃':'en juice','🍦':'en is','✏️':'en blyant','📒':'et hæfte','🧸':'en bamse','🍫':'en chokolade','⚽':'en bold','🍪':'en småkage','🎈':'en ballon'},
+  st:{
+    shapeFacts:{tri:'3 sider og 3 hjørner — navnet siger det: tre-kant!',rtri:'3 sider, 3 hjørner — og én ret vinkel, ligesom hjørnet på et hæfte.',square:'4 lige lange sider og 4 rette vinkler.',rect:'4 sider: to lange og to korte, og 4 rette vinkler.',
+      circle:'Ingen lige sider og ingen hjørner — helt rund.',oval:'Som et æg 🥚: rund, men aflang. Ingen hjørner.',pent:'5 sider og 5 hjørner — fem-kant!',hex:'6 sider og 6 hjørner — seks-kant (som i en bikube 🐝).',
+      oct:'8 sider og 8 hjørner — otte-kant, som blækspruttens 8 arme 🐙.',rhomb:'4 lige lange sider, men „skæv” — ingen rette vinkler.'},
+    shapeT:'Sådan kender du den', countT:'Tæl med fingeren', countL:'Sæt fingeren på et hjørne og gå hele vejen rundt, mens du tæller hver side, til du er tilbage.',
+    rightT:'Den rette vinkel', rightL:'En ret vinkel ligner hjørnet på et hæfte 📒 eller bogstavet L. Læg hjørnet af et papir på vinklen: passer det præcist, er den ret.',
+    solidFacts:{cube:'6 kvadratiske flader, 12 kanter, 8 hjørner — som en terning 🎲.',cuboid:'6 rektangulære flader, 12 kanter, 8 hjørner — som en kasse 📦.',sphere:'Helt rund uden flade sider — som en bold ⚽.',
+      cylinder:'To flade cirkler (top og bund) og en rund side — som en dåse 🥫.',cone:'En flad cirkel i bunden og en spids foroven — som en isvaffel 🍦.',pyramid:'Kvadratisk bund og 4 trekanter, der mødes i toppen: 5 flader, 8 kanter, 5 hjørner.'},
+    facesT:'Tæl fladerne', facesL:'For terning og kasse: top, bund, for, bag, venstre, højre = 6 flader.',
+    netT:'Terningens udfoldning', netL:'En terning har 6 flader. En rigtig udfoldning har aldrig 4 felter samlet i en 2×2-blok og aldrig 5 felter på én række.',
+    symT:'Foldetesten', symL:'Forestil dig, at du folder papiret langs linjen. Passer de to halvdele præcist oven på hinanden, er linjen en symmetriakse.',
+    diagL:'Pas på: diagonalen i et rektangel er IKKE en symmetriakse — folder du, passer hjørnerne ikke.',
+    mirrorT:'Spejlet', mirrorL:'I spejlet bliver det felt, der er tættest på linjen, ved med at være tættest på linjen. Tjek række for række.',
+    areaT:'Rækker × kolonner', areaL:(h,w,A)=>`${h} rækker med ${w} felter: ${h} · ${w} = <b>${A}</b>`,
+    perimT:'Gå hele vejen rundt', perimL:(w,h,P)=>`${w} + ${h} + ${w} + ${h} = <b>${P}</b> cm`, perimL2:(w,h,P)=>`Hurtigere: (${w} + ${h}) · 2 = <b>${P}</b> cm`,
+    missT:'Tænk gange', missL:(w,A,h)=>`? · ${w} = ${A}, så ${A} : ${w} = <b>${h}</b> cm`,
+    cmpT:'Tæl felterne', cmpL:(a,b)=>`A har ${a} felter, B har ${b} felter.`,
+    clockT:'De to visere', clockL:['Den lille viser viser timerne.','Den store viser viser minutterne: hvert tal betyder 5 minutter (tæl 5 ad gangen).'],
+    halfL:'Når den store viser peger på 6, siger vi „halv” + den NÆSTE time: 3:30 = halv fire! Den lille viser står midt mellem to tal.',
+    quartL:'Den store viser på 3 = „kvart over”. På 9 = „kvart i” den næste time (3:45 = kvart i fire).',
+    laterT:'Regn minutterne', laterL:(a,d,b)=>`${a} + ${d} = <b>${b}</b>`, h24T:'24-timers uret', h24L:(h,k)=>`Efter kl. 12 trækker du 12 fra: ${h} − 12 = ${k}, så klokken ${k} om eftermiddagen.`,
+    moneyT:'Start med de store', moneyL:'Læg pengene fra størst til mindst og læg sammen én ad gangen:',
+    changeT:'Tæl op', changeL:(p,pay)=>`Fra ${p} tæller du op til ${pay}:`,
+    affordT:'Sammenlign', affordL:(s,p,c)=>`Du har ${s} ${c}. Prisen er ${p} ${c}. ${s>=p?'Det er nok ✔':'Det er ikke nok ✗'}`,
+    fewT:'Tag altid den største', fewL:'Tag hver gang den største mønt eller seddel, der kan være der:',
+    budgetT:'Først gange, så minus',
+    rulerT:'Linealen starter ved 0', rulerL:(a,b)=>a===0?`Blyanten starter ved 0 og slutter ved ${b}: <b>${b} cm</b>.`:`Blyanten starter IKKE ved 0! Den slutter ved ${b} og starter ved ${a}: ${b} − ${a} = <b>${b-a} cm</b>.`,
+    unitsT:'Måleenheder', unitsL:['Længde: mm < cm < m < km','Vægt: g < kg','Tid: sekunder < minutter < timer < dage'],
+    convT:'Husk', convL:['1 m = 100 cm','1 km = 1000 m','1 kg = 1000 g','1 time = 60 minutter','1 minut = 60 sekunder']
+  },
+  un:{mm:'mm',cm:'cm',m:'m',km:'km',g:'g',kg:'kg',s:'sekunder',min:'minutter',h:'timer',d:'dage'},
+  pick:[['længden af en blyant','cm'],['afstanden til en anden by','km'],['højden på en dør','m'],['vægten af et æble','g'],['vægten af en hund','kg'],['hvor lang tid det tager at børste tænder','min'],['hvor længe man sover om natten','h'],['længden af en myre','mm'],['længden af et svømmebassin','m'],['vægten af en sæk kartofler','kg'],['hvor lang sommerferien er','d'],['hvor lang tid et blink tager','s']],
+  facts:[['Hvor mange minutter er der i en time?',60],['Hvor mange timer er der i et døgn?',24],['Hvor mange sekunder er der i et minut?',60],['Hvor mange dage er der i en uge?',7],['Hvor mange måneder er der i et år?',12],['Hvor mange centimeter er der i 1 meter?',100]],
+  facts2:[['Hvor mange gram er der i 1 kilogram?',1000],['Hvor mange meter er der i 1 kilometer?',1000],['Hvor mange minutter er en halv time?',30],['Hvor mange minutter er et kvarter?',15]],
+  est:[['Hvor høj er en dør?',['2 m','20 cm','20 m','2 km']],['Hvor meget vejer et æble?',['150 g','15 kg','1 g','150 kg']],['Hvor meget vejer en kat?',['4 kg','40 g','400 kg','4 g']],['Hvor lang er et frikvarter?',['15 minutter','15 sekunder','15 timer','15 dage']],['Hvor langt er et viskelæder?',['4 cm','4 m','40 m','4 km']],['Hvor lang er en bus?',['12 m','12 cm','12 km','120 m']],['Hvor lang er en børnefilm?',['halvanden time','1 minut','10 sekunder','2 dage']]]
+}};
+const WD=()=>WTXT[S.lang]||WTXT.ro;
+const wq=(k,...a)=>{const v=WD().q[k];return typeof v==='function'?v(...a):v;};
+const ws=(k,...a)=>{const v=WD().st[k];return typeof v==='function'?v(...a):v;};
+const card=(e,t,l,v)=>({e,t,l:Array.isArray(l)?l:[l],v});
+
+/* ---------- desene SVG ---------- */
+const PAL=['#4f7cff','#ff8a3d','#1fa463','#c04fd6','#e5484d','#f2b516','#14a3b8'];
+let GID=0;
+const svgW=(inner,w=140,h=120,disp)=>`<svg viewBox="0 0 ${w} ${h}" width="${disp||w}" style="max-width:100%;height:auto">${inner}</svg>`;
+const poly=(pts,fill,extra='')=>`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${fill}" stroke="#2b2350" stroke-width="3" stroke-linejoin="round" ${extra}/>`;
+function regPoly(n,cx,cy,r,rot=-90){const p=[];for(let i=0;i<n;i++){const a=(rot+i*360/n)*Math.PI/180;p.push([+(cx+r*Math.cos(a)).toFixed(1),+(cy+r*Math.sin(a)).toFixed(1)]);}return p;}
+const SHAPE_PTS={tri:()=>regPoly(3,70,68,54),rtri:()=>[[25,105],[25,15],[118,105]],square:()=>[[25,15],[115,15],[115,105],[25,105]],rect:()=>[[8,30],[132,30],[132,92],[8,92]],
+  pent:()=>regPoly(5,70,63,52),hex:()=>regPoly(6,70,60,52,0),oct:()=>regPoly(8,70,60,52,22.5),rhomb:()=>[[70,6],[116,60],[70,114],[24,60]]};
+function shapeG(name,fill){
+  if(name==='circle')return `<circle cx="70" cy="60" r="50" fill="${fill}" stroke="#2b2350" stroke-width="3"/>`;
+  if(name==='oval')return `<ellipse cx="70" cy="60" rx="64" ry="38" fill="${fill}" stroke="#2b2350" stroke-width="3"/>`;
+  return poly(SHAPE_PTS[name](),fill);
+}
+const shapeSVG=(name,fill=pick(PAL),disp=130)=>svgW(shapeG(name,fill),140,120,disp);
+function rightMark(){return `<path d="M25 93 H37 V105" fill="none" stroke="#2b2350" stroke-width="2.5"/>`;}
+function solidSVG(name,disp=140){
+  const id='g'+(++GID),st='stroke="#2b2350" stroke-width="2.5" stroke-linejoin="round"';let g='';
+  const grad=(c1,c2)=>`<defs><radialGradient id="${id}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient></defs>`;
+  switch(name){
+    case 'cube':g=`<polygon points="30,50 55,28 115,28 90,50" fill="#9fb8ff" ${st}/><polygon points="90,50 115,28 115,88 90,110" fill="#4f6fd8" ${st}/><polygon points="30,50 90,50 90,110 30,110" fill="#7a9bff" ${st}/>`;break;
+    case 'cuboid':g=`<polygon points="10,60 35,38 130,38 105,60" fill="#ffd0a8" ${st}/><polygon points="105,60 130,38 130,88 105,110" fill="#e07a2e" ${st}/><polygon points="10,60 105,60 105,110 10,110" fill="#ff9d57" ${st}/>`;break;
+    case 'sphere':g=grad('#b9f0c9','#1f9a57')+`<circle cx="70" cy="65" r="50" fill="url(#${id})" ${st}/><ellipse cx="70" cy="65" rx="50" ry="14" fill="none" stroke="#2b2350" stroke-width="1.5" stroke-dasharray="4 4" opacity=".6"/>`;break;
+    case 'cylinder':g=`<path d="M30 30 V100 A40 13 0 0 0 110 100 V30" fill="#d9a7f0" ${st}/><ellipse cx="70" cy="30" rx="40" ry="13" fill="#efd3fb" ${st}/>`;break;
+    case 'cone':g=`<path d="M70 10 L30 100 A40 13 0 0 0 110 100 Z" fill="#ffd95e" ${st}/><path d="M30 100 A40 13 0 0 1 110 100" fill="none" stroke="#2b2350" stroke-width="1.5" stroke-dasharray="4 4"/>`;break;
+    case 'pyramid':g=`<polygon points="22,105 82,105 70,12" fill="#ff9b9e" ${st}/><polygon points="82,105 118,82 70,12" fill="#d9464c" ${st}/><path d="M22 105 L58 82 L118 82 M58 82 L70 12" fill="none" stroke="#2b2350" stroke-width="1.5" stroke-dasharray="4 4"/>`;break;
+  }
+  return svgW(g,140,125,disp);
+}
+function netSVG(cells,disp=150){
+  const u=22,mx=Math.max(...cells.map(c=>c[0]))+1,my=Math.max(...cells.map(c=>c[1]))+1;
+  return svgW(cells.map(([x,y])=>`<rect x="${4+x*u}" y="${4+y*u}" width="${u}" height="${u}" fill="#9fb8ff" stroke="#2b2350" stroke-width="2"/>`).join(''),mx*u+8,my*u+8,disp);
+}
+function letterSVG(L,disp=130){return svgW(`<text x="70" y="98" font-size="110" font-weight="900" font-family="Arial,Helvetica,sans-serif" text-anchor="middle" fill="#5b3cc4">${L}</text><line x1="70" y1="2" x2="70" y2="118" stroke="#e5484d" stroke-width="3" stroke-dasharray="7 5"/>`,140,120,disp);}
+const SYM_LINES={v:[70,0,70,120],h:[0,60,140,60]};
+function symLineSVG(shape,line,disp=140){
+  let ln;
+  if(line==='d')ln=shape==='rect'?[8,30,132,92]:[25,15,115,105]; else ln=SYM_LINES[line];
+  return svgW(shapeG(shape,'#c9d6ff')+`<line x1="${ln[0]}" y1="${ln[1]}" x2="${ln[2]}" y2="${ln[3]}" stroke="#e5484d" stroke-width="3.5" stroke-dasharray="8 5"/>`,140,120,disp);
+}
+function gridSVG(cols,rows,cellsL,cellsR,axis,disp=150){
+  const u=20;let g='';
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    const a=cellsL.some(c=>c[0]===x&&c[1]===y),b=cellsR.some(c=>c[0]===x&&c[1]===y);
+    g+=`<rect x="${4+x*u}" y="${4+y*u}" width="${u}" height="${u}" fill="${a?'#4f7cff':b?'#ff8a3d':'#fff'}" stroke="#c9c3e6" stroke-width="1.2"/>`;}
+  if(axis)g+=`<line x1="${4+axis*u}" y1="0" x2="${4+axis*u}" y2="${rows*u+8}" stroke="#e5484d" stroke-width="3" stroke-dasharray="6 4"/>`;
+  return svgW(g,cols*u+8,rows*u+8,disp);
+}
+function rectGridSVG(w,h,opt={}){
+  const u=opt.u||22,pad=opt.labels?30:6,W=w*u+pad*2,H=h*u+pad*2;let g=`<rect x="${pad}" y="${pad}" width="${w*u}" height="${h*u}" fill="${opt.fill||'#bcd0ff'}" stroke="#2b2350" stroke-width="3"/>`;
+  if(opt.grid!==false){for(let x=1;x<w;x++)g+=`<line x1="${pad+x*u}" y1="${pad}" x2="${pad+x*u}" y2="${pad+h*u}" stroke="#2b2350" stroke-width="1" opacity=".45"/>`;for(let y=1;y<h;y++)g+=`<line x1="${pad}" y1="${pad+y*u}" x2="${pad+w*u}" y2="${pad+y*u}" stroke="#2b2350" stroke-width="1" opacity=".45"/>`;}
+  if(opt.labels){const[lw,lh]=opt.labels;g+=`<text x="${pad+w*u/2}" y="${pad-9}" font-size="16" font-weight="800" text-anchor="middle" fill="#5b3cc4">${lw}</text><text x="${pad+w*u+6}" y="${pad+h*u/2+5}" font-size="16" font-weight="800" fill="#5b3cc4">${lh}</text>`;}
+  if(opt.tag)g+=`<text x="${pad+6}" y="${pad+20}" font-size="18" font-weight="900" fill="#2b2350">${opt.tag}</text>`;
+  return svgW(g,W+(opt.labels?40:0),H,Math.min(300,W+(opt.labels?40:0)));
+}
+function clockSVG(h,m,disp=150){
+  let g=`<circle cx="60" cy="60" r="56" fill="#fff" stroke="#5b3cc4" stroke-width="5"/>`;
+  for(let i=0;i<60;i++){const a=i*6*Math.PI/180,r1=i%5?50:46;g+=`<line x1="${60+r1*Math.sin(a)}" y1="${60-r1*Math.cos(a)}" x2="${60+53*Math.sin(a)}" y2="${60-53*Math.cos(a)}" stroke="#2b2350" stroke-width="${i%5?1:2.5}"/>`;}
+  for(let i=1;i<=12;i++){const a=i*30*Math.PI/180;g+=`<text x="${60+37*Math.sin(a)}" y="${60-37*Math.cos(a)+5}" font-size="13" font-weight="800" text-anchor="middle" fill="#2b2350">${i}</text>`;}
+  const ha=((h%12)+m/60)*30*Math.PI/180,ma=m*6*Math.PI/180;
+  g+=`<line x1="60" y1="60" x2="${60+26*Math.sin(ha)}" y2="${60-26*Math.cos(ha)}" stroke="#2b2350" stroke-width="6" stroke-linecap="round"/>`;
+  g+=`<line x1="60" y1="60" x2="${60+44*Math.sin(ma)}" y2="${60-44*Math.cos(ma)}" stroke="#e5484d" stroke-width="3.5" stroke-linecap="round"/><circle cx="60" cy="60" r="4" fill="#2b2350"/>`;
+  return svgW(g,120,120,disp);
+}
+const dig=(h,m)=>`${h}:${String(m).padStart(2,'0')}`;
+const CUR=()=>S.lang==='da'?'kr':'lei';
+const DEN=()=>S.lang==='da'?[1,2,5,10,20,50,100,200]:[1,5,10,50,100,200];
+const isCoin=v=>S.lang==='da'&&v<=20;
+const NOTE_C={1:'#9ad0f5',5:'#c7a4f2',10:'#f5a4a4',20:'#a8e6a3',50:'#f7c873',100:'#8fd3c7',200:'#f2a65a'};
+function moneySVG(list){
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center">`+list.slice().sort((a,b)=>b-a).map(v=>{
+    if(isCoin(v)){const r=v>=10?25:v>=5?23:20,gold=v>=10;return `<svg width="${2*r+4}" height="${2*r+4}"><circle cx="${r+2}" cy="${r+2}" r="${r}" fill="${gold?'#f2c94c':'#d5dbe5'}" stroke="${gold?'#a8811a':'#7d889b'}" stroke-width="3"/><circle cx="${r+2}" cy="${r+2}" r="${r-6}" fill="none" stroke="${gold?'#a8811a':'#7d889b'}" stroke-width="1" opacity=".6"/><text x="${r+2}" y="${r+8}" font-size="${v>=10?19:18}" font-weight="900" text-anchor="middle" fill="#2b2350">${v}</text></svg>`;}
+    return `<svg width="84" height="46"><rect x="2" y="2" width="80" height="42" rx="6" fill="${NOTE_C[v]||'#ddd'}" stroke="#2b2350" stroke-width="2"/><rect x="8" y="8" width="68" height="30" rx="4" fill="none" stroke="#2b2350" stroke-width="1" opacity=".35"/><text x="42" y="30" font-size="17" font-weight="900" text-anchor="middle" fill="#2b2350">${v} ${CUR()}</text></svg>`;
+  }).join('')+`</div>`;
+}
+function rulerSVG(a,b,disp=320){
+  const u=24,x0=14;let g=`<rect x="4" y="52" width="${12*u+20}" height="40" rx="4" fill="#ffe9a8" stroke="#2b2350" stroke-width="2"/>`;
+  for(let i=0;i<=12;i++){g+=`<line x1="${x0+i*u}" y1="52" x2="${x0+i*u}" y2="68" stroke="#2b2350" stroke-width="2"/><text x="${x0+i*u}" y="85" font-size="12" font-weight="800" text-anchor="middle">${i}</text>`;if(i<12)g+=`<line x1="${x0+i*u+u/2}" y1="52" x2="${x0+i*u+u/2}" y2="61" stroke="#2b2350" stroke-width="1"/>`;}
+  const xa=x0+a*u,xb=x0+b*u;
+  g+=`<rect x="${xa}" y="22" width="${xb-xa-14}" height="20" fill="#f2b516" stroke="#2b2350" stroke-width="2"/><rect x="${xa}" y="22" width="10" height="20" fill="#ff9b9e" stroke="#2b2350" stroke-width="2"/><polygon points="${xb-14},22 ${xb},32 ${xb-14},42" fill="#f6d7a7" stroke="#2b2350" stroke-width="2"/>`;
+  g+=`<line x1="${xa}" y1="42" x2="${xa}" y2="52" stroke="#5b3cc4" stroke-width="2" stroke-dasharray="3 2"/><line x1="${xb}" y1="32" x2="${xb}" y2="52" stroke="#5b3cc4" stroke-width="2" stroke-dasharray="3 2"/>`;
+  return svgW(g,12*u+28,96,disp);
+}
+
+/* ---------- ajutoare pentru întrebări ---------- */
+function mc(correctHtml,distract,label){const all=shuffle([{h:correctHtml,c:true},...distract.map(h=>({h,c:false}))]);return {kind:'mc',opts:all.map(o=>o.h),correct:all.findIndex(o=>o.c),ansText:label??strip(correctHtml)};}
+function uniq(arr,n){const o=[];for(const x of arr)if(!o.includes(x))o.push(x);return o.slice(0,n);}
+function nearNums(ans,n=3,lo=0){const s=new Set();let tries=0;while(s.size<n&&tries<99){tries++;const d=ans+pick([-3,-2,-1,1,2,3,4,-4,10,-10]);if(d>=lo&&d!==ans)s.add(d);}return [...s];}
+const YN=ok=>mc(ok?WD().yes:WD().no,[ok?WD().no:WD().yes]);
+
+/* ---------- generatoare: [nivel, alege parametri, construiește] ---------- */
+const PLANE=['tri','square','rect','circle','pent','hex','oct','rhomb','oval'];
+const SIDES={tri:3,rtri:3,square:4,rect:4,pent:5,hex:6,oct:8,rhomb:4};
+const RIGHT={square:4,rect:4,rtri:1,tri:0,rhomb:0,pent:0,hex:0};
+const SOLIDS=['cube','cuboid','sphere','cylinder','cone','pyramid'];
+const OBJ={'🎲':'cube','🧊':'cube','⚽':'sphere','🏀':'sphere','🥫':'cylinder','🕯️':'cylinder','🍦':'cone','📦':'cuboid','🧱':'cuboid'};
+const FACES={cube:6,cuboid:6,pyramid:5},VERTS={cube:8,cuboid:8,pyramid:5},EDGES={cube:12,cuboid:12,pyramid:8};
+const BASE={cube:'square',cuboid:'rect',pyramid:'square',cylinder:'circle',cone:'circle'};
+const NETS_OK=[[[1,0],[0,1],[1,1],[2,1],[3,1],[1,2]],[[0,0],[0,1],[1,1],[2,1],[3,1],[3,2]],[[1,0],[0,1],[1,1],[2,1],[3,1],[2,2]],[[0,0],[0,1],[1,1],[2,1],[3,1],[0,2]],[[2,0],[0,1],[1,1],[2,1],[3,1],[1,2]],[[0,0],[1,0],[2,0],[2,1],[3,1],[4,1]]];
+const NETS_BAD=[[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],[[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]],[[0,0],[1,0],[0,1],[1,1],[2,1],[3,1]],[[0,1],[1,1],[2,1],[3,1],[4,1],[2,0]]];
+const LET_Y='AHIMOTUVWXY',LET_N='BCDEFGJKLNPRSZ';
+const SYMQ=[['rect','v',1],['rect','h',1],['rect','d',0],['square','v',1],['square','d',1],['tri','v',1],['tri','h',0],['circle','v',1],['circle','h',1],['rtri','v',0],['oval','h',1],['rhomb','v',1]];
+const shName=k=>WD().shape[k],soName=k=>WD().solid[k];
+const clockCards=(h,m)=>{const c=[card('🕐',ws('clockT'),ws('clockL'),clockSVG(h,m,120))];if(m===30)c.push(card('🌗',ws('clockT'),ws('halfL')));if(m===15||m===45)c.push(card('🍰',ws('clockT'),ws('quartL')));return c;};
+function minutesSet(lvl){return lvl===1?[0,30]:lvl===2?[0,15,30,45,5,10,20,40,50,55]:[0,5,10,15,20,25,30,35,40,45,50,55];}
+function moneyPick(maxV,k){const d=DEN().filter(v=>v<=maxV);const o=[];for(let i=0;i<k;i++)o.push(pick(d));return o;}
+function greedy(n){const o=[];for(const v of DEN().slice().reverse())while(n>=v){o.push(v);n-=v;}return o;}
+const moneyCards=list=>{const s=list.slice().sort((a,b)=>b-a);let acc=0;const steps=s.map(v=>(acc+=v));return [card('💰',ws('moneyT'),[ws('moneyL'),steps.join(' → ')+` = <b>${acc} ${CUR()}</b>`])];};
+const changeCard=(p,pay)=>{const nt=Math.min(pay,Math.ceil((p+1)/10)*10);const j=[nt-p,pay-nt].filter(Boolean);return card('🔄',ws('changeT'),[ws('changeL',p,pay),`${p} → ${nt}${pay>nt?` → ${pay}`:''} : ${j.join(' + ')} = <b>${pay-p} ${CUR()}</b>`],numberLine(p,j));};
+const ITEMS=['🍎','🧃','🍦','✏️','📒','🧸','🍫','⚽','🍪','🎈'];
+
+const GEN={
+ shapes:{
+  name:[1,()=>[pick(PLANE)],([s])=>{const r=mc(shName(s),shuffle(PLANE.filter(x=>x!==s&&x!=='rtri')).slice(0,3).map(shName));return {...r,prompt:wq('shName'),vis:shapeSVG(s),short:`${WE.shapes} ${shName(s)}`,strats:[card('🔎',ws('shapeT'),ws('shapeFacts')[s],shapeSVG(s,undefined,90))]};}],
+  sides:[1,()=>[pick(Object.keys(SIDES))],([s])=>({kind:'num',ans:SIDES[s],prompt:wq('shSides'),vis:shapeSVG(s),short:`${shName(s)}: ${wq('shSides')}`,strats:[card('☝️',ws('countT'),ws('countL')),card('🔎',ws('shapeT'),ws('shapeFacts')[s])]})],
+  corners:[1,()=>[pick(Object.keys(SIDES))],([s])=>({kind:'num',ans:SIDES[s],prompt:wq('shCorners'),vis:shapeSVG(s),short:`${shName(s)}: ${wq('shCorners')}`,strats:[card('☝️',ws('countT'),ws('countL')),card('🔎',ws('shapeT'),ws('shapeFacts')[s])]})],
+  find:[2,()=>[pick(PLANE)],([s])=>{const bad=PLANE.filter(x=>x!==s&&!(s==='square'&&x==='rect')&&!(s==='rect'&&x==='square')&&!(s==='circle'&&x==='oval')&&!(s==='oval'&&x==='circle'));
+    const r=mc(shapeSVG(s,undefined,110),shuffle(bad).slice(0,3).map(x=>shapeSVG(x,undefined,110)),shName(s));return {...r,prompt:wq('shFind',shName(s)),vis:'',short:`${WE.shapes} ${shName(s)}`,strats:[card('🔎',ws('shapeT'),ws('shapeFacts')[s],shapeSVG(s,undefined,90))]};}],
+  right:[3,()=>[pick(Object.keys(RIGHT))],([s])=>({kind:'num',ans:RIGHT[s],prompt:wq('shRight'),vis:shapeSVG(s),short:`${shName(s)}: ${wq('shRight')}`,strats:[card('📐',ws('rightT'),[ws('rightL'),ws('shapeFacts')[s]],svgW(poly([[25,105],[25,15],[118,105]],'#c9d6ff')+rightMark(),140,120,90))]})]
+ },
+ solids:{
+  name:[1,()=>[pick(SOLIDS)],([s])=>{const r=mc(soName(s),shuffle(SOLIDS.filter(x=>x!==s)).slice(0,3).map(soName));return {...r,prompt:wq('soName'),vis:solidSVG(s),short:`${WE.solids} ${soName(s)}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],solidSVG(s,90))]};}],
+  obj:[1,()=>[pick(Object.keys(OBJ))],([o])=>{const s=OBJ[o];const r=mc(soName(s),shuffle(SOLIDS.filter(x=>x!==s&&x!=='pyramid')).slice(0,3).map(soName));return {...r,prompt:wq('soObj'),vis:`<div style="font-size:90px;line-height:1.1">${o}</div>`,short:`${o} → ${soName(s)}`,strats:[card(o,soName(s),ws('solidFacts')[s],solidSVG(s,90))]};}],
+  faces:[2,()=>[pick(['cube','cuboid','pyramid'])],([s])=>({kind:'num',ans:FACES[s],prompt:wq('soFaces'),vis:solidSVG(s),short:`${soName(s)}: ${wq('soFaces')}`,strats:[card('🧊',ws('facesT'),[ws('facesL'),ws('solidFacts')[s]],solidSVG(s,90))]})],
+  verts:[2,()=>[pick(['cube','cuboid','pyramid'])],([s])=>({kind:'num',ans:VERTS[s],prompt:wq('soVert'),vis:solidSVG(s),short:`${soName(s)}: ${wq('soVert')}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],solidSVG(s,90))]})],
+  base:[2,()=>[pick(Object.keys(BASE))],([s])=>{const b=BASE[s];const r=mc(shName(b),shuffle(['tri','square','rect','circle','hex'].filter(x=>x!==b)).slice(0,3).map(shName));return {...r,prompt:wq('soBase'),vis:solidSVG(s),short:`${soName(s)} → ${shName(b)}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],shapeSVG(b,undefined,70))]};}],
+  edges:[3,()=>[pick(['cube','cuboid','pyramid'])],([s])=>({kind:'num',ans:EDGES[s],prompt:wq('soEdges'),vis:solidSVG(s),short:`${soName(s)}: ${wq('soEdges')}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],solidSVG(s,90))]})],
+  net:[3,()=>[rnd(NETS_OK.length),rnd(NETS_BAD.length),rnd(NETS_BAD.length)],([a,b,c])=>{if(b===c)c=(c+1)%NETS_BAD.length;const r=mc(netSVG(NETS_OK[a],120),[netSVG(NETS_BAD[b],120),netSVG(NETS_BAD[c],120)],'✔');return {...r,ansText:'📦',prompt:wq('soNet'),vis:'',short:`${WE.solids} ${wq('soNet')}`,strats:[card('📦',ws('netT'),ws('netL'),netSVG(NETS_OK[a],110))]};}]
+ },
+ sym:{
+  letter:[2,()=>[Math.random()<.5?pick(LET_Y):pick(LET_N)],([l])=>{const ok=LET_Y.includes(l);return {...YN(ok),prompt:wq('syLetter'),vis:letterSVG(l),short:`${l} ${ok?'✔':'✗'}`,strats:[card('🦋',ws('symT'),ws('symL'),letterSVG(l,80))]};}],
+  line:[2,()=>[rnd(SYMQ.length)],([i])=>{const [s,l,ok]=SYMQ[i];const st=[card('🦋',ws('symT'),ws('symL'))];if(s==='rect'&&l==='d')st.push(card('⚠️',ws('symT'),ws('diagL')));return {...YN(!!ok),prompt:wq('syLine'),vis:symLineSVG(s,l),short:`${shName(s)} ${ok?'✔':'✗'}`,strats:st};}],
+  mirror:[3,()=>{let cells;do{cells=[];const n=3+rnd(3);while(cells.length<n){const c=[rnd(3),rnd(4)];if(!cells.some(x=>x[0]===c[0]&&x[1]===c[1]))cells.push(c);}}
+      while(cells.every(([x,y])=>cells.some(c=>c[0]===2-x&&c[1]===y)));return [cells.map(c=>c.join('')).join('.')];},
+    ([code])=>{const L=code.split('.').map(s=>[+s[0],+s[1]]);const mir=L.map(([x,y])=>[5-x,y]),tr=L.map(([x,y])=>[x+3,y]);
+      const alt=mir.map((c,i)=>i===0?[c[0],(c[1]+1)%4]:c);const altOk=!alt.every(([x,y])=>mir.some(c=>c[0]===x&&c[1]===y));
+      const r=mc(gridSVG(6,4,L,mir,3,140),[gridSVG(6,4,L,tr,3,140),...(altOk?[gridSVG(6,4,L,alt,3,140)]:[])],'🪞');
+      return {...r,prompt:wq('syMirror'),vis:'',short:`${WE.sym} ${wq('syMirror')}`,strats:[card('🪞',ws('mirrorT'),ws('mirrorL'),gridSVG(6,4,L,mir,3,130))]};}]
+ },
+ area:{
+  count:[1,()=>[2+rnd(5),2+rnd(4)],([w,h])=>({kind:'num',ans:w*h,prompt:wq('arCount'),vis:rectGridSVG(w,h),short:`${w} × ${h} → ${w*h}`,strats:[card('🟦',ws('areaT'),ws('areaL',h,w,w*h),dots(h,w))]})],
+  compare:[2,()=>{const p=pick([[[2,6],[3,4]],[[3,3],[2,5]],[[4,2],[3,3]],[[2,4],[3,3]],[[5,2],[3,3]],[[4,3],[2,6]],[[2,3],[3,2]],[[4,4],[3,5]]]);return Math.random()<.5?[...p[0],...p[1]]:[...p[1],...p[0]];},
+    ([a,b,c,d])=>{const A=a*b,B=c*d,ans=A>B?'A':B>A?'B':'=';const lab={A:'A',B:'B','=':WD().same};const r=mc(lab[ans],Object.keys(lab).filter(k=>k!==ans).map(k=>lab[k]));
+      return {...r,prompt:wq('arCompare'),vis:`<div class="row" style="justify-content:center;gap:16px">${rectGridSVG(a,b,{u:18,tag:'A'})}${rectGridSVG(c,d,{u:18,fill:'#ffd0a8',tag:'B'})}</div>`,short:`A ${A} · B ${B}`,strats:[card('🔢',ws('cmpT'),[ws('cmpL',A,B),`${a} × ${b} = ${A}`,`${c} × ${d} = ${B}`])]};}],
+  perim:[2,()=>[2+rnd(7),2+rnd(5)],([w,h])=>({kind:'num',unit:'cm',ans:2*(w+h),prompt:wq('arPerim'),vis:rectGridSVG(w,h,{labels:[`${w} cm`,`${h} cm`],u:20}),short:`${w} cm × ${h} cm → ${2*(w+h)} cm`,strats:[card('🚶',ws('perimT'),[ws('perimL',w,h,2*(w+h)),ws('perimL2',w,h,2*(w+h))])]})],
+  areacm:[3,()=>[2+rnd(8),2+rnd(6)],([w,h])=>({kind:'num',unit:'cm²',ans:w*h,prompt:wq('arArea'),vis:rectGridSVG(w,h,{labels:[`${w} cm`,`${h} cm`],u:20,grid:false}),short:`${w} cm × ${h} cm → ${w*h} cm²`,strats:[card('🟦',ws('areaT'),ws('areaL',h,w,w*h),rectGridSVG(w,h,{u:14}))]})],
+  missing:[3,()=>[2+rnd(8),2+rnd(8)],([w,h])=>({kind:'num',unit:'cm',ans:h,prompt:wq('arMissing',w*h,w),vis:rectGridSVG(w,h,{labels:[`${w} cm`,'?'],u:18,grid:false}),short:`${w*h} : ${w} = ${h}`,strats:[card('🔄',ws('missT'),ws('missL',w,w*h,h))]})]
+ },
+ clock:{
+  read:[1,()=>[1+rnd(12),0],([h,m])=>clockRead(h,m,1)],
+  read2:[2,()=>[1+rnd(12),pick(minutesSet(2))],([h,m])=>clockRead(h,m,2)],
+  set:[2,()=>[1+rnd(12),pick(minutesSet(2))],([h,m])=>{const w=WD().timeWords(h,m);const ds=uniq([[h%12+1,m],[h,(m+30)%60],[(h+10)%12+1,m],[m/5||12,(h%12)*5]].filter(([a,b])=>!(a===h&&b===m)&&Number.isInteger(a)).map(([a,b])=>a+'|'+b),2).map(s=>s.split('|').map(Number));
+    const r=mc(clockSVG(h,m,110),ds.map(([a,b])=>clockSVG(a,b,110)),dig(h,m));return {...r,prompt:wq('clSet',w),vis:'',short:`${w} = ${dig(h,m)}`,say:strip(wq('clSet',w)),strats:clockCards(h,m)};}],
+  later:[2,()=>[1+rnd(10),pick([0,30]),pick([15,30,60,90])],([h,m,d])=>clockLater(h,m,d)],
+  later3:[3,()=>[1+rnd(10),pick([0,15,30,45]),pick([45,75,90,120])],([h,m,d])=>clockLater(h,m,d)],
+  read3:[3,()=>[1+rnd(12),pick(minutesSet(3))],([h,m])=>clockRead(h,m,3)],
+  h24:[3,()=>[13+rnd(10),pick([0,30])],([h,m])=>{const k=h-12;const r=mc(clockSVG(k,m,110),uniq([[(h-10)%12||12,m],[(k+1)%12||12,m],[(h-14+12)%12||12,m]].filter(([a])=>a!==k).map(x=>x.join('|')),2).map(s=>clockSVG(...s.split('|').map(Number),110)),dig(k,m));
+    return {...r,prompt:wq('clH24',dig(h,m)),vis:'',short:`${dig(h,m)} = ${dig(k,m)}`,strats:[card('🌇',ws('h24T'),ws('h24L',h,k))]};}]
+ },
+ money:{
+  count:[1,()=>[moneyPick(S.lang==='da'?20:10,3+rnd(3)).join('.')],([code])=>{const l=code.split('.').map(Number),s=l.reduce((a,b)=>a+b,0);return {kind:'num',unit:CUR(),ans:s,prompt:wq('moCount'),vis:moneySVG(l),short:`${l.join(' + ')} = ${s} ${CUR()}`,strats:moneyCards(l)};}],
+  afford:[1,()=>{const l=moneyPick(S.lang==='da'?20:10,2+rnd(3));const s=l.reduce((a,b)=>a+b,0);return [l.join('.'),Math.max(1,s+pick([-6,-3,-1,0,2,4,7])),rnd(ITEMS.length)];},
+    ([code,p,i])=>{const l=code.split('.').map(Number),s=l.reduce((a,b)=>a+b,0),e=ITEMS[i];return {...YN(s>=p),prompt:wq('moAfford',e,WD().items[e],p,CUR()),vis:moneySVG(l),short:`${s} ${CUR()} / ${p} ${CUR()}`,strats:[...moneyCards(l),card('⚖️',ws('affordT'),ws('affordL',s,p,CUR()))]};}],
+  total:[1,()=>[2+rnd(15),2+rnd(15),rnd(ITEMS.length),rnd(ITEMS.length)],([a,b,i,j])=>{if(i===j)j=(j+1)%ITEMS.length;return {kind:'num',unit:CUR(),ans:a+b,prompt:wq('moTotal',ITEMS[i],a,ITEMS[j],b,CUR()),vis:`<div style="font-size:60px">${ITEMS[i]} ${ITEMS[j]}</div>`,short:`${a} + ${b} = ${a+b} ${CUR()}`,strats:addStrats(a,b).slice(0,2)};}],
+  change:[2,()=>{const pay=pick([10,20,20,50,50]);return [1+rnd(pay-1),pay,rnd(ITEMS.length)];},([p,pay,i])=>({kind:'num',unit:CUR(),ans:pay-p,prompt:wq('moChange',ITEMS[i],WD().items[ITEMS[i]],p,pay,CUR()),vis:`<div style="font-size:60px">${ITEMS[i]}</div>${moneySVG([pay])}`,short:`${pay} − ${p} = ${pay-p} ${CUR()}`,strats:[changeCard(p,pay)]})],
+  pay:[2,()=>{const n=8+rnd(S.lang==='da'?90:60);return [n];},([n])=>{const g=greedy(n);const d=[];const swap=(arr)=>{const a=arr.slice();const i=rnd(a.length);const alt=DEN().filter(v=>v!==a[i]&&v<=Math.max(...DEN().slice(0,5)));a[i]=pick(alt.length?alt:[1]);return a;};
+    let t=0;while(d.length<2&&t<50){t++;const c=swap(g),s=c.reduce((a,b)=>a+b,0);if(s!==n&&!d.some(x=>x.reduce((a,b)=>a+b,0)===s))d.push(c);}
+    const r=mc(moneySVG(g),d.map(moneySVG),`${n} ${CUR()}`);return {...r,prompt:wq('moPay',n,CUR()),vis:'',short:`${g.join(' + ')} = ${n} ${CUR()}`,strats:moneyCards(g)};}],
+  change3:[3,()=>{const pay=pick([50,100,100,200]);return [3+rnd(pay-4),pay,rnd(ITEMS.length)];},([p,pay,i])=>({kind:'num',unit:CUR(),ans:pay-p,prompt:wq('moChange',ITEMS[i],WD().items[ITEMS[i]],p,pay,CUR()),vis:`<div style="font-size:60px">${ITEMS[i]}</div>${moneySVG([pay])}`,short:`${pay} − ${p} = ${pay-p} ${CUR()}`,strats:[changeCard(p,pay),...subStrats(pay,p).slice(0,1)]})],
+  fewest:[3,()=>[11+rnd(88)],([n])=>{const g=greedy(n);let acc=0;return {kind:'num',ans:g.length,prompt:wq('moFewest',n,CUR()),vis:'',short:`${n} ${CUR()} = ${g.join(' + ')}`,strats:[card('🥇',ws('fewT'),[ws('fewL'),g.map(v=>`${v}`).join(' + ')+` = ${n} → <b>${g.length}</b>`],moneySVG(g))]};}],
+  budget:[3,()=>{const p=pick([3,4,5,6,7,8,9,12,15]),k=2+rnd(3),h=Math.ceil((p*k+1+rnd(20))/10)*10;return [h,k,p,rnd(ITEMS.length)];},([h,k,p,i])=>({kind:'num',unit:CUR(),ans:h-k*p,prompt:wq('moBudget',h,k,ITEMS[i],p,CUR()),vis:`<div style="font-size:50px">${ITEMS[i].repeat(k)}</div>`,short:`${h} − ${k}×${p} = ${h-k*p} ${CUR()}`,strats:[card('🧮',ws('budgetT'),[`${k} ${X()} ${p} = ${k*p}`,`${h} − ${k*p} = <b>${h-k*p} ${CUR()}</b>`])]})]
+ },
+ units:{
+  ruler:[1,()=>[0,2+rnd(10)],([a,b])=>({kind:'num',unit:'cm',ans:b-a,prompt:wq('unRuler'),vis:rulerSVG(a,b),short:`✏️ ${b-a} cm`,strats:[card('📏',ws('rulerT'),ws('rulerL',a,b))]})],
+  facts:[1,()=>[rnd(WTXT.ro.facts.length)],([i])=>{const [q,a]=WD().facts[i];return {kind:'num',ans:a,prompt:q,vis:'',short:`${q} ${a}`,strats:[card('🧠',ws('convT'),ws('convL'))]};}],
+  pick:[1,()=>[rnd(WTXT.ro.pick.length)],([i])=>{const [x,u]=WD().pick[i];const U=WD().un;const grp={mm:'L',cm:'L',m:'L',km:'L',g:'W',kg:'W',s:'T',min:'T',h:'T',d:'T'};
+    const same=Object.keys(grp).filter(k=>grp[k]===grp[u]&&k!==u),other=Object.keys(grp).filter(k=>grp[k]!==grp[u]);const r=mc(U[u],[...shuffle(same).slice(0,2),pick(other)].map(k=>U[k]));
+    return {...r,prompt:wq('unPick',x),vis:'',short:`${x} → ${U[u]}`,strats:[card('📏',ws('unitsT'),ws('unitsL'))]};}],
+  ruler2:[2,()=>{const a=1+rnd(5);return [a,a+2+rnd(12-a-2)];},([a,b])=>({kind:'num',unit:'cm',ans:b-a,prompt:wq('unRuler'),vis:rulerSVG(a,b),short:`✏️ ${a}→${b} = ${b-a} cm`,strats:[card('📏',ws('rulerT'),ws('rulerL',a,b))]})],
+  estimate:[2,()=>[rnd(WTXT.ro.est.length)],([i])=>{const [q,o]=WD().est[i];const r=mc(o[0],o.slice(1));return {...r,prompt:q,vis:'',short:`${q} ${o[0]}`,strats:[card('📏',ws('unitsT'),ws('unitsL'))]};}],
+  compare:[2,()=>pick([['m',1,'cm',pick([50,90,100,150])],['kg',1,'g',pick([500,900,1000,1500])],['h',1,'min',pick([45,60,70,90])],['m',2,'cm',pick([150,200,250])]]),
+    ([u1,a,u2,b])=>{const f={m:100,kg:1000,h:60}[u1],A=a*f,U=WD().un;const lA=`${a} ${U[u1]}`,lB=`${b} ${U[u2]}`;const ans=A>b?lA:b>A?lB:WD().same;const r=mc(ans,[lA,lB,WD().same].filter(x=>x!==ans));
+      return {...r,prompt:wq('unCompare'),vis:`<div style="font-size:30px;font-weight:900">${lA} &nbsp;?&nbsp; ${lB}</div>`,short:`${lA} / ${lB}`,strats:[card('🔄',ws('convT'),[`${lA} = ${A} ${U[u2]}`,`${A} ${A>b?'>':A<b?'<':'='} ${b}`])]};}],
+  facts2:[2,()=>[rnd(WTXT.ro.facts2.length)],([i])=>{const [q,a]=WD().facts2[i];return {kind:'num',ans:a,prompt:q,vis:'',short:`${q} ${a}`,strats:[card('🧠',ws('convT'),ws('convL'))]};}],
+  convert:[3,()=>pick([['m','cm',2+rnd(8),100],['kg','g',2+rnd(5),1000],['h','min',1+rnd(3),60],['min','s',1+rnd(3),60],['km','m',2+rnd(4),1000]]),
+    ([u1,u2,a,f])=>{const U=WD().un;return {kind:'num',unit:U[u2],ans:a*f,prompt:wq('unConvert',`${a} ${U[u1]}`),vis:'',short:`${a} ${U[u1]} = ${a*f} ${U[u2]}`,strats:[card('🔄',ws('convT'),[`1 ${U[u1]} = ${f} ${U[u2]}`,`${a} ${X()} ${f} = <b>${a*f}</b>`])]};}]
+ }
+};
+function clockRead(h,m,lvl){
+  const cand=[[h,m],[m/5||12,(h%12)*5],[h%12+1,m],[(h+10)%12+1,m],[h,m/5],[h,(m+30)%60]].filter(([a,b])=>Number.isInteger(a)&&a>=1&&a<=12&&Number.isInteger(b)&&b<60);
+  const ds=uniq(cand.slice(1).map(([a,b])=>dig(a,b)).filter(x=>x!==dig(h,m)),3);
+  while(ds.length<3){const x=dig(1+rnd(12),pick(minutesSet(lvl)));if(x!==dig(h,m)&&!ds.includes(x))ds.push(x);}
+  const words=lvl>=2&&Math.random()<.5;
+  const r=words?mc(WD().timeWords(h,m),ds.map(s=>{const [a,b]=s.split(':').map(Number);return WD().timeWords(a,b);})):mc(dig(h,m),ds);
+  return {...r,ansText:`${dig(h,m)} · ${WD().timeWords(h,m)}`,prompt:wq('clRead'),vis:clockSVG(h,m),short:`🕐 ${dig(h,m)} · ${WD().timeWords(h,m)}`,strats:clockCards(h,m)};
+}
+function clockLater(h,m,d){
+  const t=h*60+m+d,h2=(Math.floor(t/60)-1)%12+1,m2=t%60;const right=dig(h2,m2);
+  const ds=uniq([dig(h,(m+d)%60),dig(h2%12+1,m2),dig(h,m),dig(h2,(m2+30)%60)].filter(x=>x!==right),3);
+  const r=mc(right,ds);return {...r,prompt:wq('clLater',dig(h,m),WD().dur[d]),vis:clockSVG(h,m,120),short:`${dig(h,m)} + ${WD().dur[d]} = ${right}`,strats:[card('⏱️',ws('laterT'),ws('laterL',dig(h,m),WD().dur[d],right),clockSVG(h2,m2,100))]};
+}
+/* întrebare dintr-o cheie: w|lume|tip|param1|param2… */
+function worldQ(key){
+  const [,world,type,...ps]=key.split('|');const g=GEN[world][type];
+  const params=ps.map(p=>/^-?\d+$/.test(p)?+p:p);
+  const q=g[2](params);
+  return Object.assign(q,{key,op:'w',w:world,type,lvl:g[0],fk:`w|${world}|${type}`,ahead:g[0]===3,text:q.short,say:q.say||strip(q.prompt)});
+}
+const newWorldKey=(world,type)=>['w',world,type,...GEN[world][type][1]()].join('|');
+function worldTypes(world,maxLvl){return Object.keys(GEN[world]).filter(t=>GEN[world][t][0]<=maxLvl);}
+function buildWorldSession(world,lvl,len,forced){
+  const types=worldTypes(world,lvl);const out=forced?forced.slice(0,len):[];let last='';
+  while(out.length<len){
+    const w=types.map(t=>{let x=GEN[world][t][0]===lvl?3:1;const s=status(`w|${world}|${t}`);if(s===0)x+=1;if(s===1||s===2)x+=2;if(t===last)x*=.2;return x;});
+    let r=Math.random()*w.reduce((a,b)=>a+b,0),i=0;while(r>w[i]){r-=w[i];i++;}
+    last=types[i];out.push(newWorldKey(world,types[i]));
+  }
+  return out;
+}
+function worldPct(world){const ts=Object.keys(GEN[world]);const ok=ts.filter(t=>status(`w|${world}|${t}`)>=3).length;return Math.round(ok/ts.length*100);}
+
+/* ---------- Descoperă: carduri explicative ---------- */
+const DISC_V={
+  shapes:[()=>`<div class="row" style="justify-content:center">${shapeSVG('tri','#4f7cff',80)}${shapeSVG('square','#ff8a3d',80)}${shapeSVG('circle','#1fa463',80)}</div>`,()=>shapeSVG('square','#c9d6ff',120),()=>`<div class="row" style="justify-content:center">${shapeSVG('pent',PAL[3],80)}${shapeSVG('hex',PAL[5],80)}${shapeSVG('oct',PAL[6],80)}</div>`,()=>svgW(poly([[25,105],[25,15],[118,105]],'#c9d6ff')+rightMark(),140,120,120)],
+  solids:[()=>`<div class="row" style="justify-content:center">${solidSVG('cube',90)}${solidSVG('sphere',90)}${solidSVG('cylinder',90)}</div>`,()=>solidSVG('cube',130),()=>`<div style="font-size:54px;text-align:center">🎲 ⚽ 🥫 🍦 📦</div>`,()=>netSVG(NETS_OK[0],140)],
+  sym:[()=>letterSVG('A',120),()=>`<div style="font-size:90px;text-align:center">🦋</div>`,()=>gridSVG(6,4,[[0,0],[1,1],[2,1],[2,3]],[[5,0],[4,1],[3,1],[3,3]],3,180)],
+  area:[()=>rectGridSVG(4,3),()=>rectGridSVG(4,3,{labels:['4 cm','3 cm'],grid:false}),()=>`<div class="row" style="justify-content:center;gap:12px">${rectGridSVG(6,2,{u:16,tag:'A'})}${rectGridSVG(4,3,{u:16,fill:'#ffd0a8',tag:'B'})}</div>`],
+  clock:[()=>clockSVG(3,0,140),()=>clockSVG(3,30,140),()=>`<div class="row" style="justify-content:center">${clockSVG(3,15,110)}${clockSVG(3,45,110)}</div>`,()=>clockSVG(3,10,140),()=>`<div style="font-size:44px;font-weight:900;text-align:center">15:00 = 🕒</div>`],
+  money:[()=>moneySVG(S.lang==='da'?[1,2,5,10,20,50,100]:[1,5,10,50,100]),()=>moneySVG(S.lang==='da'?[20,10,5,2]:[10,10,5,1]),()=>numberLine(18,[2,30])],
+  units:[()=>rulerSVG(0,7,300),()=>`<div style="font-size:24px;font-weight:900;text-align:center;line-height:1.8">1 m = 100 cm<br>1 km = 1000 m<br>1 kg = 1000 g</div>`,()=>`<div style="font-size:24px;font-weight:900;text-align:center;line-height:1.8">⏰ 60 min<br>📅 24 · 7</div>`]
+};
+const DISC_T={
+ro:{
+  shapes:[['Figuri plane','Figurile plane sunt plate, ca un desen pe foaie. Le recunoaștem după laturi și colțuri.'],['Laturi și colțuri','Latura e o linie dreaptă. Colțul e locul unde se întâlnesc două laturi. Pătratul are 4 laturi și 4 colțuri.'],['Truc pentru nume','Numele te ajută: tri = 3, penta = 5, hexa = 6, octo = 8. Pentagonul are 5 laturi, hexagonul 6, octogonul 8!'],['Unghiul drept 🌱','Un unghi drept arată ca un colț de caiet sau ca litera L. Pătratul și dreptunghiul au 4 unghiuri drepte.']],
+  solids:[['Corpuri','Corpurile nu sunt plate: le poți ține în mână și au și grosime.'],['Fețe, muchii, vârfuri','Fața e partea plată. Muchia e linia unde se întâlnesc două fețe. Vârful e colțul. Cubul: 6 fețe, 12 muchii, 8 vârfuri.'],['În jurul tău','Zarul e un cub, mingea o sferă, conserva un cilindru, cornetul un con, cutia un cuboid.'],['Desfășurarea 🌱','Dacă desfaci o cutie în formă de cub, obții 6 pătrate legate între ele. Asta se numește desfășurare.']],
+  sym:[['Axa de simetrie','O figură e simetrică dacă, atunci când o pliezi pe linie, cele două jumătăți se suprapun perfect. Linia se numește axă de simetrie.'],['Simetria în natură','Fluturele, multe frunze și chiar fața ta sunt (aproape) simetrice. 🙂'],['Oglinda 🌱','Ce e aproape de linie rămâne aproape în oglindă; ce e departe rămâne departe.']],
+  area:[['Aria','Aria înseamnă câte pătrățele acoperă o figură. Aici: 3 rânduri a câte 4 = 3 × 4 = 12 pătrățele. Exact ca la înmulțire!'],['Perimetrul','Perimetrul e drumul de jur împrejur. Aduni toate laturile: 4 + 3 + 4 + 3 = 14 cm.'],['Surpriză 🌱','Figuri diferite pot avea aceeași arie: 6 × 2 = 12 și 4 × 3 = 12!']],
+  clock:[['Cele două limbi','Limba scurtă arată ora, limba lungă (roșie) arată minutele. Aici e ora 3 fix: 3:00.'],['Și jumătate','Când limba lungă e jos, la 6, a trecut jumătate de oră: 3 și jumătate (3:30). Limba scurtă stă între 3 și 4.'],['Un sfert','Limba lungă la 3: „3 și un sfert” (3:15). Limba lungă la 9: „4 fără un sfert” (3:45).'],['Din 5 în 5','Fiecare cifră înseamnă 5 minute. Limba lungă la 2: 5, 10 → 3 și 10 minute (3:10).'],['Ceasul de 24 de ore 🌱','După ora 12 la prânz, ceasul digital continuă: 13, 14, 15… 15:00 înseamnă ora 3 după-amiaza.']],
+  money:[['Monede și bancnote','Banii au valori diferite. Când numeri, începe mereu cu cei mai mari.'],['Numărăm împreună','10 + 10 = 20, + 5 = 25, + 1 = 26 lei.'],['Restul','Ca să afli restul, numără în sus de la preț până la cât ai dat: 18 → 20 → 50 înseamnă 2 + 30 = 32.']],
+  units:[['Rigla','Lungimea o măsurăm cu rigla, în centimetri (cm). Începe mereu de la 0! Creionul de aici are 7 cm.'],['Lungime și greutate','1 metru = 100 de centimetri. 1 kilometru = 1000 de metri. 1 kilogram = 1000 de grame.'],['Timpul','1 oră = 60 de minute. O zi are 24 de ore, o săptămână are 7 zile.']]
+},
+da:{
+  shapes:[['Plane figurer','Plane figurer er flade, som en tegning på papir. Vi kender dem på sider og hjørner.'],['Sider og hjørner','En side er en lige linje. Et hjørne er der, hvor to sider mødes. Et kvadrat har 4 sider og 4 hjørner.'],['Navnet hjælper','På dansk siger navnet antallet af hjørner: tre-kant, fem-kant, seks-kant, otte-kant!'],['Den rette vinkel 🌱','En ret vinkel ligner hjørnet på et hæfte eller bogstavet L. Kvadrat og rektangel har 4 rette vinkler.']],
+  solids:[['Rumlige figurer','Rumlige figurer er ikke flade: du kan holde dem i hånden.'],['Flader, kanter, hjørner','En flade er den flade side. En kant er linjen, hvor to flader mødes. Et hjørne er spidsen. Terningen: 6 flader, 12 kanter, 8 hjørner.'],['Rundt om dig','Terningen er en terning, bolden en kugle, dåsen en cylinder, isvaflen en kegle, æsken en kasse.'],['Udfoldning 🌱','Folder du en terning ud, får du 6 kvadrater, der hænger sammen. Det kaldes en udfoldning.']],
+  sym:[['Symmetriaksen','En figur er symmetrisk, hvis de to halvdele passer præcist oven på hinanden, når du folder langs linjen. Linjen kaldes en symmetriakse.'],['Symmetri i naturen','Sommerfuglen, mange blade og dit eget ansigt er (næsten) symmetriske. 🙂'],['Spejlet 🌱','Det, der er tæt på linjen, er også tæt på i spejlet; det, der er langt væk, er også langt væk.']],
+  area:[['Areal','Areal betyder, hvor mange felter en figur dækker. Her: 3 rækker med 4 = 3 · 4 = 12 felter. Ligesom gange!'],['Omkreds','Omkredsen er vejen hele vejen rundt. Læg alle siderne sammen: 4 + 3 + 4 + 3 = 14 cm.'],['Overraskelse 🌱','Forskellige figurer kan have samme areal: 6 · 2 = 12 og 4 · 3 = 12!']],
+  clock:[['De to visere','Den lille viser viser timerne, den store (røde) viser minutterne. Her er klokken 3: 3:00.'],['Halv','Når den store viser peger på 6, er der gået en halv time. På dansk siger vi halv + den NÆSTE time: 3:30 = halv fire!'],['Kvart','Den store viser på 3: „kvart over 3” (3:15). På 9: „kvart i 4” (3:45).'],['5 ad gangen','Hvert tal betyder 5 minutter. Den store viser på 2: 5, 10 → 10 minutter over 3 (3:10).'],['24-timers uret 🌱','Efter kl. 12 fortsætter det digitale ur: 13, 14, 15… 15:00 betyder klokken 3 om eftermiddagen.']],
+  money:[['Mønter og sedler','Pengene har forskellig værdi. Når du tæller, så start altid med de største.'],['Vi tæller sammen','20 + 10 = 30, + 5 = 35, + 2 = 37 kr.'],['Penge tilbage','For at finde ud af, hvad du får tilbage, tæller du op fra prisen: 18 → 20 → 50 betyder 2 + 30 = 32.']],
+  units:[['Linealen','Længde måler vi med en lineal i centimeter (cm). Start altid ved 0! Blyanten her er 7 cm.'],['Længde og vægt','1 meter = 100 centimeter. 1 kilometer = 1000 meter. 1 kilogram = 1000 gram.'],['Tid','1 time = 60 minutter. Et døgn har 24 timer, en uge har 7 dage.']]
+}};
+
+WTXT.ro.ach={shapes:'Maestra formelor',solids:'Arhitecta',sym:'Oglinda magică',area:'Constructoarea',clock:'Stăpâna timpului',money:'Casiera isteață',units:'Măsurătoarea',pioneer:'Pionieră 🌱',explorer:'Exploratoarea tuturor lumilor'};
+WTXT.da.ach={shapes:'Figurmester',solids:'Arkitekt',sym:'Det magiske spejl',area:'Bygmester',clock:'Tidens mester',money:'Den kloge kasserer',units:'Målemester',pioneer:'Pioner 🌱',explorer:'Opdager af alle verdener'};
+
+/* ---------- ecrane pentru lumi ---------- */
+let curWorld=null,discI=0;
+function renderWorlds(){
+  $('wTitle').textContent=WD().title;
+  $('worldList').innerHTML=WORLDS.map(w=>`<div class="li" onclick="openWorld('${w}')" style="flex-direction:column;align-items:stretch">
+    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:19px">${WE[w]} ${WD().names[w]}${S.wseen[w]?'':`<span class="newtag">${WD().isNew}</span>`}</span><span class="muted" style="font-size:14px">${WD().subs[w]} ➜</span></div>
+    <div class="wbar"><div style="width:${worldPct(w)}%"></div></div></div>`).join('');
+}
+function openWorld(w){curWorld=w;go('world');}
+function renderWorld(){
+  const w=curWorld,lv=[1,2,3].map(l=>{const ts=worldTypes(w,l).filter(t=>GEN[w][t][0]===l);const ok=ts.filter(t=>status(`w|${w}|${t}`)>=3).length;return [l,ok,ts.length];});
+  $('worldBox').innerHTML=`<h2>${WE[w]} ${WD().names[w]}</h2>
+    <button class="big-btn hero w2 ${S.wseen[w]?'':'hl'}" onclick="startDisc('${w}')"><span>${WD().discover}</span></button>
+    ${lv.map(([l,ok,n])=>`<button class="lvbtn" onclick="startWorld('${w}',${l})"><span>${l===3?'🌱':'⭐'.repeat(l)} ${WD().lvl(l)}</span><small>${WD().lvlSub[l]} · ${ok}/${n} ✔</small></button>`).join('')}
+    <button class="btn sec" onclick="go('worlds')">${t('back')}</button>`;
+}
+function startDisc(w){curWorld=w;discI=0;go('disc');renderDisc();}
+function renderDisc(){
+  const w=curWorld,T=(DISC_T[S.lang]||DISC_T.ro)[w],n=T.length,[ti,tx]=T[discI];
+  $('discBox').innerHTML=`<div class="path" style="margin-bottom:10px">${T.map((_,i)=>`<i class="${i<discI?'d':i===discI?'now':''}"></i>`).join('')}</div>
+    <div class="buddy"><div class="av">${S.buddy}</div><div class="bubble"><b>${ti}</b><br>${tx}</div></div>
+    <div style="display:flex;justify-content:center;margin:10px 0">${DISC_V[w][discI]()}</div>
+    <div class="row" style="justify-content:space-between">
+      <button class="iconbtn" onclick="speak(${JSON.stringify(ti+'. '+tx).replace(/"/g,'&quot;')})">🔊</button>
+      <div class="row">${discI>0?`<button class="btn sec" onclick="discI--;renderDisc()">◀</button>`:''}
+      ${discI<n-1?`<button class="btn" onclick="discI++;renderDisc()">${t('cont')}</button>`:`<button class="btn ok" onclick="discDone()">${WD().tryIt}</button>`}</div></div>`;
+  if(S.settings.speak)speak(ti+'. '+tx);
+}
+function discDone(){const w=curWorld;if(!S.wseen[w]){S.wseen[w]=true;S.stars+=5;save();updateHeader();toast('🌱 +5 ⭐');checkAch();}startWorld(w,1);}
+function startWorld(w,lvl,forced){
+  curWorld=w;const len=S.settings.len;
+  sess={mode:'practice',type:'w',world:w,lvl,queue:buildWorldSession(w,lvl,len,forced),i:0,res:[],stars:0,combo:0,maxC:0,len,
+        bonusIdx:2+rnd(Math.max(1,len-3)),halfDone:false,breakDone:false};
+  startQuiz();
+}
+function worldsPanel(){
+  return WORLDS.map(w=>`<h3 style="margin-top:12px">${WE[w]} ${WD().names[w]} <span class="muted" style="font-size:14px">${worldPct(w)}%</span></h3><div class="list">`+
+    Object.keys(GEN[w]).map(tp=>{const k=`w|${w}|${tp}`,f=rec(k),q=worldQ(newWorldKey(w,tp)),lab=strip(q.prompt).slice(0,48);
+      return `<div class="li" onclick="showAllStrats('${q.key}')"><span style="font-size:14px">${GEN[w][tp][0]===3?'🌱':'⭐'.repeat(GEN[w][tp][0])} ${lab}</span><span class="tag ${['','bad','slow','ok','ok','ok'][status(k)]||''}">${f?t('corrOf',f.ok,f.n):t('never')}</span></div>`;}).join('')+'</div>').join('');
+}
+
+/* ================= EXPLORE ================= */
+let exOp='mul';
+function openExplore(){go('explore');}
+function renderExOps(){
+  const o=t('exOps');$('exOps').innerHTML=['add','sub','mul','div'].map(k=>`<button class="chip ${exOp===k?'on':''}" onclick="exOp='${k}';renderExOps();renderExplore()">${o[k]}</button>`).join('');
+  $('exSign').textContent={add:'+',sub:'−',mul:X(),div:':'}[exOp];
+}
+function exStep(w,d){const el=$('ex'+w);el.value=Math.max(0,Math.min(100,(+el.value||0)+d));renderExplore();}
+function exRandom(){let a,b;
+  if(exOp==='add'){a=2+rnd(8);b=2+rnd(8);} if(exOp==='sub'){b=2+rnd(8);a=b+2+rnd(8);}
+  if(exOp==='mul'){a=2+rnd(8);b=2+rnd(8);} if(exOp==='div'){b=2+rnd(8);a=b*(1+rnd(9))+(Math.random()<.5?rnd(b):0);}
+  $('exA').value=a;$('exB').value=b;renderExplore();}
+function renderExplore(){
+  const a=Math.min(100,+$('exA').value||0),b=Math.min(100,+$('exB').value||0);let s,h;
+  if(exOp==='add'){s=addStrats(a,b);h=`${a} + ${b} = ${a+b}`;}
+  if(exOp==='sub'){s=subStrats(a,b);h=`${a} − ${b} = ${a-b}`;}
+  if(exOp==='mul'){s=mulStrats(a,b);h=`${a} ${X()} ${b} = ${a*b}`;}
+  if(exOp==='div'){s=b&&a%b?remStrats(a,b):divStrats(a,b);h=b?(a%b?`${a} : ${b} = ${Math.floor(a/b)} ${st('restWord')} ${a%b}`:`${a} : ${b} = ${a/b}`):'';}
+  $('exOut').innerHTML=`<div class="card"><h2 class="center">${h}</h2>${s.map(stratHTML).join('')}</div>`;
+}
+
+/* ================= PARENT ================= */
+let pTab='mul';
+function openParent(){go('parent');}
+function cell(k,label){const f=rec(k),s=status(k);const tip=f?`${makeQ(k).text} · ${t('corrOf',f.ok,f.n)} · ~${(f.ema||0).toFixed(1)} s`:t('never');
+  return `<td class="s${s}" title="${tip}" onclick="showAllStrats('${k}')">${label}</td>`;}
+function heat(head,rows,cols,keyFn,labelFn,colHead){
+  let h=`<div style="overflow-x:auto"><table class="heat"><tr><th>${head}</th>`+cols.map(c=>`<th>${colHead?colHead(c):c}</th>`).join('')+'</tr>';
+  rows.forEach(r=>{h+=`<tr><th>${r}</th>`;cols.forEach(c=>h+=cell(keyFn(r,c),labelFn(r,c)));h+='</tr>';});return h+'</table></div>';}
+const R10=[1,2,3,4,5,6,7,8,9,10];
+const heatMul=()=>heat(X(),R10,R10,(a,b)=>`mul|${a}|${b}`,(a,b)=>a*b);
+function remPanel(){
+  let h='<div class="list">';const all=poolOf('rem');
+  for(let b=2;b<=9;b++){const ks=all.filter(k=>k.endsWith('|'+b)).filter(rec);
+    const n=ks.reduce((s,k)=>s+rec(k).n,0),ok=ks.reduce((s,k)=>s+rec(k).ok,0),fast=ks.filter(k=>status(k)>=4).length;
+    h+=`<div class="li" style="cursor:default"><span>: ${b}</span><span class="muted">${n?`${t('corrOf',ok,n)} · ${t('fastN',fast)}`:t('never')}</span></div>`;}
+  const weak=all.filter(k=>rec(k)&&status(k)<=2).slice(0,10);
+  if(weak.length)h+=`<h3 style="margin-top:10px">${t('toWorkP')}</h3>`+weak.map(k=>{const q=makeQ(k);return `<div class="li" onclick="showAllStrats('${k}')"><span>${q.text} = ${ansText(q)}</span><span class="tag ${status(k)===1?'bad':'slow'}">${status(k)===1?t('wrongT'):t('slowT')}</span></div>`;}).join('');
+  return h+'</div>';
+}
+function renderParent(){
+  const on=t('opsN');
+  $('pTabs').innerHTML=OPS.map(k=>`<button class="chip ${pTab===k?'on':''}" onclick="pTab='${k}';renderParent()">${on[k]}</button>`).join('')+`<button class="chip ${pTab==='worlds'?'on':''}" onclick="pTab='worlds';renderParent()">🗺️ ${WD().btn}</button>`;
+  const p=poolOf(pTab);let h=pTab==='worlds'?worldsPanel():`<p>${t('summary',p.filter(k=>status(k)>=4).length,p.length,p.filter(rec).length)}</p>`;
+  if(pTab==='mul')h+=heatMul();
+  if(pTab==='add')h+=heat('+',R10,R10,(a,b)=>`add|${a}|${b}`,(a,b)=>a+b);
+  if(pTab==='sub')h+=`<p class="muted" style="font-size:13px">${t('subNote')}</p>`+heat('−',R10,R10,(b,d)=>`sub|${b+d}|${b}`,(b,d)=>b+d,c=>'='+c);
+  if(pTab==='div')h+=`<p class="muted" style="font-size:13px">${t('divNote')}</p>`+heat(':',R10,R10,(b,q)=>`div|${b*q}|${b}`,(b,q)=>b*q,c=>'='+c);
+  if(pTab==='rem')h+=remPanel();
+  if(pTab==='add'||pTab==='sub'){const f=S.facts['big|'+pTab];if(f)h+=`<p class="muted">${t('big100',f.ok,f.n,(f.ema||0).toFixed(1))}</p>`;}
+  $('pOut').innerHTML=h;
+  $('legend').innerHTML=t('legend').map((x,i)=>`<span><i class="s${i}"></i>${x}</span>`).join('');
+  const loc=t('locale');
+  $('hist').innerHTML=S.history.length?'<div class="list">'+S.history.slice(0,10).map(x=>{const d=new Date(x.d);
+    return `<div class="li" style="cursor:default"><span>${d.toLocaleDateString(loc)} ${d.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'})} · ${x.m==='assess'?t('assess'):t('mission')}</span><span><span class="tag ok">${x.fast}⚡</span> <span class="tag slow">${x.slow}🐢</span> <span class="tag bad">${x.bad}✗</span></span></div>`;}).join('')+'</div>':`<p class="muted">${t('noHist')}</p>`;
+  $('langChips').innerHTML=[['ro','🇷🇴 Română'],['da','🇩🇰 Dansk']].map(([k,n])=>`<button class="chip ${S.lang===k?'on':''}" onclick="setLang('${k}');renderParent()">${n}</button>`).join('');
+  $('setName').value=S.name;
+  $('slowChips').innerHTML=[3,4,5,6,8].map(v=>`<button class="chip ${S.settings.slow===v?'on':''}" onclick="S.settings.slow=${v};save();renderParent()">${v} s</button>`).join('');
+  $('lenChips').innerHTML=[5,10,15,20].map(v=>`<button class="chip ${S.settings.len===v?'on':''}" onclick="S.settings.len=${v};save();renderParent()">${v}</button>`).join('');
+  const lastEx=S.lastExport||0;$('exportRemind').innerHTML=(Date.now()-lastEx>14*864e5)?`<p style="background:var(--warnl);border-radius:12px;padding:10px;font-weight:700">${lastEx?t('exportOld'):t('exportNever')}</p>`:'';
+  $('bkList').innerHTML=backups().map((b,i)=>{let st='';try{st=JSON.parse(b.j).stars;}catch(e){}return `<div class="li"><span>${b.d} · ⭐ ${st}</span><button class="btn sec sm" onclick="restoreBackup(${i})">${t('restore')}</button></div>`;}).reverse().join('');
+  $('ckSound').checked=S.settings.sound;$('ckVib').checked=S.settings.vib;$('ckSpeak').checked=S.settings.speak;$('ckBreaks').checked=S.settings.breaks;$('ckBig').checked=S.settings.big;
+}
+function saveSettings(silent){
+  const n=$('setName').value.trim();if(n)S.name=n;
+  Object.assign(S.settings,{sound:$('ckSound').checked,vib:$('ckVib').checked,speak:$('ckSpeak').checked,breaks:$('ckBreaks').checked,big:$('ckBig').checked});
+  save();if(silent!==true)toast(t('saved'));
+}
+function exportData(){const blob=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  S.lastExport=Date.now();save();a.download=`mate-magie-${(S.name||'progres').toLowerCase().replace(/[^a-z0-9-]/g,'')}-${todayStr()}.json`;document.body.appendChild(a);a.click();a.remove();}
+function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.facts)throw 0;
+  localStorage.setItem(LS,JSON.stringify(d));S=load();save();toast(t('imported'));applyI18n();renderParent();updateHeader();}catch(e){toast(t('invalid'));}};r.readAsText(f);inp.value='';}
+function resetAll(){if(confirm(t('confirmReset'))){const l=S.lang;S=defState();S.lang=l;save();toast(t('deleted'));go('onboard');obStep(2);}}
+
+/* ================= ACHIEVEMENTS ================= */
+function achList(){
+  const a=t('ach'),c=Object.keys(S.coll).length,cnt=k=>poolOf(k).filter(x=>status(x)>=4).length;
+  const l=[
+    ['first','🚀',a.first,()=>S.missions>=1],['assess','🔍',a.assess,()=>S.assessDone],['streak3','🔥',a.streak3,()=>streak()>=3],
+    ['combo10','⚡',a.combo10,()=>S.maxCombo>=10],['c100','💯',a.c100,()=>S.correct>=100],['m10','🎯',a.m10,()=>S.missions>=10],
+    ['coll10','🐾',a.coll10,()=>c>=10],['streak7','📅',a.streak7,()=>streak()>=7],['gold5','🏆',a.gold5,()=>(S.cups[3]||0)>=5],
+    ['combo20','🌋',a.combo20,()=>S.maxCombo>=20],['c500','🧠',a.c500,()=>S.correct>=500],['m50','👑',a.m50,()=>S.missions>=50],['coll25','🦄',a.coll25,()=>c>=25]];
+  for(let n=2;n<=10;n++)l.push(['mul'+n,'✖️',a.table(n),()=>{for(let x=1;x<=10;x++)if(status(`mul|${n}|${x}`)<4||status(`mul|${x}|${n}`)<4)return false;return true;}]);
+  const wa=WD().ach;WORLDS.forEach(w=>l.push(['w_'+w,WE[w],wa[w],()=>((S.wstats[w]||{}).m||0)>=3]));
+  l.push(['pioneer','🌱',wa.pioneer,()=>WORLDS.some(w=>((S.wstats[w]||{}).l3||0)>=1)],['explorer','🗺️',wa.explorer,()=>WORLDS.every(w=>S.wseen[w])]);
+  l.push(['add','➕',a.add,()=>cnt('add')>=90],['sub','➖',a.sub,()=>cnt('sub')>=90],['div','➗',a.div,()=>cnt('div')>=90],['rem','🍬',a.rem,()=>cnt('rem')>=60]);
+  return l;
+}
+function checkAch(){achList().forEach(([id,e,n,test])=>{if(!S.badges.includes(id)&&test()){S.badges.push(id);save();setTimeout(()=>{toast(`${e} ${t('newAch',n)}`,3200);sound('great');buzz([40,40,80]);},400);}});}
+function openRoom(){go('room');}
+function renderRoom(){
+  $('roomCups').innerHTML=`<span><i>🏆</i>${S.cups[3]||0}</span><span><i>🥈</i>${S.cups[2]||0}</span><span><i>🥉</i>${S.cups[1]||0}</span>`;
+  $('collTitle').textContent=t('coll',Object.keys(S.coll).length,CREATURES.length);
+  $('roomColl').innerHTML=CREATURES.map(([e,r])=>S.coll[e]?`<div class="r${r}" title="${t('rar')[r]}">${e}${S.coll[e]>1?`<sup>×${S.coll[e]}</sup>`:''}</div>`:`<div class="lock">❔</div>`).join('');
+  $('roomAch').innerHTML=achList().map(([id,e,n])=>`<span class="badge ${S.badges.includes(id)?'':'off'}">${S.badges.includes(id)?e:'🔒'} ${n}</span>`).join('');
+}
+
+/* ================= ONBOARDING / HOME ================= */
+function obStep(n){go('onboard');[1,2,3].forEach(i=>$('ob'+i).classList.toggle('hidden',i!==n));if(n===2)setTimeout(()=>$('nameIn').focus(),200);if(n===3)renderBuddies();}
+function obName(){const n=$('nameIn').value.trim();if(!n){$('nameIn').focus();return;}S.name=n;save();obStep(3);}
+$('nameIn').addEventListener('keydown',e=>{if(e.key==='Enter')obName();});
+function renderBuddies(){$('obBuddyTxt').textContent=t('obBuddy',S.name);$('obAv').textContent=S.buddy;
+  $('buddyList').innerHTML=BUDDIES.map(b=>`<button class="${S.buddy===b?'on':''}" onclick="S.buddy='${b}';save();renderBuddies();sound('ok')">${b}</button>`).join('');}
+function obDone(){save();go('home');}
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0);
+  if(id!=='quiz'&&id!=='brk')document.body.classList.remove('focus');
+  applyI18n();
+  if(id==='home')renderHome();
+  if(id==='missionSetup')renderMissions();
+  if(id==='assessSetup')renderAssessList();
+  if(id==='parent')renderParent();
+  if(id==='room')renderRoom();
+  if(id==='explore'){renderExOps();renderExplore();}
+  if(id==='worlds')renderWorlds();
+  if(id==='world')renderWorld();
+}
+function updateHeader(){$('hdrStars').textContent=`⭐ ${S.stars}`;}
+function level(){let i=0;LEVELS.forEach((v,j)=>{if(S.stars>=v)i=j;});return t('levels')[i];}
+function renderHome(){
+  updateHeader();$('homeAv').textContent=S.buddy;
+  const seen=Object.keys(S.facts).filter(k=>!k.startsWith('big')).length,sk=streak();
+  $('homeMsg').textContent=!seen?msg('homeFirst'):sk>=2?msg('homeStreak',{k:sk}):msg('home');
+  $('homeStats').innerHTML=`<span class="pill">🎖️ ${level()}</span><span class="pill">🔥 ${sk} ${t('streakDays')}</span><span class="pill">🏆 ${(S.cups[1]||0)+(S.cups[2]||0)+(S.cups[3]||0)}</span><span class="pill">🐾 ${Object.keys(S.coll).length}/${CREATURES.length}</span>`;
+  $('bAssess').classList.toggle('hl',!seen);
+  $('bWorldsT').textContent=WD().btn;$('bWorldsS').textContent=WD().btnSub;$('bWorldsNew').innerHTML=WORLDS.some(w=>!S.wseen[w])?`<span class="newtag">${WD().isNew}</span>`:'';
+}
+function buddyTalk(){$('homeMsg').textContent=msg('tap');sound('ok');}
+function renderMissions(){const m=t('missions');
+  $('missionList').innerHTML=Object.keys(m).map(k=>`<div class="li" onclick="startMission('${k}')"><span style="font-size:19px">${m[k][0]} ${m[k][1]}</span><span class="muted">${m[k][2]} ➜</span></div>`).join('');}
+function renderAssessList(){const it=t('assessItems');
+  $('assessList').innerHTML=Object.keys(it).map(k=>`<div class="li" onclick="startAssess('${k}')"><span>${it[k][0]}</span><span class="muted">${it[k][1]} ➜</span></div>`).join('');}
+
+/* ================= HELPERS ================= */
+function openModal(ti,h){$('mTitle').textContent=ti;$('mBody').innerHTML=h;$('modal').classList.add('on');}
+function closeModal(){$('modal').classList.remove('on');}
+let toastT;function toast(m,ms=1800){const e=$('toast');e.textContent=m;e.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>e.style.display='none',ms);}
+function burst(){const em=['⭐','✨','🌟','💫'];for(let i=0;i<10;i++){const s=document.createElement('span');s.className='burst';s.textContent=pick(em);
+  s.style.left='50%';s.style.top='35%';s.style.setProperty('--dx',(Math.random()*300-150)+'px');s.style.setProperty('--dy',(Math.random()*-220-20)+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),1000);}}
+function buzz(p){try{if(S.settings.vib&&navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+let AC;function sound(kind){if(!S.settings.sound)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+  const notes=kind==='great'?[660,880,1100]:kind==='ok'?[520,660]:[300,220];
+  notes.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=kind==='bad'?'triangle':'sine';o.frequency.value=f;const t0=AC.currentTime+i*.09;
+    g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.18,t0+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+.2);o.connect(g).connect(AC.destination);o.start(t0);o.stop(t0+.22);});}catch(e){}}
+let UTT=null; // referință păstrată: pe Android, Chrome altfel „pierde” fraza
+function voiceFor(lg){try{const n=x=>(x||'').replace('_','-').toLowerCase(),vs=speechSynthesis.getVoices();
+  return vs.find(v=>n(v.lang)===lg.toLowerCase())||vs.find(v=>n(v.lang).startsWith(lg.slice(0,2)));}catch(e){return null;}}
+function speak(txt,onInfo){
+  try{
+    const ss=window.speechSynthesis;if(!ss||!window.SpeechSynthesisUtterance){onInfo&&onInfo(t('ttsNone'));return;}
+    const lg=t('speechLang');
+    const go=()=>{
+      UTT=new SpeechSynthesisUtterance(txt);UTT.lang=lg;UTT.rate=.9;UTT.volume=1;
+      const v=voiceFor(lg);if(v)UTT.voice=v;
+      UTT.onstart=()=>{onInfo&&onInfo(t('ttsOk',v?v.name:lg));};
+      UTT.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled')onInfo&&onInfo(ss.getVoices().length&&!v?t('ttsNoVoice'):t('ttsErr',e.error));};
+      ss.resume();ss.speak(UTT);
+      if(onInfo&&ss.getVoices().length&&!v)setTimeout(()=>onInfo(t('ttsNoVoice')),1500);
+    };
+    if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150);}else go();   // evită eroarea cancel→speak
+  }catch(e){onInfo&&onInfo(t('ttsErr',e.message||e));}
+}
+function speakQ(){if(!cur)return;const sp=t('sp');speak(cur.say||`${cur.a} ${sp[cur.sign]||cur.sign} ${cur.b}`);cur.lastAct=performance.now();}
+function testVoice(){$('ttsInfo').textContent='…';speak(t('voiceSample',S.name||''),m=>{$('ttsInfo').textContent=m;});}
+if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}}
+
+/* ================= START ================= */
+applyI18n();updateHeader();
+if(!S.lang)obStep(1);else if(!S.name)obStep(2);else go('home');
+document.querySelectorAll('#parent input[type=checkbox]').forEach(c=>c.addEventListener('change',()=>{saveSettings(true);if(c.id==='ckSpeak'&&c.checked)testVoice();}));
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+if(IS_TEST){$('testBanner').textContent=t('testBanner');$('testBanner').classList.remove('hidden');}
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
