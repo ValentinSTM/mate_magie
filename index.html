@@ -69,6 +69,7 @@ h3{margin:4px 0 8px;font-size:18px}
 .path i.d{background:var(--pri2)}.path i.now{background:var(--gold)}
 .path b{font-size:22px}
 .combo{font-weight:900;font-size:18px;min-width:44px;text-align:right;color:#e2602a}
+.iconbtn.on{background:var(--pri);color:#fff}
 .iconbtn{width:42px;height:42px;border-radius:12px;background:#eee9ff;color:var(--pri);font-size:20px;font-weight:900;flex:none}
 .qbuddy{display:flex;align-items:center;gap:8px;min-height:46px;margin:8px 0 0}
 .qbuddy .av{font-size:36px}
@@ -257,11 +258,11 @@ label.ck input{width:24px;height:24px;flex:none}
       <button class="iconbtn" onclick="quitSession()" aria-label="stop">✖</button>
       <div class="path" id="qPath"></div>
       <span class="combo" id="qCombo"></span>
-      <button class="iconbtn" onclick="speakQ()" aria-label="read">🔊</button>
+      <button class="iconbtn" id="spkBtn" onclick="toggleSpeak()" aria-label="read">🔇</button>
     </div>
     <div class="qbuddy"><span class="av" id="qAv">🦊</span><div class="bubble" id="qBubble"></div></div>
     <div id="qBonus"></div>
-    <div class="qtext" id="qText"></div>
+    <div class="qtext" id="qText" onclick="speakQ()" style="cursor:pointer"></div>
     <div class="answers" id="ansWrap"></div>
     <div class="pad" id="pad"></div>
     <div class="row" style="justify-content:center;margin-top:10px" id="hintRow"><button class="btn sec sm" onclick="showHint()" data-t="hint"></button></div>
@@ -396,7 +397,7 @@ ro:{
   history:'Ultimele sesiuni', noHist:'Încă nicio sesiune.', mission:'Misiune', assess:'Evaluare', toWorkP:'De exersat',
   settings:'Setări', language:'Limba', childName:'Numele copilului', thrTitle:'Prag „rapid" (secunde)',
   thrNote:'Peste acest timp, un răspuns corect e considerat „calculat", nu „știut".', lenTitle:'Întrebări pe misiune',
-  sound:'Sunete', vib:'Vibrații (telefon)', speak:'Citește întrebările cu voce tare', breaks:'Pauze de mișcare între misiuni', big:'Include adunări/scăderi până la 100',
+  sound:'Sunete', vib:'Vibrații (telefon)', speak:'Citește automat fiecare întrebare cu voce tare (și butonul 🔊 din misiune)', spkOn:'🔊 Citesc automat fiecare întrebare', spkOff:'🔇 Nu mai citesc automat. Atinge întrebarea și o citesc o dată.', breaks:'Pauze de mișcare între misiuni', big:'Include adunări/scăderi până la 100',
   save:'Salvează', export:'⬇️ Exportă', import:'⬆️ Importă', reset:'🗑️ Șterge tot',
   storeNote:'Progresul se salvează doar pe acest dispozitiv. Folosește Export/Import ca să-l muți pe alt dispozitiv.',
   testVoice:'🔊 Testează vocea', voiceSample:n=>`Bună, ${n}! Eu îți citesc întrebările.`,
@@ -522,7 +523,7 @@ da:{
   history:'Seneste sessioner', noHist:'Ingen sessioner endnu.', mission:'Mission', assess:'Test', toWorkP:'Øv mere',
   settings:'Indstillinger', language:'Sprog', childName:'Barnets navn', thrTitle:'Grænse for „hurtig" (sekunder)',
   thrNote:'Over denne tid regnes et rigtigt svar som „regnet ud", ikke „kunne udenad".', lenTitle:'Opgaver pr. mission',
-  sound:'Lyde', vib:'Vibration (telefon)', speak:'Læs opgaverne højt', breaks:'Bevægelsespauser mellem missioner', big:'Tag plus/minus op til 100 med',
+  sound:'Lyde', vib:'Vibration (telefon)', speak:'Læs hver opgave højt automatisk (også knappen 🔊 i missionen)', spkOn:'🔊 Jeg læser hver opgave højt', spkOff:'🔇 Jeg læser ikke automatisk. Tryk på opgaven, så læser jeg den én gang.', breaks:'Bevægelsespauser mellem missioner', big:'Tag plus/minus op til 100 med',
   save:'Gem', export:'⬇️ Eksportér', import:'⬆️ Importér', reset:'🗑️ Slet alt',
   storeNote:'Fremskridt gemmes kun på denne enhed. Brug Eksportér/Importér for at flytte det til en anden enhed.',
   testVoice:'🔊 Test stemmen', voiceSample:n=>`Hej ${n}! Jeg læser opgaverne højt for dig.`,
@@ -756,7 +757,7 @@ function startAssess(kind){
   sess={mode:'assess',kind,queue:shuffle(keys),i:0,res:[],stars:0,combo:0,maxC:0,bonusIdx:-1,halfDone:true,breakDone:true};
   startQuiz();
 }
-function startQuiz(){document.body.classList.add('focus');$('qAv').textContent=S.buddy;go('quiz');showQ();}
+function startQuiz(){document.body.classList.add('focus');updSpk();$('qAv').textContent=S.buddy;go('quiz');showQ();}
 function showQ(){
   if(sess.i>=sess.queue.length)return endSession();
   // pauză de mișcare la jumătatea misiunilor lungi
@@ -832,7 +833,7 @@ function submit(){
   }
   const tt=(cur.hint||cur.retried)?Math.max(tm,thr(cur)+.1):tm;
   const fast=record(cur,ok,tt,sess.mode==='assess');
-  cur.done=true;clearInterval(idleT);
+  cur.done=true;clearInterval(idleT);stopSpeak();
   sess.res.push({key:cur.key,ok,t:tt,fast,big:cur.big});
   let stars=ok?(fast?2:1):0;if(cur.bonus)stars*=2;
   if(ok){sess.combo++;sess.maxC=Math.max(sess.maxC,sess.combo);S.maxCombo=Math.max(S.maxCombo||0,sess.combo);}else sess.combo=0;
@@ -867,7 +868,7 @@ function submit(){
 function nextQ(){if(!sess)return;sess.i++;showQ();window.scrollTo(0,0);}
 function showHint(){if(cur.done)return;cur.hint=true;cur.lastAct=performance.now();const s=stratsFor(cur)[0];if(s)say(`💡 ${s.t}: ${s.hint||strip(s.l[0])}`,6000);}
 const strip=h=>String(h).replace(/<[^>]+>/g,'');
-function quitSession(){clearInterval(idleT);document.body.classList.remove('focus');if(sess&&sess.res.length)endSession(true);else{sess=null;go('home');}}
+function quitSession(){clearInterval(idleT);stopSpeak();document.body.classList.remove('focus');if(sess&&sess.res.length)endSession(true);else{sess=null;go('home');}}
 
 /* ================= END / REWARDS ================= */
 function todayStr(d=new Date()){return d.toISOString().slice(0,10);}
@@ -932,7 +933,7 @@ function startBreak(cb){
   let left=20;const tick=()=>{$('brkSec').textContent=left;$('brkTimer').style.setProperty('--p',(left/20*100)+'%');if(left<=0){clearInterval(brkT);sound('ok');buzz(60);}left--;};
   clearInterval(brkT);tick();brkT=setInterval(tick,1000);
 }
-function endBreak(){clearInterval(brkT);document.body.classList.remove('focus');const cb=brkCb;brkCb=null;if(cb)cb();else go('home');}
+function endBreak(){clearInterval(brkT);stopSpeak();document.body.classList.remove('focus');const cb=brkCb;brkCb=null;if(cb)cb();else go('home');}
 
 /* ================= STRATEGIES ================= */
 function stratsFor(q){
@@ -1245,7 +1246,12 @@ function speak(txt,onInfo){
     if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150);}else go();   // evită eroarea cancel→speak
   }catch(e){onInfo&&onInfo(t('ttsErr',e.message||e));}
 }
-function speakQ(){if(!cur)return;const sp=t('sp');speak(cur.say||`${cur.a} ${sp[cur.sign]||cur.sign} ${cur.b}`);cur.lastAct=performance.now();}
+function speakQ(){if(!cur)return;const sp=t('sp');let txt=cur.say||`${cur.a} ${sp[cur.sign]||cur.sign} ${cur.b}`;
+  if(cur.kind==='mc'&&!cur.opts.some(o=>o.includes('<')))txt+=(/[?!.]\s*$/.test(txt)?' ':'. ')+cur.opts.map(strip).join(', ');   // citește și variantele scrise
+  speak(txt);cur.lastAct=performance.now();}
+function stopSpeak(){try{if(window.speechSynthesis)speechSynthesis.cancel();}catch(e){}}
+function updSpk(){const b=$('spkBtn');if(!b)return;b.textContent=S.settings.speak?'🔊':'🔇';b.classList.toggle('on',!!S.settings.speak);}
+function toggleSpeak(){S.settings.speak=!S.settings.speak;save();updSpk();if(S.settings.speak)speakQ();else stopSpeak();say(S.settings.speak?t('spkOn'):t('spkOff'),3000);}
 function testVoice(){$('ttsInfo').textContent='…';speak(t('voiceSample',S.name||''),m=>{$('ttsInfo').textContent=m;});}
 if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}}
 

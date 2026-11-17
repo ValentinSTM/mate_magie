@@ -69,6 +69,7 @@ h3{margin:4px 0 8px;font-size:18px}
 .path i.d{background:var(--pri2)}.path i.now{background:var(--gold)}
 .path b{font-size:22px}
 .combo{font-weight:900;font-size:18px;min-width:44px;text-align:right;color:#e2602a}
+.iconbtn.on{background:var(--pri);color:#fff}
 .iconbtn{width:42px;height:42px;border-radius:12px;background:#eee9ff;color:var(--pri);font-size:20px;font-weight:900;flex:none}
 .qbuddy{display:flex;align-items:center;gap:8px;min-height:46px;margin:8px 0 0}
 .qbuddy .av{font-size:36px}
@@ -272,11 +273,11 @@ label.ck input{width:24px;height:24px;flex:none}
       <button class="iconbtn" onclick="quitSession()" aria-label="stop">✖</button>
       <div class="path" id="qPath"></div>
       <span class="combo" id="qCombo"></span>
-      <button class="iconbtn" onclick="speakQ()" aria-label="read">🔊</button>
+      <button class="iconbtn" id="spkBtn" onclick="toggleSpeak()" aria-label="read">🔇</button>
     </div>
     <div class="qbuddy"><span class="av" id="qAv">🦊</span><div class="bubble" id="qBubble"></div></div>
     <div id="qBonus"></div>
-    <div class="qtext" id="qText"></div>
+    <div class="qtext" id="qText" onclick="speakQ()" style="cursor:pointer"></div>
     <div class="answers" id="ansWrap"></div>
     <div class="pad" id="pad"></div>
     <div class="row" style="justify-content:center;margin-top:10px" id="hintRow"><button class="btn sec sm" onclick="showHint()" data-t="hint"></button></div>
@@ -416,7 +417,7 @@ ro:{
   history:'Ultimele sesiuni', noHist:'Încă nicio sesiune.', mission:'Misiune', assess:'Evaluare', toWorkP:'De exersat',
   settings:'Setări', language:'Limba', childName:'Numele copilului', thrTitle:'Prag „rapid" (secunde)',
   thrNote:'Peste acest timp, un răspuns corect e considerat „calculat", nu „știut".', lenTitle:'Întrebări pe misiune',
-  sound:'Sunete', vib:'Vibrații (telefon)', speak:'Citește întrebările cu voce tare', breaks:'Pauze de mișcare între misiuni', big:'Include adunări/scăderi până la 100',
+  sound:'Sunete', vib:'Vibrații (telefon)', speak:'Citește automat fiecare întrebare cu voce tare (și butonul 🔊 din misiune)', spkOn:'🔊 Citesc automat fiecare întrebare', spkOff:'🔇 Nu mai citesc automat. Atinge întrebarea și o citesc o dată.', breaks:'Pauze de mișcare între misiuni', big:'Include adunări/scăderi până la 100',
   save:'Salvează', export:'⬇️ Exportă', import:'⬆️ Importă', reset:'🗑️ Șterge tot',
   storeNote:'Progresul se salvează doar pe acest dispozitiv. Folosește Export/Import ca să-l muți pe alt dispozitiv.',
   testVoice:'🔊 Testează vocea', voiceSample:n=>`Bună, ${n}! Eu îți citesc întrebările.`,
@@ -542,7 +543,7 @@ da:{
   history:'Seneste sessioner', noHist:'Ingen sessioner endnu.', mission:'Mission', assess:'Test', toWorkP:'Øv mere',
   settings:'Indstillinger', language:'Sprog', childName:'Barnets navn', thrTitle:'Grænse for „hurtig" (sekunder)',
   thrNote:'Over denne tid regnes et rigtigt svar som „regnet ud", ikke „kunne udenad".', lenTitle:'Opgaver pr. mission',
-  sound:'Lyde', vib:'Vibration (telefon)', speak:'Læs opgaverne højt', breaks:'Bevægelsespauser mellem missioner', big:'Tag plus/minus op til 100 med',
+  sound:'Lyde', vib:'Vibration (telefon)', speak:'Læs hver opgave højt automatisk (også knappen 🔊 i missionen)', spkOn:'🔊 Jeg læser hver opgave højt', spkOff:'🔇 Jeg læser ikke automatisk. Tryk på opgaven, så læser jeg den én gang.', breaks:'Bevægelsespauser mellem missioner', big:'Tag plus/minus op til 100 med',
   save:'Gem', export:'⬇️ Eksportér', import:'⬆️ Importér', reset:'🗑️ Slet alt',
   storeNote:'Fremskridt gemmes kun på denne enhed. Brug Eksportér/Importér for at flytte det til en anden enhed.',
   testVoice:'🔊 Test stemmen', voiceSample:n=>`Hej ${n}! Jeg læser opgaverne højt for dig.`,
@@ -778,7 +779,7 @@ function startAssess(kind){
   sess={mode:'assess',kind,queue:shuffle(keys),i:0,res:[],stars:0,combo:0,maxC:0,bonusIdx:-1,halfDone:true,breakDone:true};
   startQuiz();
 }
-function startQuiz(){document.body.classList.add('focus');$('qAv').textContent=S.buddy;go('quiz');showQ();}
+function startQuiz(){document.body.classList.add('focus');updSpk();$('qAv').textContent=S.buddy;go('quiz');showQ();}
 function showQ(){
   if(sess.i>=sess.queue.length)return endSession();
   // pauză de mișcare la jumătatea misiunilor lungi
@@ -861,7 +862,7 @@ function submit(){
   }
   const tt=(cur.hint||cur.retried)?Math.max(tm,thr(cur)+.1):tm;
   const fast=record(cur,ok,tt,sess.mode==='assess');
-  cur.done=true;clearInterval(idleT);if(cur.kind==='mc')renderAns();
+  cur.done=true;clearInterval(idleT);stopSpeak();if(cur.kind==='mc')renderAns();
   sess.res.push({key:cur.key,ok,t:tt,fast,big:cur.big});
   let stars=ok?(fast?2:1):0;if(cur.bonus)stars*=2;
   if(ok){sess.combo++;sess.maxC=Math.max(sess.maxC,sess.combo);S.maxCombo=Math.max(S.maxCombo||0,sess.combo);}else sess.combo=0;
@@ -896,7 +897,7 @@ function submit(){
 function nextQ(){if(!sess)return;sess.i++;showQ();window.scrollTo(0,0);}
 function showHint(){if(cur.done)return;cur.hint=true;cur.lastAct=performance.now();const s=stratsFor(cur)[0];if(s)say(`💡 ${s.t}: ${s.hint||strip(s.l[0])}`,6000);}
 const strip=h=>String(h).replace(/<[^>]+>/g,'');
-function quitSession(){clearInterval(idleT);document.body.classList.remove('focus');if(sess&&sess.res.length)endSession(true);else{sess=null;go('home');}}
+function quitSession(){clearInterval(idleT);stopSpeak();document.body.classList.remove('focus');if(sess&&sess.res.length)endSession(true);else{sess=null;go('home');}}
 
 /* ================= END / REWARDS ================= */
 function todayStr(d=new Date()){return d.toISOString().slice(0,10);}
@@ -962,7 +963,7 @@ function startBreak(cb){
   let left=20;const tick=()=>{$('brkSec').textContent=left;$('brkTimer').style.setProperty('--p',(left/20*100)+'%');if(left<=0){clearInterval(brkT);sound('ok');buzz(60);}left--;};
   clearInterval(brkT);tick();brkT=setInterval(tick,1000);
 }
-function endBreak(){clearInterval(brkT);document.body.classList.remove('focus');const cb=brkCb;brkCb=null;if(cb)cb();else go('home');}
+function endBreak(){clearInterval(brkT);stopSpeak();document.body.classList.remove('focus');const cb=brkCb;brkCb=null;if(cb)cb();else go('home');}
 
 /* ================= STRATEGIES ================= */
 function stratsFor(q){
@@ -1132,10 +1133,10 @@ ro:{
   tryIt:'Hai să încercăm! 🚀', yes:'Da', no:'Nu', same:'La fel', rightAns:'Răspunsul corect', done:'gata',
   names:{shapes:'Forme',solids:'Corpuri',sym:'Simetrie',area:'Arie și perimetru',clock:'Ceasul',money:'Bani',units:'Măsurători'},
   subs:{shapes:'triunghi, pătrat, cerc…',solids:'cub, sferă, cilindru…',sym:'oglinda magică',area:'pătrățele și margini',clock:'cât e ceasul?',money:'monede și bancnote',units:'cm, kg, minute'},
-  shape:{tri:'triunghi',rtri:'triunghi',square:'pătrat',rect:'dreptunghi',circle:'cerc',oval:'oval',pent:'pentagon',hex:'hexagon',oct:'octogon',rhomb:'romb'},
+  shape:{quad:'patrulater',tri:'triunghi',rtri:'triunghi',square:'pătrat',rect:'dreptunghi',circle:'cerc',oval:'oval',pent:'pentagon',hex:'hexagon',oct:'octogon',rhomb:'romb'},
   solid:{cube:'cub',cuboid:'cuboid',sphere:'sferă',cylinder:'cilindru',cone:'con',pyramid:'piramidă'},
   q:{
-    shName:'Cum se numește figura?', shSides:'Câte laturi are figura?', shCorners:'Câte colțuri are figura?', shFind:n=>`Atinge figura: <b>${n}</b>`, shRight:'Câte unghiuri drepte are figura?',
+    shName:'Cum se numește figura?', shSides:'Câte laturi are figura?', shCorners:'Câte colțuri are figura?', shFind:n=>`Atinge figura: <b>${n}</b>`, shRight:'Câte unghiuri drepte are figura?', shQuad:'Este figura un patrulater?',
     soName:'Cum se numește corpul?', soObj:'Ce formă are obiectul?', soFaces:'Câte fețe are corpul?', soVert:'Câte vârfuri (colțuri) are corpul?', soEdges:'Câte muchii are corpul?',
     soBase:'Ce formă are partea de jos (baza)?', soNet:'Care desen se poate plia într-un cub? 📦',
     syLetter:'Este litera la fel de ambele părți ale liniei?', syLine:'Este linia punctată o axă de simetrie?', syMirror:'Care desen e oglindit corect față de linie? 🪞',
@@ -1152,12 +1153,12 @@ ro:{
     return m<30?`${h} și ${m} ${mw(m)}`:`${n} fără ${60-m} ${mw(60-m)}`;},
   items:{'🍎':'un măr','🧃':'un suc','🍦':'o înghețată','✏️':'un creion','📒':'un caiet','🧸':'un ursuleț','🍫':'o ciocolată','⚽':'o minge','🍪':'un biscuit','🎈':'un balon'},
   st:{
-    shapeFacts:{tri:'3 laturi și 3 colțuri — „tri” înseamnă trei.',rtri:'3 laturi, 3 colțuri — și un unghi drept, ca un colț de caiet.',square:'4 laturi la fel de lungi și 4 unghiuri drepte.',rect:'4 laturi: două lungi și două scurte, plus 4 unghiuri drepte.',
+    shapeFacts:{tri:'3 laturi și 3 colțuri — „tri” înseamnă trei.',rtri:'3 laturi, 3 colțuri — și un unghi drept, ca un colț de caiet.',quad:'Orice figură cu 4 laturi și 4 colțuri este un patrulater. Pătratul, dreptunghiul și rombul sunt patrulatere cu nume speciale.',square:'4 laturi la fel de lungi și 4 unghiuri drepte. E un patrulater special — de fapt, chiar un dreptunghi special!',rect:'4 laturi: două lungi și două scurte, plus 4 unghiuri drepte. Este un patrulater.',
       circle:'Nicio latură dreaptă și niciun colț — e perfect rotund.',oval:'Ca un ou 🥚: rotund, dar alungit. Nu are colțuri.',pent:'5 laturi și 5 colțuri — „penta” înseamnă cinci.',hex:'6 laturi și 6 colțuri — „hexa” înseamnă șase (ca la fagurele de miere 🐝).',
-      oct:'8 laturi și 8 colțuri — „octo” înseamnă opt, ca brațele caracatiței 🐙.',rhomb:'4 laturi la fel de lungi, dar „înclinat” — nu are unghiuri drepte.'},
+      oct:'8 laturi și 8 colțuri — „octo” înseamnă opt, ca brațele caracatiței 🐙.',rhomb:'4 laturi la fel de lungi, dar „înclinat” — nu are unghiuri drepte. Este tot un patrulater.'},
     shapeT:'Cum o recunoști', countT:'Numără cu degetul', countL:'Pune degetul pe un colț și mergi de jur împrejur, numărând fiecare latură până ajungi înapoi.',
     rightT:'Unghiul drept', rightL:'Un unghi drept arată ca un colț de caiet 📒 sau ca litera L. Pune colțul unei foi pe unghi: dacă se potrivește exact, e drept.',
-    solidFacts:{cube:'6 fețe pătrate, 12 muchii, 8 vârfuri — ca un zar 🎲.',cuboid:'6 fețe dreptunghiulare, 12 muchii, 8 vârfuri — ca o cutie 📦.',sphere:'Complet rotundă, fără fețe plate — ca o minge ⚽.',
+    solidFacts:{cube:'6 fețe pătrate, 12 muchii, 8 vârfuri — ca un zar 🎲. Cubul e un cuboid special, cu toate fețele pătrate.',cuboid:'6 fețe dreptunghiulare, 12 muchii, 8 vârfuri — ca o cutie 📦.',sphere:'Complet rotundă, fără fețe plate — ca o minge ⚽.',
       cylinder:'Două cercuri plate (sus și jos) și o parte rotunjită — ca o conservă 🥫.',cone:'Un cerc plat jos și un vârf sus — ca un cornet 🍦.',pyramid:'Baza pătrată și 4 triunghiuri care se întâlnesc sus: 5 fețe, 8 muchii, 5 vârfuri.'},
     facesT:'Numără fețele', facesL:'Pentru cub și cuboid: sus, jos, față, spate, stânga, dreapta = 6 fețe.',
     netT:'Desfășurarea cubului', netL:'Un cub are 6 fețe. O desfășurare bună nu are niciodată 4 pătrate strânse într-un bloc 2×2 și nici 5 pătrate pe un rând.',
@@ -1179,10 +1180,12 @@ ro:{
     budgetT:'Întâi înmulțește, apoi scade',
     rulerT:'Rigla începe de la 0', rulerL:(a,b)=>a===0?`Creionul începe la 0 și se termină la ${b}: <b>${b} cm</b>.`:`Creionul NU începe la 0! Se termină la ${b} și începe la ${a}: ${b} − ${a} = <b>${b-a} cm</b>.`,
     unitsT:'Unitățile de măsură', unitsL:['Lungime: mm < cm < m < km','Greutate: g < kg','Timp: secunde < minute < ore < zile'],
+    precT:'Unitatea potrivită', precL:'Pentru lungimi poți folosi mm, cm, m sau km. Un tâmplar măsoară o ușă în milimetri (2000 mm), ca să taie exact; acasă spunem „2 metri”. Toate sunt corecte — alegi unitatea după cât de exact trebuie să fii.',
     convT:'Ține minte', convL:['1 m = 100 cm','1 km = 1000 m','1 kg = 1000 g','1 oră = 60 minute','1 minut = 60 secunde']
   },
-  un:{mm:'mm',cm:'cm',m:'m',km:'km',g:'g',kg:'kg',s:'secunde',min:'minute',h:'ore',d:'zile'},
+  un:{mm:'mm',cm:'cm',m:'m',km:'km',g:'g',kg:'kg',s:'secunde',min:'minute',h:'ore',d:'zile'}, un1:{s:'secundă',min:'minut',h:'oră',d:'zi'},
   pick:[['lungimea unui creion','cm'],['distanța până în alt oraș','km'],['înălțimea unei uși','m'],['greutatea unui măr','g'],['greutatea unui câine','kg'],['cât durează să te speli pe dinți','min'],['cât durează somnul de noapte','h'],['lungimea unei furnici','mm'],['lungimea unei piscine','m'],['greutatea unui sac de cartofi','kg'],['cât durează vacanța de vară','d'],['cât durează să clipești','s']],
+  craft:[['Un tâmplar taie o scândură pentru o ușă. Ce unitate folosește ca să fie <b>foarte exact</b>?','mm',['km']],['Un șofer spune cât mai e până la Copenhaga. Ce unitate folosește?','km',['mm','cm']],['Asistenta măsoară cât de înaltă ești. Ce unitate folosește?','cm',['km']],['Brutarul cântărește puțină drojdie pentru o prăjitură. Ce unitate folosește?','g',[]],['Antrenorul cronometrează o cursă de 60 m. Ce unitate folosește?','s',['d','h']]],
   facts:[['O oră are câte minute?',60],['O zi are câte ore?',24],['Un minut are câte secunde?',60],['O săptămână are câte zile?',7],['Un an are câte luni?',12],['1 metru are câți centimetri?',100]],
   facts2:[['1 kilogram are câte grame?',1000],['1 kilometru are câți metri?',1000],['O jumătate de oră are câte minute?',30],['Un sfert de oră are câte minute?',15]],
   est:[['Cât de înaltă e o ușă?',['2 m','20 cm','20 m','2 km']],['Cât cântărește un măr?',['150 g','15 kg','1 g','150 kg']],['Cât cântărește o pisică?',['4 kg','40 g','400 kg','4 g']],['Cât durează pauza mare?',['15 minute','15 secunde','15 ore','15 zile']],['Cât de lungă e o radieră?',['4 cm','4 m','40 m','4 km']],['Cât de lung e un autobuz?',['12 m','12 cm','12 km','120 m']],['Cât durează un film pentru copii?',['1 oră și jumătate','1 minut','10 secunde','2 zile']]]
@@ -1194,10 +1197,10 @@ da:{
   tryIt:'Lad os prøve! 🚀', yes:'Ja', no:'Nej', same:'Lige store', rightAns:'Det rigtige svar', done:'færdig',
   names:{shapes:'Figurer',solids:'Rumlige figurer',sym:'Spejling',area:'Areal og omkreds',clock:'Klokken',money:'Penge',units:'Måling'},
   subs:{shapes:'trekant, kvadrat, cirkel…',solids:'terning, kugle, cylinder…',sym:'det magiske spejl',area:'felter og kanter',clock:'hvad er klokken?',money:'mønter og sedler',units:'cm, kg, minutter'},
-  shape:{tri:'trekant',rtri:'trekant',square:'kvadrat',rect:'rektangel',circle:'cirkel',oval:'oval',pent:'femkant',hex:'sekskant',oct:'ottekant',rhomb:'rombe'},
+  shape:{quad:'firkant',tri:'trekant',rtri:'trekant',square:'kvadrat',rect:'rektangel',circle:'cirkel',oval:'oval',pent:'femkant',hex:'sekskant',oct:'ottekant',rhomb:'rombe'},
   solid:{cube:'terning',cuboid:'kasse',sphere:'kugle',cylinder:'cylinder',cone:'kegle',pyramid:'pyramide'},
   q:{
-    shName:'Hvad hedder figuren?', shSides:'Hvor mange sider har figuren?', shCorners:'Hvor mange hjørner har figuren?', shFind:n=>`Tryk på figuren: <b>${n}</b>`, shRight:'Hvor mange rette vinkler har figuren?',
+    shName:'Hvad hedder figuren?', shSides:'Hvor mange sider har figuren?', shCorners:'Hvor mange hjørner har figuren?', shFind:n=>`Tryk på figuren: <b>${n}</b>`, shRight:'Hvor mange rette vinkler har figuren?', shQuad:'Er figuren en firkant?',
     soName:'Hvad hedder figuren?', soObj:'Hvilken form har tingen?', soFaces:'Hvor mange flader har figuren?', soVert:'Hvor mange hjørner har figuren?', soEdges:'Hvor mange kanter har figuren?',
     soBase:'Hvilken form har bunden?', soNet:'Hvilken tegning kan foldes til en terning? 📦',
     syLetter:'Er bogstavet ens på begge sider af linjen?', syLine:'Er den stiplede linje en symmetriakse?', syMirror:'Hvilken tegning er spejlet rigtigt i linjen? 🪞',
@@ -1214,12 +1217,12 @@ da:{
     if(m===25)return `5 minutter i halv ${n}`;if(m===35)return `5 minutter over halv ${n}`;return m<30?`${m} minutter over ${h}`:`${60-m} minutter i ${n}`;},
   items:{'🍎':'et æble','🧃':'en juice','🍦':'en is','✏️':'en blyant','📒':'et hæfte','🧸':'en bamse','🍫':'en chokolade','⚽':'en bold','🍪':'en småkage','🎈':'en ballon'},
   st:{
-    shapeFacts:{tri:'3 sider og 3 hjørner — navnet siger det: tre-kant!',rtri:'3 sider, 3 hjørner — og én ret vinkel, ligesom hjørnet på et hæfte.',square:'4 lige lange sider og 4 rette vinkler.',rect:'4 sider: to lange og to korte, og 4 rette vinkler.',
+    shapeFacts:{tri:'3 sider og 3 hjørner — navnet siger det: tre-kant!',rtri:'3 sider, 3 hjørner — og én ret vinkel, ligesom hjørnet på et hæfte.',quad:'Alle figurer med 4 sider og 4 hjørner er firkanter. Kvadrat, rektangel og rombe er firkanter med deres eget navn.',square:'4 lige lange sider og 4 rette vinkler. I hverdagen siger mange bare „firkant”, men i matematik hedder den kvadrat — en helt særlig firkant (faktisk også et særligt rektangel)!',rect:'4 sider: to lange og to korte, og 4 rette vinkler. Det er en firkant.',
       circle:'Ingen lige sider og ingen hjørner — helt rund.',oval:'Som et æg 🥚: rund, men aflang. Ingen hjørner.',pent:'5 sider og 5 hjørner — fem-kant!',hex:'6 sider og 6 hjørner — seks-kant (som i en bikube 🐝).',
-      oct:'8 sider og 8 hjørner — otte-kant, som blækspruttens 8 arme 🐙.',rhomb:'4 lige lange sider, men „skæv” — ingen rette vinkler.'},
+      oct:'8 sider og 8 hjørner — otte-kant, som blækspruttens 8 arme 🐙.',rhomb:'4 lige lange sider, men „skæv” — ingen rette vinkler. Den er også en firkant.'},
     shapeT:'Sådan kender du den', countT:'Tæl med fingeren', countL:'Sæt fingeren på et hjørne og gå hele vejen rundt, mens du tæller hver side, til du er tilbage.',
     rightT:'Den rette vinkel', rightL:'En ret vinkel ligner hjørnet på et hæfte 📒 eller bogstavet L. Læg hjørnet af et papir på vinklen: passer det præcist, er den ret.',
-    solidFacts:{cube:'6 kvadratiske flader, 12 kanter, 8 hjørner — som en terning 🎲.',cuboid:'6 rektangulære flader, 12 kanter, 8 hjørner — som en kasse 📦.',sphere:'Helt rund uden flade sider — som en bold ⚽.',
+    solidFacts:{cube:'6 kvadratiske flader, 12 kanter, 8 hjørner — som en terning 🎲. En terning er en særlig kasse, hvor alle flader er kvadrater.',cuboid:'6 rektangulære flader, 12 kanter, 8 hjørner — som en kasse 📦.',sphere:'Helt rund uden flade sider — som en bold ⚽.',
       cylinder:'To flade cirkler (top og bund) og en rund side — som en dåse 🥫.',cone:'En flad cirkel i bunden og en spids foroven — som en isvaffel 🍦.',pyramid:'Kvadratisk bund og 4 trekanter, der mødes i toppen: 5 flader, 8 kanter, 5 hjørner.'},
     facesT:'Tæl fladerne', facesL:'For terning og kasse: top, bund, for, bag, venstre, højre = 6 flader.',
     netT:'Terningens udfoldning', netL:'En terning har 6 flader. En rigtig udfoldning har aldrig 4 felter samlet i en 2×2-blok og aldrig 5 felter på én række.',
@@ -1241,10 +1244,12 @@ da:{
     budgetT:'Først gange, så minus',
     rulerT:'Linealen starter ved 0', rulerL:(a,b)=>a===0?`Blyanten starter ved 0 og slutter ved ${b}: <b>${b} cm</b>.`:`Blyanten starter IKKE ved 0! Den slutter ved ${b} og starter ved ${a}: ${b} − ${a} = <b>${b-a} cm</b>.`,
     unitsT:'Måleenheder', unitsL:['Længde: mm < cm < m < km','Vægt: g < kg','Tid: sekunder < minutter < timer < dage'],
+    precT:'Den rigtige enhed', precL:'Til længder kan du bruge mm, cm, m eller km. En tømrer måler en dør i millimeter (2000 mm) for at kunne skære præcist; derhjemme siger vi „2 meter”. Det er alt sammen rigtigt — du vælger enheden efter, hvor præcist det skal være.',
     convT:'Husk', convL:['1 m = 100 cm','1 km = 1000 m','1 kg = 1000 g','1 time = 60 minutter','1 minut = 60 sekunder']
   },
-  un:{mm:'mm',cm:'cm',m:'m',km:'km',g:'g',kg:'kg',s:'sekunder',min:'minutter',h:'timer',d:'dage'},
+  un:{mm:'mm',cm:'cm',m:'m',km:'km',g:'g',kg:'kg',s:'sekunder',min:'minutter',h:'timer',d:'dage'}, un1:{s:'sekund',min:'minut',h:'time',d:'dag'},
   pick:[['længden af en blyant','cm'],['afstanden til en anden by','km'],['højden på en dør','m'],['vægten af et æble','g'],['vægten af en hund','kg'],['hvor lang tid det tager at børste tænder','min'],['hvor længe man sover om natten','h'],['længden af en myre','mm'],['længden af et svømmebassin','m'],['vægten af en sæk kartofler','kg'],['hvor lang sommerferien er','d'],['hvor lang tid et blink tager','s']],
+  craft:[['En tømrer saver et bræt til en dør. Hvilken enhed bruger han for at være <b>helt præcis</b>?','mm',['km']],['En chauffør siger, hvor langt der er til København. Hvilken enhed bruger han?','km',['mm','cm']],['Sygeplejersken måler, hvor høj du er. Hvilken enhed bruger hun?','cm',['km']],['Bageren vejer lidt gær til en kage. Hvilken enhed bruger hun?','g',[]],['Træneren tager tid på et 60 m-løb. Hvilken enhed bruger han?','s',['d','h']]],
   facts:[['Hvor mange minutter er der i en time?',60],['Hvor mange timer er der i et døgn?',24],['Hvor mange sekunder er der i et minut?',60],['Hvor mange dage er der i en uge?',7],['Hvor mange måneder er der i et år?',12],['Hvor mange centimeter er der i 1 meter?',100]],
   facts2:[['Hvor mange gram er der i 1 kilogram?',1000],['Hvor mange meter er der i 1 kilometer?',1000],['Hvor mange minutter er en halv time?',30],['Hvor mange minutter er et kvarter?',15]],
   est:[['Hvor høj er en dør?',['2 m','20 cm','20 m','2 km']],['Hvor meget vejer et æble?',['150 g','15 kg','1 g','150 kg']],['Hvor meget vejer en kat?',['4 kg','40 g','400 kg','4 g']],['Hvor lang er et frikvarter?',['15 minutter','15 sekunder','15 timer','15 dage']],['Hvor langt er et viskelæder?',['4 cm','4 m','40 m','4 km']],['Hvor lang er en bus?',['12 m','12 cm','12 km','120 m']],['Hvor lang er en børnefilm?',['halvanden time','1 minut','10 sekunder','2 dage']]]
@@ -1261,7 +1266,7 @@ const svgW=(inner,w=140,h=120,disp)=>`<svg viewBox="0 0 ${w} ${h}" width="${disp
 const poly=(pts,fill,extra='')=>`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${fill}" stroke="#2b2350" stroke-width="3" stroke-linejoin="round" ${extra}/>`;
 function regPoly(n,cx,cy,r,rot=-90){const p=[];for(let i=0;i<n;i++){const a=(rot+i*360/n)*Math.PI/180;p.push([+(cx+r*Math.cos(a)).toFixed(1),+(cy+r*Math.sin(a)).toFixed(1)]);}return p;}
 const SHAPE_PTS={tri:()=>regPoly(3,70,68,54),rtri:()=>[[25,105],[25,15],[118,105]],square:()=>[[25,15],[115,15],[115,105],[25,105]],rect:()=>[[8,30],[132,30],[132,92],[8,92]],
-  pent:()=>regPoly(5,70,63,52),hex:()=>regPoly(6,70,60,52,0),oct:()=>regPoly(8,70,60,52,22.5),rhomb:()=>[[70,6],[116,60],[70,114],[24,60]]};
+  pent:()=>regPoly(5,70,63,52),hex:()=>regPoly(6,70,60,52,0),oct:()=>regPoly(8,70,60,52,22.5),rhomb:()=>[[70,6],[116,60],[70,114],[24,60]],quad:()=>[[18,28],[108,10],[130,98],[38,110]]};
 function shapeG(name,fill){
   if(name==='circle')return `<circle cx="70" cy="60" r="50" fill="${fill}" stroke="#2b2350" stroke-width="3"/>`;
   if(name==='oval')return `<ellipse cx="70" cy="60" rx="64" ry="38" fill="${fill}" stroke="#2b2350" stroke-width="3"/>`;
@@ -1341,11 +1346,15 @@ function rulerSVG(a,b,disp=320){
 function mc(correctHtml,distract,label){const all=shuffle([{h:correctHtml,c:true},...distract.map(h=>({h,c:false}))]);return {kind:'mc',opts:all.map(o=>o.h),correct:all.findIndex(o=>o.c),ansText:label??strip(correctHtml)};}
 function uniq(arr,n){const o=[];for(const x of arr)if(!o.includes(x))o.push(x);return o.slice(0,n);}
 function nearNums(ans,n=3,lo=0){const s=new Set();let tries=0;while(s.size<n&&tries<99){tries++;const d=ans+pick([-3,-2,-1,1,2,3,4,-4,10,-10]);if(d>=lo&&d!==ans)s.add(d);}return [...s];}
+const uN=(u,n)=>`${n} ${n===1&&WD().un1[u]?WD().un1[u]:WD().un[u]}`;
 const YN=ok=>mc(ok?WD().yes:WD().no,[ok?WD().no:WD().yes]);
 
 /* ---------- generatoare: [nivel, alege parametri, construiește] ---------- */
-const PLANE=['tri','square','rect','circle','pent','hex','oct','rhomb','oval'];
-const SIDES={tri:3,rtri:3,square:4,rect:4,pent:5,hex:6,oct:8,rhomb:4};
+const PLANE=['tri','square','rect','circle','pent','hex','oct','rhomb','oval','quad'];
+const SIDES={tri:3,rtri:3,square:4,rect:4,pent:5,hex:6,oct:8,rhomb:4,quad:4};
+// figuri care se „includ” una în alta: nu le punem niciodată una ca variantă greșită pentru cealaltă
+const NEST={square:['rect','rhomb','quad'],rect:['square','quad'],rhomb:['square','quad'],quad:['square','rect','rhomb'],circle:['oval'],oval:['circle'],tri:['rtri'],rtri:['tri'],cube:['cuboid'],cuboid:['cube']};
+const notNest=(s,x)=>x!==s&&!(NEST[s]||[]).includes(x)&&!(NEST[x]||[]).includes(s);
 const RIGHT={square:4,rect:4,rtri:1,tri:0,rhomb:0,pent:0,hex:0};
 const SOLIDS=['cube','cuboid','sphere','cylinder','cone','pyramid'];
 const OBJ={'🎲':'cube','🧊':'cube','⚽':'sphere','🏀':'sphere','🥫':'cylinder','🕯️':'cylinder','🍦':'cone','📦':'cuboid','🧱':'cuboid'};
@@ -1366,19 +1375,20 @@ const ITEMS=['🍎','🧃','🍦','✏️','📒','🧸','🍫','⚽','🍪','�
 
 const GEN={
  shapes:{
-  name:[1,()=>[pick(PLANE)],([s])=>{const r=mc(shName(s),shuffle(PLANE.filter(x=>x!==s&&x!=='rtri')).slice(0,3).map(shName));return {...r,prompt:wq('shName'),vis:shapeSVG(s),short:`${WE.shapes} ${shName(s)}`,strats:[card('🔎',ws('shapeT'),ws('shapeFacts')[s],shapeSVG(s,undefined,90))]};}],
+  name:[1,()=>[pick(PLANE)],([s])=>{const r=mc(shName(s),shuffle(PLANE.filter(x=>notNest(s,x))).slice(0,3).map(shName));return {...r,prompt:wq('shName'),vis:shapeSVG(s),short:`${WE.shapes} ${shName(s)}`,strats:[card('🔎',ws('shapeT'),ws('shapeFacts')[s],shapeSVG(s,undefined,90))]};}],
   sides:[1,()=>[pick(Object.keys(SIDES))],([s])=>({kind:'num',ans:SIDES[s],prompt:wq('shSides'),vis:shapeSVG(s),short:`${shName(s)}: ${wq('shSides')}`,strats:[card('☝️',ws('countT'),ws('countL')),card('🔎',ws('shapeT'),ws('shapeFacts')[s])]})],
   corners:[1,()=>[pick(Object.keys(SIDES))],([s])=>({kind:'num',ans:SIDES[s],prompt:wq('shCorners'),vis:shapeSVG(s),short:`${shName(s)}: ${wq('shCorners')}`,strats:[card('☝️',ws('countT'),ws('countL')),card('🔎',ws('shapeT'),ws('shapeFacts')[s])]})],
-  find:[2,()=>[pick(PLANE)],([s])=>{const bad=PLANE.filter(x=>x!==s&&!(s==='square'&&x==='rect')&&!(s==='rect'&&x==='square')&&!(s==='circle'&&x==='oval')&&!(s==='oval'&&x==='circle'));
+  find:[2,()=>[pick(PLANE.filter(x=>x!=='quad'))],([s])=>{const bad=PLANE.filter(x=>notNest(s,x));
     const r=mc(shapeSVG(s,undefined,110),shuffle(bad).slice(0,3).map(x=>shapeSVG(x,undefined,110)),shName(s));return {...r,prompt:wq('shFind',shName(s)),vis:'',short:`${WE.shapes} ${shName(s)}`,strats:[card('🔎',ws('shapeT'),ws('shapeFacts')[s],shapeSVG(s,undefined,90))]};}],
+  isquad:[2,()=>[pick(['square','rect','rhomb','quad','quad','tri','pent','hex','circle'])],([s])=>({...YN(SIDES[s]===4),prompt:wq('shQuad'),vis:shapeSVG(s),short:`${shName(s)}: ${SIDES[s]===4?'✔':'✗'}`,strats:[card('🔎',ws('shapeT'),[ws('shapeFacts').quad,ws('shapeFacts')[s]])]})],
   right:[3,()=>[pick(Object.keys(RIGHT))],([s])=>({kind:'num',ans:RIGHT[s],prompt:wq('shRight'),vis:shapeSVG(s),short:`${shName(s)}: ${wq('shRight')}`,strats:[card('📐',ws('rightT'),[ws('rightL'),ws('shapeFacts')[s]],svgW(poly([[25,105],[25,15],[118,105]],'#c9d6ff')+rightMark(),140,120,90))]})]
  },
  solids:{
-  name:[1,()=>[pick(SOLIDS)],([s])=>{const r=mc(soName(s),shuffle(SOLIDS.filter(x=>x!==s)).slice(0,3).map(soName));return {...r,prompt:wq('soName'),vis:solidSVG(s),short:`${WE.solids} ${soName(s)}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],solidSVG(s,90))]};}],
-  obj:[1,()=>[pick(Object.keys(OBJ))],([o])=>{const s=OBJ[o];const r=mc(soName(s),shuffle(SOLIDS.filter(x=>x!==s&&x!=='pyramid')).slice(0,3).map(soName));return {...r,prompt:wq('soObj'),vis:`<div style="font-size:90px;line-height:1.1">${o}</div>`,short:`${o} → ${soName(s)}`,strats:[card(o,soName(s),ws('solidFacts')[s],solidSVG(s,90))]};}],
+  name:[1,()=>[pick(SOLIDS)],([s])=>{const r=mc(soName(s),shuffle(SOLIDS.filter(x=>notNest(s,x))).slice(0,3).map(soName));return {...r,prompt:wq('soName'),vis:solidSVG(s),short:`${WE.solids} ${soName(s)}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],solidSVG(s,90))]};}],
+  obj:[1,()=>[pick(Object.keys(OBJ))],([o])=>{const s=OBJ[o];const r=mc(soName(s),shuffle(SOLIDS.filter(x=>notNest(s,x)&&x!=='pyramid')).slice(0,3).map(soName));return {...r,prompt:wq('soObj'),vis:`<div style="font-size:90px;line-height:1.1">${o}</div>`,short:`${o} → ${soName(s)}`,strats:[card(o,soName(s),ws('solidFacts')[s],solidSVG(s,90))]};}],
   faces:[2,()=>[pick(['cube','cuboid','pyramid'])],([s])=>({kind:'num',ans:FACES[s],prompt:wq('soFaces'),vis:solidSVG(s),short:`${soName(s)}: ${wq('soFaces')}`,strats:[card('🧊',ws('facesT'),[ws('facesL'),ws('solidFacts')[s]],solidSVG(s,90))]})],
   verts:[2,()=>[pick(['cube','cuboid','pyramid'])],([s])=>({kind:'num',ans:VERTS[s],prompt:wq('soVert'),vis:solidSVG(s),short:`${soName(s)}: ${wq('soVert')}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],solidSVG(s,90))]})],
-  base:[2,()=>[pick(Object.keys(BASE))],([s])=>{const b=BASE[s];const r=mc(shName(b),shuffle(['tri','square','rect','circle','hex'].filter(x=>x!==b)).slice(0,3).map(shName));return {...r,prompt:wq('soBase'),vis:solidSVG(s),short:`${soName(s)} → ${shName(b)}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],shapeSVG(b,undefined,70))]};}],
+  base:[2,()=>[pick(Object.keys(BASE))],([s])=>{const b=BASE[s];const r=mc(shName(b),shuffle(['tri','square','rect','circle','hex','pent'].filter(x=>notNest(b,x))).slice(0,3).map(shName));return {...r,prompt:wq('soBase'),vis:solidSVG(s),short:`${soName(s)} → ${shName(b)}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],shapeSVG(b,undefined,70))]};}],
   edges:[3,()=>[pick(['cube','cuboid','pyramid'])],([s])=>({kind:'num',ans:EDGES[s],prompt:wq('soEdges'),vis:solidSVG(s),short:`${soName(s)}: ${wq('soEdges')}`,strats:[card('🔎',soName(s),ws('solidFacts')[s],solidSVG(s,90))]})],
   net:[3,()=>[rnd(NETS_OK.length),rnd(NETS_BAD.length),rnd(NETS_BAD.length)],([a,b,c])=>{if(b===c)c=(c+1)%NETS_BAD.length;const r=mc(netSVG(NETS_OK[a],120),[netSVG(NETS_BAD[b],120),netSVG(NETS_BAD[c],120)],'✔');return {...r,ansText:'📦',prompt:wq('soNet'),vis:'',short:`${WE.solids} ${wq('soNet')}`,strats:[card('📦',ws('netT'),ws('netL'),netSVG(NETS_OK[a],110))]};}]
  },
@@ -1429,16 +1439,20 @@ const GEN={
   ruler:[1,()=>[0,2+rnd(10)],([a,b])=>({kind:'num',unit:'cm',ans:b-a,prompt:wq('unRuler'),vis:rulerSVG(a,b),short:`✏️ ${b-a} cm`,strats:[card('📏',ws('rulerT'),ws('rulerL',a,b))]})],
   facts:[1,()=>[rnd(WTXT.ro.facts.length)],([i])=>{const [q,a]=WD().facts[i];return {kind:'num',ans:a,prompt:q,vis:'',short:`${q} ${a}`,strats:[card('🧠',ws('convT'),ws('convL'))]};}],
   pick:[1,()=>[rnd(WTXT.ro.pick.length)],([i])=>{const [x,u]=WD().pick[i];const U=WD().un;const grp={mm:'L',cm:'L',m:'L',km:'L',g:'W',kg:'W',s:'T',min:'T',h:'T',d:'T'};
-    const same=Object.keys(grp).filter(k=>grp[k]===grp[u]&&k!==u),other=Object.keys(grp).filter(k=>grp[k]!==grp[u]);const r=mc(U[u],[...shuffle(same).slice(0,2),pick(other)].map(k=>U[k]));
-    return {...r,prompt:wq('unPick',x),vis:'',short:`${x} → ${U[u]}`,strats:[card('📏',ws('unitsT'),ws('unitsL'))]};}],
+    const gs=['L','W','T'].filter(g=>g!==grp[u]);const ds=[pick(Object.keys(grp).filter(k=>grp[k]===gs[0])),pick(Object.keys(grp).filter(k=>grp[k]===gs[1])),pick(Object.keys(grp).filter(k=>grp[k]!==grp[u]))];
+    const r=mc(U[u],uniq(ds.map(k=>U[k]),3));
+    return {...r,prompt:wq('unPick',x),vis:'',short:`${x} → ${U[u]}`,strats:[card('📏',ws('unitsT'),ws('unitsL')),card('🪚',ws('precT'),ws('precL'))]};}],
+  craft:[2,()=>[rnd(WTXT.ro.craft.length)],([i])=>{const [x,u,wrong]=WD().craft[i];const U=WD().un;const grp={mm:'L',cm:'L',m:'L',km:'L',g:'W',kg:'W',s:'T',min:'T',h:'T',d:'T'};
+    const other=shuffle(Object.keys(grp).filter(k=>grp[k]!==grp[u])).slice(0,3-wrong.length);const r=mc(U[u],uniq([...wrong,...other].map(k=>U[k]),3));
+    return {...r,prompt:x,vis:'',short:`${strip(x).slice(0,40)}… → ${U[u]}`,strats:[card('🪚',ws('precT'),ws('precL'))]};}],
   ruler2:[2,()=>{const a=1+rnd(5);return [a,a+2+rnd(12-a-2)];},([a,b])=>({kind:'num',unit:'cm',ans:b-a,prompt:wq('unRuler'),vis:rulerSVG(a,b),short:`✏️ ${a}→${b} = ${b-a} cm`,strats:[card('📏',ws('rulerT'),ws('rulerL',a,b))]})],
   estimate:[2,()=>[rnd(WTXT.ro.est.length)],([i])=>{const [q,o]=WD().est[i];const r=mc(o[0],o.slice(1));return {...r,prompt:q,vis:'',short:`${q} ${o[0]}`,strats:[card('📏',ws('unitsT'),ws('unitsL'))]};}],
   compare:[2,()=>pick([['m',1,'cm',pick([50,90,100,150])],['kg',1,'g',pick([500,900,1000,1500])],['h',1,'min',pick([45,60,70,90])],['m',2,'cm',pick([150,200,250])]]),
-    ([u1,a,u2,b])=>{const f={m:100,kg:1000,h:60}[u1],A=a*f,U=WD().un;const lA=`${a} ${U[u1]}`,lB=`${b} ${U[u2]}`;const ans=A>b?lA:b>A?lB:WD().same;const r=mc(ans,[lA,lB,WD().same].filter(x=>x!==ans));
-      return {...r,prompt:wq('unCompare'),vis:`<div style="font-size:30px;font-weight:900">${lA} &nbsp;?&nbsp; ${lB}</div>`,short:`${lA} / ${lB}`,strats:[card('🔄',ws('convT'),[`${lA} = ${A} ${U[u2]}`,`${A} ${A>b?'>':A<b?'<':'='} ${b}`])]};}],
+    ([u1,a,u2,b])=>{const f={m:100,kg:1000,h:60}[u1],A=a*f,U=WD().un;const lA=uN(u1,a),lB=uN(u2,b);const ans=A>b?lA:b>A?lB:WD().same;const r=mc(ans,[lA,lB,WD().same].filter(x=>x!==ans));
+      return {...r,prompt:wq('unCompare'),vis:`<div style="font-size:30px;font-weight:900">${lA} &nbsp;?&nbsp; ${lB}</div>`,short:`${lA} / ${lB}`,strats:[card('🔄',ws('convT'),[`${lA} = ${uN(u2,A)}`,`${A} ${A>b?'>':A<b?'<':'='} ${b}`])]};}],
   facts2:[2,()=>[rnd(WTXT.ro.facts2.length)],([i])=>{const [q,a]=WD().facts2[i];return {kind:'num',ans:a,prompt:q,vis:'',short:`${q} ${a}`,strats:[card('🧠',ws('convT'),ws('convL'))]};}],
   convert:[3,()=>pick([['m','cm',2+rnd(8),100],['kg','g',2+rnd(5),1000],['h','min',1+rnd(3),60],['min','s',1+rnd(3),60],['km','m',2+rnd(4),1000]]),
-    ([u1,u2,a,f])=>{const U=WD().un;return {kind:'num',unit:U[u2],ans:a*f,prompt:wq('unConvert',`${a} ${U[u1]}`),vis:'',short:`${a} ${U[u1]} = ${a*f} ${U[u2]}`,strats:[card('🔄',ws('convT'),[`1 ${U[u1]} = ${f} ${U[u2]}`,`${a} ${X()} ${f} = <b>${a*f}</b>`])]};}]
+    ([u1,u2,a,f])=>{const U=WD().un;return {kind:'num',unit:U[u2],ans:a*f,prompt:wq('unConvert',uN(u1,a)),vis:'',short:`${uN(u1,a)} = ${uN(u2,a*f)}`,strats:[card('🔄',ws('convT'),[`${uN(u1,1)} = ${uN(u2,f)}`,`${a} ${X()} ${f} = <b>${a*f}</b>`])]};}]
  }
 };
 function clockRead(h,m,lvl){
@@ -1476,7 +1490,7 @@ function worldPct(world){const ts=Object.keys(GEN[world]);const ok=ts.filter(t=>
 
 /* ---------- Descoperă: carduri explicative ---------- */
 const DISC_V={
-  shapes:[()=>`<div class="row" style="justify-content:center">${shapeSVG('tri','#4f7cff',80)}${shapeSVG('square','#ff8a3d',80)}${shapeSVG('circle','#1fa463',80)}</div>`,()=>shapeSVG('square','#c9d6ff',120),()=>`<div class="row" style="justify-content:center">${shapeSVG('pent',PAL[3],80)}${shapeSVG('hex',PAL[5],80)}${shapeSVG('oct',PAL[6],80)}</div>`,()=>svgW(poly([[25,105],[25,15],[118,105]],'#c9d6ff')+rightMark(),140,120,120)],
+  shapes:[()=>`<div class="row" style="justify-content:center">${shapeSVG('tri','#4f7cff',80)}${shapeSVG('square','#ff8a3d',80)}${shapeSVG('circle','#1fa463',80)}</div>`,()=>shapeSVG('square','#c9d6ff',120),()=>`<div class="row" style="justify-content:center">${shapeSVG('square',PAL[0],70)}${shapeSVG('rect',PAL[1],70)}${shapeSVG('rhomb',PAL[2],70)}${shapeSVG('quad',PAL[3],70)}</div>`,()=>`<div class="row" style="justify-content:center">${shapeSVG('pent',PAL[3],80)}${shapeSVG('hex',PAL[5],80)}${shapeSVG('oct',PAL[6],80)}</div>`,()=>svgW(poly([[25,105],[25,15],[118,105]],'#c9d6ff')+rightMark(),140,120,120)],
   solids:[()=>`<div class="row" style="justify-content:center">${solidSVG('cube',90)}${solidSVG('sphere',90)}${solidSVG('cylinder',90)}</div>`,()=>solidSVG('cube',130),()=>`<div style="font-size:54px;text-align:center">🎲 ⚽ 🥫 🍦 📦</div>`,()=>netSVG(NETS_OK[0],140)],
   sym:[()=>letterSVG('A',120),()=>`<div style="font-size:90px;text-align:center">🦋</div>`,()=>gridSVG(6,4,[[0,0],[1,1],[2,1],[2,3]],[[5,0],[4,1],[3,1],[3,3]],3,180)],
   area:[()=>rectGridSVG(4,3),()=>rectGridSVG(4,3,{labels:['4 cm','3 cm'],grid:false}),()=>`<div class="row" style="justify-content:center;gap:12px">${rectGridSVG(6,2,{u:16,tag:'A'})}${rectGridSVG(4,3,{u:16,fill:'#ffd0a8',tag:'B'})}</div>`],
@@ -1486,7 +1500,7 @@ const DISC_V={
 };
 const DISC_T={
 ro:{
-  shapes:[['Figuri plane','Figurile plane sunt plate, ca un desen pe foaie. Le recunoaștem după laturi și colțuri.'],['Laturi și colțuri','Latura e o linie dreaptă. Colțul e locul unde se întâlnesc două laturi. Pătratul are 4 laturi și 4 colțuri.'],['Truc pentru nume','Numele te ajută: tri = 3, penta = 5, hexa = 6, octo = 8. Pentagonul are 5 laturi, hexagonul 6, octogonul 8!'],['Unghiul drept 🌱','Un unghi drept arată ca un colț de caiet sau ca litera L. Pătratul și dreptunghiul au 4 unghiuri drepte.']],
+  shapes:[['Figuri plane','Figurile plane sunt plate, ca un desen pe foaie. Le recunoaștem după laturi și colțuri.'],['Laturi și colțuri','Latura e o linie dreaptă. Colțul e locul unde se întâlnesc două laturi. Pătratul are 4 laturi și 4 colțuri.'],['Patrulatere','Toate figurile cu 4 laturi sunt patrulatere. Unele au nume speciale: pătrat, dreptunghi și romb. Ultima figură e un patrulater obișnuit.'],['Truc pentru nume','Numele te ajută: tri = 3, penta = 5, hexa = 6, octo = 8. Pentagonul are 5 laturi, hexagonul 6, octogonul 8!'],['Unghiul drept 🌱','Un unghi drept arată ca un colț de caiet sau ca litera L. Pătratul și dreptunghiul au 4 unghiuri drepte.']],
   solids:[['Corpuri','Corpurile nu sunt plate: le poți ține în mână și au și grosime.'],['Fețe, muchii, vârfuri','Fața e partea plată. Muchia e linia unde se întâlnesc două fețe. Vârful e colțul. Cubul: 6 fețe, 12 muchii, 8 vârfuri.'],['În jurul tău','Zarul e un cub, mingea o sferă, conserva un cilindru, cornetul un con, cutia un cuboid.'],['Desfășurarea 🌱','Dacă desfaci o cutie în formă de cub, obții 6 pătrate legate între ele. Asta se numește desfășurare.']],
   sym:[['Axa de simetrie','O figură e simetrică dacă, atunci când o pliezi pe linie, cele două jumătăți se suprapun perfect. Linia se numește axă de simetrie.'],['Simetria în natură','Fluturele, multe frunze și chiar fața ta sunt (aproape) simetrice. 🙂'],['Oglinda 🌱','Ce e aproape de linie rămâne aproape în oglindă; ce e departe rămâne departe.']],
   area:[['Aria','Aria înseamnă câte pătrățele acoperă o figură. Aici: 3 rânduri a câte 4 = 3 × 4 = 12 pătrățele. Exact ca la înmulțire!'],['Perimetrul','Perimetrul e drumul de jur împrejur. Aduni toate laturile: 4 + 3 + 4 + 3 = 14 cm.'],['Surpriză 🌱','Figuri diferite pot avea aceeași arie: 6 × 2 = 12 și 4 × 3 = 12!']],
@@ -1495,7 +1509,7 @@ ro:{
   units:[['Rigla','Lungimea o măsurăm cu rigla, în centimetri (cm). Începe mereu de la 0! Creionul de aici are 7 cm.'],['Lungime și greutate','1 metru = 100 de centimetri. 1 kilometru = 1000 de metri. 1 kilogram = 1000 de grame.'],['Timpul','1 oră = 60 de minute. O zi are 24 de ore, o săptămână are 7 zile.']]
 },
 da:{
-  shapes:[['Plane figurer','Plane figurer er flade, som en tegning på papir. Vi kender dem på sider og hjørner.'],['Sider og hjørner','En side er en lige linje. Et hjørne er der, hvor to sider mødes. Et kvadrat har 4 sider og 4 hjørner.'],['Navnet hjælper','På dansk siger navnet antallet af hjørner: tre-kant, fem-kant, seks-kant, otte-kant!'],['Den rette vinkel 🌱','En ret vinkel ligner hjørnet på et hæfte eller bogstavet L. Kvadrat og rektangel har 4 rette vinkler.']],
+  shapes:[['Plane figurer','Plane figurer er flade, som en tegning på papir. Vi kender dem på sider og hjørner.'],['Sider og hjørner','En side er en lige linje. Et hjørne er der, hvor to sider mødes. Et kvadrat har 4 sider og 4 hjørner.'],['Firkanter','Alle figurer med 4 sider er firkanter. Nogle har deres eget navn: kvadrat, rektangel og rombe. I hverdagen siger mange „firkant” om et kvadrat — i matematik hedder det kvadrat.'],['Navnet hjælper','På dansk siger navnet antallet af hjørner: tre-kant, fir-kant, fem-kant, seks-kant, otte-kant!'],['Den rette vinkel 🌱','En ret vinkel ligner hjørnet på et hæfte eller bogstavet L. Kvadrat og rektangel har 4 rette vinkler.']],
   solids:[['Rumlige figurer','Rumlige figurer er ikke flade: du kan holde dem i hånden.'],['Flader, kanter, hjørner','En flade er den flade side. En kant er linjen, hvor to flader mødes. Et hjørne er spidsen. Terningen: 6 flader, 12 kanter, 8 hjørner.'],['Rundt om dig','Terningen er en terning, bolden en kugle, dåsen en cylinder, isvaflen en kegle, æsken en kasse.'],['Udfoldning 🌱','Folder du en terning ud, får du 6 kvadrater, der hænger sammen. Det kaldes en udfoldning.']],
   sym:[['Symmetriaksen','En figur er symmetrisk, hvis de to halvdele passer præcist oven på hinanden, når du folder langs linjen. Linjen kaldes en symmetriakse.'],['Symmetri i naturen','Sommerfuglen, mange blade og dit eget ansigt er (næsten) symmetriske. 🙂'],['Spejlet 🌱','Det, der er tæt på linjen, er også tæt på i spejlet; det, der er langt væk, er også langt væk.']],
   area:[['Areal','Areal betyder, hvor mange felter en figur dækker. Her: 3 rækker med 4 = 3 · 4 = 12 felter. Ligesom gange!'],['Omkreds','Omkredsen er vejen hele vejen rundt. Læg alle siderne sammen: 4 + 3 + 4 + 3 = 14 cm.'],['Overraskelse 🌱','Forskellige figurer kan have samme areal: 6 · 2 = 12 og 4 · 3 = 12!']],
@@ -1710,7 +1724,12 @@ function speak(txt,onInfo){
     if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150);}else go();   // evită eroarea cancel→speak
   }catch(e){onInfo&&onInfo(t('ttsErr',e.message||e));}
 }
-function speakQ(){if(!cur)return;const sp=t('sp');speak(cur.say||`${cur.a} ${sp[cur.sign]||cur.sign} ${cur.b}`);cur.lastAct=performance.now();}
+function speakQ(){if(!cur)return;const sp=t('sp');let txt=cur.say||`${cur.a} ${sp[cur.sign]||cur.sign} ${cur.b}`;
+  if(cur.kind==='mc'&&!cur.opts.some(o=>o.includes('<')))txt+=(/[?!.]\s*$/.test(txt)?' ':'. ')+cur.opts.map(strip).join(', ');   // citește și variantele scrise
+  speak(txt);cur.lastAct=performance.now();}
+function stopSpeak(){try{if(window.speechSynthesis)speechSynthesis.cancel();}catch(e){}}
+function updSpk(){const b=$('spkBtn');if(!b)return;b.textContent=S.settings.speak?'🔊':'🔇';b.classList.toggle('on',!!S.settings.speak);}
+function toggleSpeak(){S.settings.speak=!S.settings.speak;save();updSpk();if(S.settings.speak)speakQ();else stopSpeak();say(S.settings.speak?t('spkOn'):t('spkOff'),3000);}
 function testVoice(){$('ttsInfo').textContent='…';speak(t('voiceSample',S.name||''),m=>{$('ttsInfo').textContent=m;});}
 if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}}
 
