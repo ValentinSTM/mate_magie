@@ -1139,7 +1139,7 @@ ro:{
     shName:'Cum se numește figura?', shSides:'Câte laturi are figura?', shCorners:'Câte colțuri are figura?', shFind:n=>`Atinge figura: <b>${n}</b>`, shRight:'Câte unghiuri drepte are figura?', shQuad:'Este figura un patrulater?',
     soName:'Cum se numește corpul?', soObj:'Ce formă are obiectul?', soFaces:'Câte fețe are corpul?', soVert:'Câte vârfuri (colțuri) are corpul?', soEdges:'Câte muchii are corpul?',
     soBase:'Ce formă are partea de jos (baza)?', soNet:'Care desen se poate plia într-un cub? 📦',
-    syLetter:'Este litera la fel de ambele părți ale liniei?', syLine:'Este linia punctată o axă de simetrie?', syMirror:'Care desen e oglindit corect față de linie? 🪞',
+    syLetter:'Este litera la fel de ambele părți ale liniei?', syLine:'Este linia punctată o axă de simetrie?', syMirror:'Care desen e oglindit corect față de linie? 🪞', syAxes:'Câte axe de simetrie are figura?',
     arCount:'Câte pătrățele acoperă figura?', arCompare:'Care figură are aria mai mare (mai multe pătrățele)?', arPerim:'Cât este perimetrul (drumul de jur împrejur)?',
     arArea:'Cât este aria dreptunghiului?', arMissing:(A,w)=>`Aria este ${A} cm². O latură are ${w} cm. Cât are cealaltă latură?`,
     clRead:'Cât arată ceasul?', clSet:n=>`Care ceas arată <b>${n}</b>?`, clLater:(a,d)=>`Acum e <b>${a}</b>. Cât va fi ceasul peste <b>${d}</b>?`, clH24:n=>`Ceasul digital arată <b>${n}</b>. Care ceas cu limbi arată la fel?`,
@@ -1164,6 +1164,7 @@ ro:{
     netT:'Desfășurarea cubului', netL:'Un cub are 6 fețe. O desfășurare bună nu are niciodată 4 pătrate strânse într-un bloc 2×2 și nici 5 pătrate pe un rând.',
     symT:'Testul plierii', symL:'Imaginează-ți că pliezi foaia pe linie. Dacă cele două jumătăți se suprapun perfect, linia e o axă de simetrie.',
     diagL:'Atenție: diagonala unui dreptunghi NU e axă de simetrie — dacă pliezi, colțurile nu se potrivesc.',
+    axesL:'Caută toate liniile pe care poți plia figura astfel încât jumătățile să se suprapună perfect. Pătratul are 4: una în sus, una în lateral și două pe diagonale.',
     mirrorT:'Oglinda', mirrorL:'În oglindă, pătrățelul cel mai apropiat de linie rămâne cel mai apropiat de linie. Verifică rând cu rând.',
     areaT:'Rânduri × coloane', areaL:(h,w,A)=>`${h} rânduri a câte ${w} pătrățele: ${h} × ${w} = <b>${A}</b>`,
     perimT:'Mergi de jur împrejur', perimL:(w,h,P)=>`${w} + ${h} + ${w} + ${h} = <b>${P}</b> cm`, perimL2:(w,h,P)=>`Mai repede: (${w} + ${h}) × 2 = <b>${P}</b> cm`,
@@ -1203,7 +1204,7 @@ da:{
     shName:'Hvad hedder figuren?', shSides:'Hvor mange sider har figuren?', shCorners:'Hvor mange hjørner har figuren?', shFind:n=>`Tryk på figuren: <b>${n}</b>`, shRight:'Hvor mange rette vinkler har figuren?', shQuad:'Er figuren en firkant?',
     soName:'Hvad hedder figuren?', soObj:'Hvilken form har tingen?', soFaces:'Hvor mange flader har figuren?', soVert:'Hvor mange hjørner har figuren?', soEdges:'Hvor mange kanter har figuren?',
     soBase:'Hvilken form har bunden?', soNet:'Hvilken tegning kan foldes til en terning? 📦',
-    syLetter:'Er bogstavet ens på begge sider af linjen?', syLine:'Er den stiplede linje en symmetriakse?', syMirror:'Hvilken tegning er spejlet rigtigt i linjen? 🪞',
+    syLetter:'Er bogstavet ens på begge sider af linjen?', syLine:'Er den stiplede linje en symmetriakse?', syMirror:'Hvilken tegning er spejlet rigtigt i linjen? 🪞', syAxes:'Hvor mange symmetriakser har figuren?',
     arCount:'Hvor mange felter dækker figuren?', arCompare:'Hvilken figur har det største areal (flest felter)?', arPerim:'Hvad er omkredsen (vejen hele vejen rundt)?',
     arArea:'Hvad er arealet af rektanglet?', arMissing:(A,w)=>`Arealet er ${A} cm². Den ene side er ${w} cm. Hvor lang er den anden side?`,
     clRead:'Hvad er klokken?', clSet:n=>`Hvilket ur viser <b>${n}</b>?`, clLater:(a,d)=>`Klokken er <b>${a}</b>. Hvad er klokken om <b>${d}</b>?`, clH24:n=>`Det digitale ur viser <b>${n}</b>. Hvilket ur med visere viser det samme?`,
@@ -1228,6 +1229,7 @@ da:{
     netT:'Terningens udfoldning', netL:'En terning har 6 flader. En rigtig udfoldning har aldrig 4 felter samlet i en 2×2-blok og aldrig 5 felter på én række.',
     symT:'Foldetesten', symL:'Forestil dig, at du folder papiret langs linjen. Passer de to halvdele præcist oven på hinanden, er linjen en symmetriakse.',
     diagL:'Pas på: diagonalen i et rektangel er IKKE en symmetriakse — folder du, passer hjørnerne ikke.',
+    axesL:'Find alle de linjer, du kan folde figuren langs, så halvdelene passer præcist. Kvadratet har 4: én lodret, én vandret og to skrå.',
     mirrorT:'Spejlet', mirrorL:'I spejlet bliver det felt, der er tættest på linjen, ved med at være tættest på linjen. Tjek række for række.',
     areaT:'Rækker × kolonner', areaL:(h,w,A)=>`${h} rækker med ${w} felter: ${h} · ${w} = <b>${A}</b>`,
     perimT:'Gå hele vejen rundt', perimL:(w,h,P)=>`${w} + ${h} + ${w} + ${h} = <b>${P}</b> cm`, perimL2:(w,h,P)=>`Hurtigere: (${w} + ${h}) · 2 = <b>${P}</b> cm`,
@@ -1364,6 +1366,9 @@ const NETS_OK=[[[1,0],[0,1],[1,1],[2,1],[3,1],[1,2]],[[0,0],[0,1],[1,1],[2,1],[3
 const NETS_BAD=[[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],[[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]],[[0,0],[1,0],[0,1],[1,1],[2,1],[3,1]],[[0,1],[1,1],[2,1],[3,1],[4,1],[2,0]]];
 const LET_Y='AHIMOTUVWXY',LET_N='BCDEFGJKLNPRSZ';
 const SYMQ=[['rect','v',1],['rect','h',1],['rect','d',0],['square','v',1],['square','d',1],['tri','v',1],['tri','h',0],['circle','v',1],['circle','h',1],['rtri','v',0],['oval','h',1],['rhomb','v',1]];
+// axele de simetrie: centru + unghiuri (figuri regulate: rot + k·180/n)
+const AXES={square:[[70,60],[0,45,90,135]],rect:[[70,61],[0,90]],rhomb:[[70,60],[0,90]],tri:[[70,68],[-90,-30,30]],pent:[[70,63],[0,1,2,3,4].map(k=>-90+k*36)],hex:[[70,60],[0,1,2,3,4,5].map(k=>k*30)],oct:[[70,60],[0,1,2,3,4,5,6,7].map(k=>22.5+k*22.5)]};
+function axesSVG(s,disp=120){const [[cx,cy],an]=AXES[s];return svgW(shapeG(s,'#c9d6ff')+an.map(a=>{const r=a*Math.PI/180,dx=68*Math.cos(r),dy=68*Math.sin(r);return `<line x1="${(cx-dx).toFixed(1)}" y1="${(cy-dy).toFixed(1)}" x2="${(cx+dx).toFixed(1)}" y2="${(cy+dy).toFixed(1)}" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="6 4"/>`;}).join(''),140,120,disp);}
 const shName=k=>WD().shape[k],soName=k=>WD().solid[k];
 const clockCards=(h,m)=>{const c=[card('🕐',ws('clockT'),ws('clockL'),clockSVG(h,m,120))];if(m===30)c.push(card('🌗',ws('clockT'),ws('halfL')));if(m===15||m===45)c.push(card('🍰',ws('clockT'),ws('quartL')));return c;};
 function minutesSet(lvl){return lvl===1?[0,30]:lvl===2?[0,15,30,45,5,10,20,40,50,55]:[0,5,10,15,20,25,30,35,40,45,50,55];}
@@ -1393,9 +1398,10 @@ const GEN={
   net:[3,()=>[rnd(NETS_OK.length),rnd(NETS_BAD.length),rnd(NETS_BAD.length)],([a,b,c])=>{if(b===c)c=(c+1)%NETS_BAD.length;const r=mc(netSVG(NETS_OK[a],120),[netSVG(NETS_BAD[b],120),netSVG(NETS_BAD[c],120)],'✔');return {...r,ansText:'📦',prompt:wq('soNet'),vis:'',short:`${WE.solids} ${wq('soNet')}`,strats:[card('📦',ws('netT'),ws('netL'),netSVG(NETS_OK[a],110))]};}]
  },
  sym:{
-  letter:[2,()=>[Math.random()<.5?pick(LET_Y):pick(LET_N)],([l])=>{const ok=LET_Y.includes(l);return {...YN(ok),prompt:wq('syLetter'),vis:letterSVG(l),short:`${l} ${ok?'✔':'✗'}`,strats:[card('🦋',ws('symT'),ws('symL'),letterSVG(l,80))]};}],
-  line:[2,()=>[rnd(SYMQ.length)],([i])=>{const [s,l,ok]=SYMQ[i];const st=[card('🦋',ws('symT'),ws('symL'))];if(s==='rect'&&l==='d')st.push(card('⚠️',ws('symT'),ws('diagL')));return {...YN(!!ok),prompt:wq('syLine'),vis:symLineSVG(s,l),short:`${shName(s)} ${ok?'✔':'✗'}`,strats:st};}],
-  mirror:[3,()=>{let cells;do{cells=[];const n=3+rnd(3);while(cells.length<n){const c=[rnd(3),rnd(4)];if(!cells.some(x=>x[0]===c[0]&&x[1]===c[1]))cells.push(c);}}
+  letter:[1,()=>[Math.random()<.5?pick(LET_Y):pick(LET_N)],([l])=>{const ok=LET_Y.includes(l);return {...YN(ok),prompt:wq('syLetter'),vis:letterSVG(l),short:`${l} ${ok?'✔':'✗'}`,strats:[card('🦋',ws('symT'),ws('symL'),letterSVG(l,80))]};}],
+  line:[1,()=>[rnd(SYMQ.length)],([i])=>{const [s,l,ok]=SYMQ[i];const st=[card('🦋',ws('symT'),ws('symL'))];if(s==='rect'&&l==='d')st.push(card('⚠️',ws('symT'),ws('diagL')));return {...YN(!!ok),prompt:wq('syLine'),vis:symLineSVG(s,l),short:`${shName(s)} ${ok?'✔':'✗'}`,strats:st};}],
+  axes:[3,()=>[pick(Object.keys(AXES))],([s])=>({kind:'num',ans:AXES[s][1].length,prompt:wq('syAxes'),vis:shapeSVG(s,'#c9d6ff'),short:`${shName(s)}: ${AXES[s][1].length}`,strats:[card('🦋',ws('symT'),[ws('axesL'),`${shName(s)}: <b>${AXES[s][1].length}</b>`],axesSVG(s))]})],
+  mirror:[2,()=>{let cells;do{cells=[];const n=3+rnd(3);while(cells.length<n){const c=[rnd(3),rnd(4)];if(!cells.some(x=>x[0]===c[0]&&x[1]===c[1]))cells.push(c);}}
       while(cells.every(([x,y])=>cells.some(c=>c[0]===2-x&&c[1]===y)));return [cells.map(c=>c.join('')).join('.')];},
     ([code])=>{const L=code.split('.').map(s=>[+s[0],+s[1]]);const mir=L.map(([x,y])=>[5-x,y]),tr=L.map(([x,y])=>[x+3,y]);
       const alt=mir.map((c,i)=>i===0?[c[0],(c[1]+1)%4]:c);const altOk=!alt.every(([x,y])=>mir.some(c=>c[0]===x&&c[1]===y));
@@ -1477,8 +1483,9 @@ function worldQ(key){
 }
 const newWorldKey=(world,type)=>['w',world,type,...GEN[world][type][1]()].join('|');
 function worldTypes(world,maxLvl){return Object.keys(GEN[world]).filter(t=>GEN[world][t][0]<=maxLvl);}
+function minLvl(world){return Math.min(...Object.values(GEN[world]).map(g=>g[0]));}
 function buildWorldSession(world,lvl,len,forced){
-  const types=worldTypes(world,lvl);const out=forced?forced.slice(0,len):[];let last='';
+  let types=worldTypes(world,lvl);if(!types.length)types=worldTypes(world,minLvl(world));const out=forced?forced.slice(0,len):[];let last='';
   while(out.length<len){
     const w=types.map(t=>{let x=GEN[world][t][0]===lvl?3:1;const s=status(`w|${world}|${t}`);if(s===0)x+=1;if(s===1||s===2)x+=2;if(t===last)x*=.2;return x;});
     let r=Math.random()*w.reduce((a,b)=>a+b,0),i=0;while(r>w[i]){r-=w[i];i++;}
@@ -1534,7 +1541,7 @@ function renderWorld(){
   const w=curWorld,lv=[1,2,3].map(l=>{const ts=worldTypes(w,l).filter(t=>GEN[w][t][0]===l);const ok=ts.filter(t=>status(`w|${w}|${t}`)>=3).length;return [l,ok,ts.length];});
   $('worldBox').innerHTML=`<h2>${WE[w]} ${WD().names[w]}</h2>
     <button class="big-btn hero w2 ${S.wseen[w]?'':'hl'}" onclick="startDisc('${w}')"><span>${WD().discover}</span></button>
-    ${lv.map(([l,ok,n])=>`<button class="lvbtn" onclick="startWorld('${w}',${l})"><span>${l===3?'🌱':'⭐'.repeat(l)} ${WD().lvl(l)}</span><small>${WD().lvlSub[l]} · ${ok}/${n} ✔</small></button>`).join('')}
+    ${lv.filter(([l,ok,n])=>n>0).map(([l,ok,n])=>`<button class="lvbtn" onclick="startWorld('${w}',${l})"><span>${l===3?'🌱':'⭐'.repeat(l)} ${WD().lvl(l)}</span><small>${WD().lvlSub[l]} · ${ok}/${n} ✔</small></button>`).join('')}
     <button class="btn sec" onclick="go('worlds')">${t('back')}</button>`;
 }
 function startDisc(w){curWorld=w;discI=0;go('disc');renderDisc();}
@@ -1549,7 +1556,7 @@ function renderDisc(){
       ${discI<n-1?`<button class="btn" onclick="discI++;renderDisc()">${t('cont')}</button>`:`<button class="btn ok" onclick="discDone()">${WD().tryIt}</button>`}</div></div>`;
   if(S.settings.speak)speak(ti+'. '+tx);
 }
-function discDone(){const w=curWorld;if(!S.wseen[w]){S.wseen[w]=true;S.stars+=5;save();updateHeader();toast('🌱 +5 ⭐');checkAch();}startWorld(w,1);}
+function discDone(){const w=curWorld;if(!S.wseen[w]){S.wseen[w]=true;S.stars+=5;save();updateHeader();toast('🌱 +5 ⭐');checkAch();}startWorld(w,minLvl(w));}
 function startWorld(w,lvl,forced){
   curWorld=w;const len=S.settings.len;
   sess={mode:'practice',type:'w',world:w,lvl,queue:buildWorldSession(w,lvl,len,forced),i:0,res:[],stars:0,combo:0,maxC:0,len,
