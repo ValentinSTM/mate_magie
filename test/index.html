@@ -2531,8 +2531,8 @@ function examStrats(i){const q=lastExam.res[i].q;openModal(q.w?q.short:`${q.text
 const RT={
 ro:{btn:'Jurnalul de citit',btnSub:'Læsekontrakt · ce ai citit',title:'📚 Jurnalul de citit',week:n=>`Săptămâna ${n}`,add:'✏️ Scrie ce ai citit',
   remind:'📚 Ai citit azi? Scrie aici și primești un cufăr! 🎁',book:'Ce carte?',newBook:'＋ Carte nouă',titlePh:'Titlul cărții',from:'De la pagina',to:'până la pagina',
-  pages:n=>`${n} ${n===1?'pagină':'pagini'}`,minutes:'Câte minute?',day:'Când ai citit?',today:'Azi',yesterday:'Ieri',finished:'Am terminat cartea! 🎉',note:'Despre ce a fost? (dacă vrei)',
-  save:'Salvez ✔',need:'Scrie titlul cărții și paginile.',bad:'„Până la pagina” trebuie să fie mai mare decât „de la pagina”.',
+  pages:n=>`${n} ${n===1?'pagină':'pagini'}`,simple:'🔢 Știu doar câte pagini',exact:'📄 Scriu paginile (de la… până la…)',count:'Câte pagini ai citit?',minutes:'Câte minute?',day:'Când ai citit?',today:'Azi',yesterday:'Ieri',finished:'Am terminat cartea! 🎉',note:'Despre ce a fost? (dacă vrei)',
+  save:'Salvez ✔',need:'Scrie titlul cărții și paginile.',bad:'Hmm, „până la” e mai mic decât „de la”. Verifică numerele sau apasă „Știu doar câte pagini” 🙂',needC:'Scrie câte pagini ai citit 🙂',
   saved:(n,p)=>`Bravo, ${n}! Ai citit ${p}. Cititul îți face creierul mai puternic! 📚`,savedLater:'Super că ți-ai amintit să scrii! 👍',
   days:'Zile cu citit',total:'Pagini în total',mins:'Minute în total',books:'Cărți',goal:k=>`Ținta săptămânii: ${k} zile`,goalSet:'Ținta (zile pe săptămână)',
   none:'Încă nimic săptămâna asta. Hai să scriem prima zi! 📖',print:'🖨️ Tipărește pentru profesoară',share:'📤 Trimite / copiază',copied:'Copiat ✔',del:'Ștergi această înregistrare?',
@@ -2541,8 +2541,8 @@ ro:{btn:'Jurnalul de citit',btnSub:'Læsekontrakt · ce ai citit',title:'📚 Ju
   wd:['L','Ma','Mi','J','V','S','D']},
 da:{btn:'Læsekontrakt',btnSub:'Skriv, hvad du har læst',title:'📚 Læsekontrakt',week:n=>`Uge ${n}`,add:'✏️ Skriv, hvad du har læst',
   remind:'📚 Har du læst i dag? Skriv det ind og få en skattekiste! 🎁',book:'Hvilken bog?',newBook:'＋ Ny bog',titlePh:'Bogens titel',from:'Fra side',to:'til side',
-  pages:n=>`${n} ${n===1?'side':'sider'}`,minutes:'Hvor mange minutter?',day:'Hvornår læste du?',today:'I dag',yesterday:'I går',finished:'Jeg har læst bogen færdig! 🎉',note:'Hvad handlede det om? (hvis du vil)',
-  save:'Gem ✔',need:'Skriv bogens titel og siderne.',bad:'„Til side” skal være større end „fra side”.',
+  pages:n=>`${n} ${n===1?'side':'sider'}`,simple:'🔢 Jeg ved kun, hvor mange sider',exact:'📄 Skriv siderne (fra… til…)',count:'Hvor mange sider har du læst?',minutes:'Hvor mange minutter?',day:'Hvornår læste du?',today:'I dag',yesterday:'I går',finished:'Jeg har læst bogen færdig! 🎉',note:'Hvad handlede det om? (hvis du vil)',
+  save:'Gem ✔',need:'Skriv bogens titel og siderne.',bad:'Hmm, „til side” er mindre end „fra side”. Tjek tallene, eller tryk „Jeg ved kun, hvor mange sider” 🙂',needC:'Skriv, hvor mange sider du har læst 🙂',
   saved:(n,p)=>`Flot, ${n}! Du har læst ${p}. Læsning gør din hjerne stærkere! 📚`,savedLater:'Super, at du huskede at skrive det! 👍',
   days:'Dage med læsning',total:'Sider i alt',mins:'Minutter i alt',books:'Bøger',goal:k=>`Ugens mål: ${k} dage`,goalSet:'Mål (dage om ugen)',
   none:'Intet endnu i denne uge. Lad os skrive den første dag! 📖',print:'🖨️ Print til læreren',share:'📤 Del / kopiér',copied:'Kopieret ✔',del:'Vil du slette denne linje?',
@@ -2557,7 +2557,8 @@ const parseYmd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,
 function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y0)/864e5+1)/7);}
 function monday(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const n=(x.getDay()+6)%7;x.setDate(x.getDate()-n);return x;}
 function weekDays(off){const m=monday(new Date());m.setDate(m.getDate()+7*off);return [...Array(7)].map((_,i)=>{const x=new Date(m);x.setDate(m.getDate()+i);return x;});}
-const pagesOf=l=>Math.max(0,(l.to||0)-(l.from||0)+1);
+const pagesOf=l=>l.count?+l.count:Math.max(0,(l.to||0)-(l.from||0)+1);
+const rangeOf=l=>l.count?'—':`${l.from}–${l.to}`;
 const bookTitle=id=>{const b=RD().books.find(x=>x.id===id);return b?b.title:'?';};
 let rWeek=0,rForm=null;
 function openRead(){rWeek=0;rForm=null;go('read');}
@@ -2573,7 +2574,7 @@ function renderRead(){
    <p style="text-align:center;font-weight:800;margin:6px 0">${readDays.size>=D.goal?R.goalDone:R.goal(D.goal)} · ${readDays.size}/${D.goal}</p>
    <div class="stats" style="grid-template-columns:repeat(4,1fr)"><div><b>${readDays.size}</b>${R.days}</div><div><b>${tp}</b>${R.total}</div><div><b>${tm}</b>${R.mins}</div><div><b>${bk}</b>${R.books}</div></div>
    <button class="big-btn hero" style="margin-top:12px" onclick="startReadForm()"><span class="ico">✏️</span><span>${R.add.replace('✏️ ','')}</span></button>
-   ${logs.length?`<div class="list">${logs.map(l=>`<div class="li" style="cursor:default"><span style="font-size:15px">${parseYmd(l.d).toLocaleDateString(loc,{weekday:'short',day:'numeric'})} · <b>${esc(bookTitle(l.book))}</b><br><span class="muted">${l.from}–${l.to} (${R.pages(pagesOf(l))}) · ${l.min||0} min${l.done?' · 🎉':''}${l.note?` · ${esc(l.note)}`:''}</span></span><button class="iconbtn" onclick="delReadLog('${l.id}')">🗑️</button></div>`).join('')}</div>`:`<p class="muted" style="text-align:center">${R.none}</p>`}
+   ${logs.length?`<div class="list">${logs.map(l=>`<div class="li" style="cursor:default"><span style="font-size:15px">${parseYmd(l.d).toLocaleDateString(loc,{weekday:'short',day:'numeric'})} · <b>${esc(bookTitle(l.book))}</b><br><span class="muted">${l.count?R.pages(pagesOf(l)):`${l.from}–${l.to} (${R.pages(pagesOf(l))})`} · ${l.min||0} min${l.done?' · 🎉':''}${l.note?` · ${esc(l.note)}`:''}</span></span><button class="iconbtn" onclick="delReadLog('${l.id}')">🗑️</button></div>`).join('')}</div>`:`<p class="muted" style="text-align:center">${R.none}</p>`}
    <div class="row" style="margin-top:12px"><button class="btn sec" onclick="printWeek()">${R.print}</button><button class="btn sec" onclick="shareWeek()">${R.share}</button></div>
    <p style="margin:14px 0 4px"><b>${R.goalSet}</b></p><div class="chips">${[3,4,5,6,7].map(v=>`<button class="chip ${D.goal===v?'on':''}" onclick="RD().goal=${v};save();renderRead()">${v}</button>`).join('')}</div>
    <div class="row" style="margin-top:12px"><button class="btn sec" onclick="go('home')">${R.home}</button></div>`;
@@ -2582,42 +2583,44 @@ function renderRead(){
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function startReadForm(){const D=RD(),open=D.books.filter(b=>!b.done);const last=[...D.logs].sort((a,b)=>a.d<b.d?1:-1)[0];
   const bk=last&&open.find(b=>b.id===last.book)?last.book:(open[0]?open[0].id:null);
-  rForm={book:bk,newTitle:'',from:'',to:'',min:20,day:ymd(new Date()),done:false,note:'',isNew:!bk};
+  rForm={book:bk,newTitle:'',from:'',to:'',count:'',min:20,day:ymd(new Date()),done:false,note:'',isNew:!bk,simple:!!(last&&last.book===bk&&last.count)};
   if(bk){const lp=lastPage(bk);if(lp)rForm.from=String(lp+1);}
   go('read');renderReadForm();}
 function lastPage(bk){const ls=RD().logs.filter(l=>l.book===bk);return ls.length?Math.max(...ls.map(l=>+l.to||0)):0;}
 function renderReadForm(){
   const R=RX(),D=RD(),f=rForm,open=D.books.filter(b=>!b.done),days=weekDays(0),loc=t('locale');
   const yd=new Date();yd.setDate(yd.getDate()-1);
-  const p=(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;
+  const p=f.simple?(+f.count>0?+f.count:0):(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;
   $('readBox').innerHTML=`<h2>${R.add}</h2>
    <p style="margin:6px 0"><b>${R.day}</b></p>
    <div class="chips">${days.filter(d=>d<=new Date()).map(d=>{const k=ymd(d),lab=k===ymd(new Date())?R.today:k===ymd(yd)?R.yesterday:d.toLocaleDateString(loc,{weekday:'short',day:'numeric'});return `<button class="chip ${f.day===k?'on':''}" onclick="rForm.day='${k}';renderReadForm()">${lab}</button>`;}).join('')}</div>
    <p style="margin:14px 0 6px"><b>${R.book}</b></p>
    <div class="chips">${open.map(b=>`<button class="chip ${!f.isNew&&f.book===b.id?'on':''}" onclick="pickBook('${b.id}')">📖 ${esc(b.title)}</button>`).join('')}<button class="chip ${f.isNew?'on':''}" onclick="rForm.isNew=true;rForm.book=null;rForm.from='';renderReadForm()">${R.newBook}</button></div>
    ${f.isNew?`<input type="text" id="rTitle" placeholder="${R.titlePh}" value="${esc(f.newTitle)}" style="margin-top:8px" oninput="rForm.newTitle=this.value">`:(f.book&&lastPage(f.book)?`<p class="muted" style="margin:6px 0">${R.cont(lastPage(f.book)+1)}</p>`:'')}
-   <div class="row" style="margin-top:14px;flex-wrap:nowrap;align-items:flex-end;gap:8px">
+   ${f.simple?`<label style="display:block;margin-top:14px"><b>${R.count}</b><input type="number" inputmode="numeric" id="rCount" value="${f.count}" oninput="rForm.count=this.value;updPages()" class="bignum-in"></label>`:`<div class="row" style="margin-top:14px;flex-wrap:nowrap;align-items:flex-end;gap:8px">
      <label style="flex:1"><b>${R.from}</b><input type="number" inputmode="numeric" id="rFrom" value="${f.from}" oninput="rForm.from=this.value;updPages()" class="bignum-in"></label>
-     <label style="flex:1"><b>${R.to}</b><input type="number" inputmode="numeric" id="rTo" value="${f.to}" oninput="rForm.to=this.value;updPages()" class="bignum-in"></label></div>
+     <label style="flex:1"><b>${R.to}</b><input type="number" inputmode="numeric" id="rTo" value="${f.to}" oninput="rForm.to=this.value;updPages()" class="bignum-in"></label></div>`}
    <p id="rPages" style="font-weight:900;font-size:20px;text-align:center;margin:6px 0">${p?R.pages(p):''}</p>
+   <div style="text-align:center"><button class="chip" style="font-size:14px" onclick="rForm.simple=!rForm.simple;renderReadForm()">${f.simple?R.exact:R.simple}</button></div>
    <p style="margin:10px 0 6px"><b>${R.minutes}</b></p>
    <div class="chips">${[5,10,15,20,30,45,60].map(v=>`<button class="chip ${+f.min===v?'on':''}" onclick="rForm.min=${v};renderReadForm()">${v}</button>`).join('')}</div>
    <label class="ck" style="margin-top:12px"><input type="checkbox" ${f.done?'checked':''} onchange="rForm.done=this.checked"><span>${R.finished}</span></label>
    <input type="text" placeholder="${R.note}" value="${esc(f.note)}" oninput="rForm.note=this.value" style="margin-top:6px">
-   <p id="rErr" style="color:var(--bad);font-weight:800"></p>
+   <p id="rErr" style="color:#a15c00;font-weight:800"></p>
    <div class="row"><button class="btn ok" onclick="saveRead()">${R.save}</button><button class="btn sec" onclick="rForm=null;renderRead()">${t('back')}</button></div>`;
 }
-function updPages(){const f=rForm,R=RX();const p=(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;$('rPages').textContent=p?R.pages(p):'';}
+function updPages(){const f=rForm,R=RX();const p=f.simple?(+f.count>0?+f.count:0):(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;$('rPages').textContent=p?R.pages(p):'';}
 function pickBook(id){rForm.isNew=false;rForm.book=id;const lp=lastPage(id);rForm.from=lp?String(lp+1):'';renderReadForm();}
 function saveRead(){
   const f=rForm,R=RX(),D=RD();
   const title=(f.newTitle||'').trim();
-  if((f.isNew&&!title)||(!f.isNew&&!f.book)||!f.from||!f.to){$('rErr').textContent=R.need;return;}
-  if(+f.to<+f.from){$('rErr').textContent=R.bad;return;}
+  if((f.isNew&&!title)||(!f.isNew&&!f.book)){$('rErr').textContent=R.need;return;}
+  if(f.simple){if(!(+f.count>0)){$('rErr').textContent=R.needC;return;}}
+  else{if(!f.from||!f.to){$('rErr').textContent=R.need;return;}if(+f.to<+f.from){$('rErr').textContent=R.bad;return;}}
   let bid=f.book;
   if(f.isNew){const ex=D.books.find(b=>b.title.toLowerCase()===title.toLowerCase());if(ex){bid=ex.id;ex.done=false;}else{bid='b'+Date.now();D.books.push({id:bid,title,done:false});}}
   const firstToday=!D.logs.some(l=>l.logged===ymd(new Date()));
-  const log={id:'l'+Date.now(),d:f.day,book:bid,from:+f.from,to:+f.to,min:+f.min||0,done:!!f.done,note:(f.note||'').trim(),logged:ymd(new Date())};
+  const log={id:'l'+Date.now(),d:f.day,book:bid,...(f.simple?{count:Math.round(+f.count)}:{from:+f.from,to:+f.to}),min:+f.min||0,done:!!f.done,note:(f.note||'').trim(),logged:ymd(new Date())};
   D.logs.push(log);if(f.done){const b=D.books.find(b=>b.id===bid);if(b)b.done=true;}
   const pg=pagesOf(log);let stars=3+(log.min>=20?2:0)+(f.done?10:0);S.stars+=stars;
   if(!S.days.includes(todayStr()))S.days.push(todayStr());
@@ -2640,7 +2643,7 @@ function weekTableDA(){
 }
 function printWeek(){
   const W=weekTableDA(),nm=esc(S.name||'');
-  const rows=W.logs.map(l=>`<tr><td>${parseYmd(l.d).toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'numeric'})}</td><td>${esc(bookTitle(l.book))}${l.done?' (færdig)':''}</td><td>${l.from}–${l.to}</td><td>${pagesOf(l)}</td><td>${l.min||''}</td><td>${esc(l.note)}</td></tr>`).join('');
+  const rows=W.logs.map(l=>`<tr><td>${parseYmd(l.d).toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'numeric'})}</td><td>${esc(bookTitle(l.book))}${l.done?' (færdig)':''}</td><td>${rangeOf(l)}</td><td>${pagesOf(l)}</td><td>${l.min||''}</td><td>${esc(l.note)}</td></tr>`).join('');
   $('printArea').innerHTML=`<h1>Læsekontrakt — uge ${W.wk}</h1><p><b>Navn:</b> ${nm} &nbsp; <b>Periode:</b> ${W.days[0].toLocaleDateString('da-DK')} – ${W.days[6].toLocaleDateString('da-DK')}</p>
    <table><tr><th>Dag</th><th>Bog</th><th>Sider</th><th>Antal sider</th><th>Minutter</th><th>Kommentar</th></tr>${rows||'<tr><td colspan="6">—</td></tr>'}
    <tr><th colspan="3">I alt (${W.nd} ${W.nd===1?"dag":"dage"})</th><th>${W.tp}</th><th>${W.tm}</th><th></th></tr></table>
@@ -2648,7 +2651,7 @@ function printWeek(){
   document.body.classList.add('printing');setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('printing'),800);},100);
 }
 async function shareWeek(){
-  const W=weekTableDA();const txt=`Læsekontrakt — uge ${W.wk} — ${S.name||''}\n`+W.logs.map(l=>`${parseYmd(l.d).toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'numeric'})}: ${bookTitle(l.book)}, s. ${l.from}–${l.to} (${pagesOf(l)} sider), ${l.min||0} min${l.done?', færdig':''}`).join('\n')+`\nI alt: ${W.nd} ${W.nd===1?"dag":"dage"}, ${W.tp} sider, ${W.tm} minutter`;
+  const W=weekTableDA();const txt=`Læsekontrakt — uge ${W.wk} — ${S.name||''}\n`+W.logs.map(l=>`${parseYmd(l.d).toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'numeric'})}: ${bookTitle(l.book)}, ${l.count?'':`s. ${l.from}–${l.to} `}(${pagesOf(l)} sider), ${l.min||0} min${l.done?', færdig':''}`).join('\n')+`\nI alt: ${W.nd} ${W.nd===1?"dag":"dage"}, ${W.tp} sider, ${W.tm} minutter`;
   try{if(navigator.share){await navigator.share({title:`Læsekontrakt uge ${W.wk}`,text:txt});return;}}catch(e){if(e&&e.name==='AbortError')return;}
   try{await navigator.clipboard.writeText(txt);toast(RX().copied);}catch(e){openModal('Læsekontrakt',`<textarea style="width:100%;height:220px;font-size:15px">${esc(txt)}</textarea>`);}
 }
