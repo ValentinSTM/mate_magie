@@ -1,6 +1,6 @@
 # 🦉 Academia Bufniței · Ugleakademiet
 
-**Aplicația nouă / Den nye app:** https://valentinstm.github.io/mate_magie/academia/
+**Aplicația nouă / Den nye app:** https://valentinstm.github.io/academia/ (repository separat: ValentinSTM/academia)
 
 Matematică (strategii, lumi, testul cel mare), colecția cu 311 obiecte și enciclopedia, jurnalul de citit (Læsekontrakt).
 La prima deschidere preia o copie a progresului din Mate-Magie (doar citește; Mate-Magie rămâne neatinsă). Salvare: `academia_v1`.
