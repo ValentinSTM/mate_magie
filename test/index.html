@@ -208,6 +208,21 @@ label.ck input{width:24px;height:24px;flex:none}
 .wbar{height:8px;background:#e2dcfb;border-radius:6px;overflow:hidden;margin-top:6px;width:100%}.wbar>div{height:100%;background:var(--ok)}
 .lvbtn{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;background:#faf8ff;border-radius:14px;padding:14px;font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px;border:2px solid #ebe5ff}
 .lvbtn small{font-weight:600;color:var(--muted);font-size:14px}
+/* colecție */
+.series{background:#faf8ff;border-radius:16px;padding:10px;margin-bottom:12px;border:2px solid #ebe5ff}.series.full{border-color:var(--gold);background:#fffbea}
+.series .sh{display:flex;justify-content:space-between;font-weight:900;font-size:17px;margin-bottom:4px}
+.series .coll{margin-top:8px;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+.series .coll div{font-size:26px;border-radius:12px}
+.coll div{border:3px solid transparent;cursor:pointer}
+.coll div.lock{filter:none;opacity:1;background:#f1f0f5;color:#c9c3e6;font-size:24px}
+.coll div.lock.r1{border:3px dashed #9dbcff}.coll div.lock.r2{border:3px dashed #c99bff}.coll div.lock.r3{border:3px dashed var(--gold)}.coll div.lock.r4{border:3px dashed #ff7ad9}
+.coll div.r4:not(.lock){background:linear-gradient(135deg,#ffd6f5,#d6f0ff,#fff5c2);box-shadow:0 0 0 2px #ff7ad9}
+.coll div svg{width:30px;height:30px}
+.rar.r4{background:linear-gradient(90deg,#ff7ad9,#7ab8ff,#ffd75e);color:#2b2350}
+.glow2{filter:drop-shadow(0 0 14px #b67cff)}.glow3{filter:drop-shadow(0 0 18px var(--gold))}
+.glow4{animation:rainbow 2s linear infinite}
+@keyframes rainbow{0%{filter:drop-shadow(0 0 16px #ff7ad9)}33%{filter:drop-shadow(0 0 16px #7ab8ff)}66%{filter:drop-shadow(0 0 16px #ffd75e)}100%{filter:drop-shadow(0 0 16px #ff7ad9)}}
+.item-big{display:inline-flex;align-items:center;justify-content:center;min-height:120px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -437,7 +452,7 @@ ro:{
   another:'Încă o misiune ▶', home:'Acasă', wrongT:'greșit', slowT:'lent',
   cupN:{3:'Cupa de aur',2:'Cupa de argint',1:'Cupa de bronz'}, youWon:c=>`Ai câștigat ${c}!`,
   tapChest:'Atinge cufărul ca să-l deschizi! 🎁', newCreature:'Un prieten nou în colecție!', dup:'Îl ai deja — primești +5 ⭐',
-  rar:['obișnuit','rar','epic','legendar'], achievements:'Realizări', coll:(k,t)=>`🐾 Colecția mea (${k} din ${t})`,
+  rar:['obișnuit','rar','epic','legendar','mitic'], achievements:'Realizări', coll:(k,t)=>`🐾 Colecția mea (${k} din ${t})`,
   exTitle:'Trucuri de calcul', exIntro:'Alege o operație și două numere. Îți arăt mai multe drumuri până la același răspuns.',
   exOps:{add:'+ Plus',sub:'− Minus',mul:'× Ori',div:': Împărțit'}, exShow:'Arată trucurile', exOther:'🎲 Altul',
   pTitle:'Progres', tapCell:'Atinge o căsuță ca să vezi trucurile pentru acel calcul.',
@@ -563,7 +578,7 @@ da:{
   another:'En mission til ▶', home:'Hjem', wrongT:'forkert', slowT:'langsom',
   cupN:{3:'Guldpokalen',2:'Sølvpokalen',1:'Bronzepokalen'}, youWon:c=>`Du har vundet ${c}!`,
   tapChest:'Tryk på skattekisten for at åbne den! 🎁', newCreature:'En ny ven i samlingen!', dup:'Den har du allerede — du får +5 ⭐',
-  rar:['almindelig','sjælden','episk','legendarisk'], achievements:'Præstationer', coll:(k,t)=>`🐾 Min samling (${k} af ${t})`,
+  rar:['almindelig','sjælden','episk','legendarisk','mytisk'], achievements:'Præstationer', coll:(k,t)=>`🐾 Min samling (${k} af ${t})`,
   exTitle:'Regnetricks', exIntro:'Vælg en regningsart og to tal. Jeg viser dig flere veje til det samme svar.',
   exOps:{add:'+ Plus',sub:'− Minus',mul:'· Gange',div:': Division'}, exShow:'Vis tricks', exOther:'🎲 Et andet',
   pTitle:'Fremskridt', tapCell:'Tryk på et felt for at se tricks til den opgave.',
@@ -681,6 +696,213 @@ const CREATURES=[ // [emoji, raritate 0..3]
  ['🦊',1],['🦁',1],['🐯',1],['🦉',1],['🐬',1],['🦜',1],['🦩',1],['🦦',1],['🐙',1],['🦔',1],['🐿️',1],['🦥',1],
  ['🦄',2],['🐉',2],['🦚',2],['🦖',2],['🐳',2],['🦒',2],['🦓',2],
  ['🦀',0],['🐌',0],['🦭',1],['🦘',1],['🦌',1],['🦈',2],['🦅',2],['🌈',3],['🪐',3],['💎',3],['👑',3],['🔮',3]];
+
+/* ======================================================================
+   COLECȚIA / SAMLINGEN — serii cu explicații (mitologie, pietre, spațiu…)
+   Raritate: 0 obișnuit · 1 rar · 2 epic · 3 legendar · 4 mitic
+   ====================================================================== */
+const RARW={base:[42,30,18,8,2],gold:[30,32,23,11,4]};
+const DUP_STARS=[5,8,15,30,60];
+const PITY_EPIC=5,PITY_LEG=15;          // al 5-lea cufăr fără epic+ e garantat epic+, al 15-lea fără legendar+ e garantat legendar+
+/* --- desene pentru pietre și planete --- */
+let IGID=0;
+function gemSVG(c1,c2,cut,sz){const id='gm'+(++IGID);let g=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient><radialGradient id="${id}r" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient></defs>`;
+  const st='stroke="#2b2350" stroke-width="2" stroke-linejoin="round"',sh=`<path d="M30 30 L42 24" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>`;
+  switch(cut){
+    case 'round':g+=`<polygon points="50,8 80,20 92,50 80,80 50,92 20,80 8,50 20,20" fill="url(#${id})" ${st}/><polygon points="50,28 66,34 72,50 66,66 50,72 34,66 28,50 34,34" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7"/><path d="M50 8V28M92 50H72M50 92V72M8 50H28M20 20L34 34M80 20L66 34M80 80L66 66M20 80L34 66" stroke="#fff" stroke-width="1.2" opacity=".6"/>`+sh;break;
+    case 'emerald':g+=`<polygon points="26,10 74,10 90,26 90,74 74,90 26,90 10,74 10,26" fill="url(#${id})" ${st}/><polygon points="34,24 66,24 76,34 76,66 66,76 34,76 24,66 24,34" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/><rect x="38" y="36" width="24" height="28" fill="none" stroke="#fff" stroke-width="1.2" opacity=".5"/>`+sh;break;
+    case 'drop':g+=`<path d="M50 6 C70 34 86 52 86 66 A36 30 0 0 1 14 66 C14 52 30 34 50 6Z" fill="url(#${id})" ${st}/><path d="M50 22 L66 64 L50 82 L34 64Z" fill="none" stroke="#fff" stroke-width="1.3" opacity=".6"/>`+sh;break;
+    case 'oval':g+=`<ellipse cx="50" cy="50" rx="34" ry="44" fill="url(#${id})" ${st}/><ellipse cx="50" cy="50" rx="20" ry="28" fill="none" stroke="#fff" stroke-width="1.4" opacity=".6"/>`+sh;break;
+    case 'crystal':g+=`<polygon points="50,4 70,24 70,84 50,96 30,84 30,24" fill="url(#${id})" ${st}/><path d="M50 4V96M30 24L50 34L70 24" stroke="#fff" stroke-width="1.3" fill="none" opacity=".6"/><polygon points="20,40 30,32 30,84 20,90" fill="${c2}" ${st} opacity=".9"/><polygon points="80,46 70,38 70,84 80,90" fill="${c1}" ${st} opacity=".9"/>`;break;
+    case 'pearl':g+=`<circle cx="50" cy="50" r="38" fill="url(#${id}r)" stroke="#9a94b0" stroke-width="2"/><ellipse cx="38" cy="36" rx="9" ry="6" fill="#fff" opacity=".9"/>`;break;
+    case 'nugget':g+=`<path d="M18 58 C10 40 26 20 46 22 C60 10 84 22 86 42 C96 60 82 84 60 82 C44 94 20 84 18 58Z" fill="url(#${id})" ${st}/><path d="M34 36 Q44 30 52 34" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>`;break;
+    case 'amber':g+=`<path d="M20 52 C14 30 36 12 56 16 C78 20 92 40 84 62 C76 84 50 92 32 80 C24 74 22 64 20 52Z" fill="url(#${id})" ${st} opacity=".95"/><g stroke="#5a3200" stroke-width="2" fill="#5a3200"><ellipse cx="52" cy="52" rx="7" ry="4"/><path d="M46 50l-6-5M46 54l-6 4M58 50l6-5M58 54l6 4" fill="none"/></g><path d="M34 32 Q44 26 52 30" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>`;break;
+    case 'banded':g+=`<circle cx="50" cy="50" r="40" fill="${c2}" ${st}/>`+[32,24,16,8].map((r,i)=>`<circle cx="50" cy="50" r="${r}" fill="none" stroke="${i%2?c2:c1}" stroke-width="6"/>`).join('');break;
+    case 'flecks':g+=`<polygon points="50,8 80,20 92,50 80,80 50,92 20,80 8,50 20,20" fill="url(#${id})" ${st}/>`+[[34,30],[60,40],[44,62],[70,66],[30,56],[56,24],[64,80]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.5" fill="#f2c94c"/>`).join('');break;
+    case 'glass':g+=`<path d="M14 70 L30 18 L62 10 L88 40 L80 82 L40 90Z" fill="url(#${id})" ${st}/><path d="M30 18 L48 50 L88 40 M48 50 L40 90" stroke="#fff" stroke-width="1.2" fill="none" opacity=".35"/>`+sh;break;
+  }
+  return `<svg viewBox="0 0 100 100" width="${sz}" height="${sz}">${g}</svg>`;}
+function planetSVG(k,sz){const id='pl'+(++IGID);const P={mercury:['#d6d2cc','#7d7871'],venus:['#fff0b3','#d9a441'],mars:['#ff9a6b','#b2401c'],jupiter:['#f4dcb4','#b07a4a'],saturn:['#f6e2a8','#c49a4a'],uranus:['#d4fbff','#5fc6d3'],neptune:['#8fb4ff','#2b4fc2'],sun:['#fff7a8','#ff9f1a'],polaris:['#fffbe0','#ffd23f']}[k];
+  let g=`<defs><radialGradient id="${id}" cx="35%" cy="32%" r="75%"><stop offset="0" stop-color="${P[0]}"/><stop offset="1" stop-color="${P[1]}"/></radialGradient></defs>`;
+  if(k==='sun')g+=[...Array(12)].map((_,i)=>{const a=i*30*Math.PI/180;return `<line x1="${50+38*Math.cos(a)}" y1="${50+38*Math.sin(a)}" x2="${50+48*Math.cos(a)}" y2="${50+48*Math.sin(a)}" stroke="#ffb31a" stroke-width="5" stroke-linecap="round"/>`;}).join('')+`<circle cx="50" cy="50" r="32" fill="url(#${id})"/>`;
+  else if(k==='polaris')g+=`<polygon points="50,4 60,38 96,38 67,58 78,94 50,72 22,94 33,58 4,38 40,38" fill="url(#${id})" stroke="#c99a00" stroke-width="2"/>`;
+  else if(k==='saturn')g+=`<ellipse cx="50" cy="52" rx="46" ry="12" fill="none" stroke="#d8c08a" stroke-width="6" transform="rotate(-18 50 52)"/><circle cx="50" cy="50" r="26" fill="url(#${id})"/><path d="M8 62 A46 12 -18 0 0 92 40" fill="none" stroke="#d8c08a" stroke-width="6" transform="rotate(-18 50 52)" opacity="0"/><path d="M27 58 Q50 72 75 50" stroke="#d8c08a" stroke-width="6" fill="none"/>`;
+  else{const r=k==='jupiter'?42:k==='mercury'?26:k==='mars'?30:36;g+=`<circle cx="50" cy="50" r="${r}" fill="url(#${id})"/>`;
+    if(k==='jupiter')g+=[30,42,58,70].map(y=>`<path d="M${50-Math.sqrt(42*42-(y-50)**2)} ${y} H${50+Math.sqrt(42*42-(y-50)**2)}" stroke="#a8693a" stroke-width="4" opacity=".55"/>`).join('')+`<ellipse cx="64" cy="62" rx="9" ry="5" fill="#c4452a"/>`;
+    if(k==='mercury'||k==='mars')g+=`<circle cx="42" cy="44" r="4" fill="#000" opacity=".15"/><circle cx="58" cy="58" r="3" fill="#000" opacity=".15"/>`;
+    if(k==='uranus')g+=`<ellipse cx="50" cy="50" rx="10" ry="44" fill="none" stroke="#bfeff5" stroke-width="2.5"/>`;}
+  return `<svg viewBox="0 0 100 100" width="${sz}" height="${sz}">${g}</svg>`;}
+/* --- seriile --- */
+const SERIES={animals:{e:'🐾',ro:'Animale',da:'Dyr'},greek:{e:'🏛️',ro:'Mitologie greacă',da:'Græsk mytologi'},norse:{e:'⚡',ro:'Mitologie nordică',da:'Nordisk mytologi'},egypt:{e:'🏜️',ro:'Egiptul antic',da:'Det gamle Egypten'},
+  roleg:{e:'🇷🇴',ro:'Basme românești',da:'Rumænske eventyr'},dkleg:{e:'🇩🇰',ro:'Legende daneze',da:'Danske sagn'},gems:{e:'💎',ro:'Pietre prețioase',da:'Ædelsten'},space:{e:'🚀',ro:'Spațiul',da:'Rummet'}};
+const SERIES_ACH={animals:['Grădina zoologică completă','Hele zoologisk have'],greek:['Eroina Olimpului','Olympens heltinde'],norse:['Stăpâna Asgardului','Herskerinde af Asgård'],egypt:['Exploratoarea piramidelor','Pyramide-opdager'],
+  roleg:['Povestitoarea','Eventyrfortæller'],dkleg:['Păzitoarea legendelor','Sagnenes vogter'],gems:['Bijutiera','Juveler'],space:['Astronauta','Astronaut']};
+const I=(id,s,r,ic,ro,da,fro,fda,svg)=>({id,s,r,ic,ro,da,fro,fda,svg});
+const ANIMALS=CREATURES.map(([e,r])=>({id:e,s:'animals',r,ic:e}));
+const NEWITEMS=[
+ /* greacă */
+ I('x:zeus','greek',3,'⚡','Zeus','Zeus','Regele zeilor greci. Locuia pe Muntele Olimp și arunca fulgere.','De græske guders konge. Han boede på bjerget Olympen og kastede med lyn.'),
+ I('x:poseidon','greek',2,'🔱','Poseidon','Poseidon','Zeul mărilor. Cu tridentul lui putea stârni valuri și cutremure.','Havets gud. Med sin trefork kunne han lave bølger og jordskælv.'),
+ I('x:athena','greek',2,'🦉📜','Atena','Athene','Zeița înțelepciunii; bufnița era pasărea ei. Orașul Atena îi poartă numele.','Visdommens gudinde; uglen var hendes fugl. Byen Athen er opkaldt efter hende.'),
+ I('x:apollo','greek',1,'🎵','Apollo','Apollon','Zeul muzicii, al poeziei și al luminii. Cânta la liră.','Musikkens, digtningens og lysets gud. Han spillede på lyre.'),
+ I('x:artemis','greek',1,'🏹','Artemis','Artemis','Zeița vânătorii și a Lunii, ocrotitoarea animalelor sălbatice.','Jagtens og månens gudinde, som passede på de vilde dyr.'),
+ I('x:hermes','greek',1,'👟','Hermes','Hermes','Mesagerul zeilor, cu aripi la sandale — cel mai rapid dintre zei.','Gudernes budbringer med vinger på sandalerne — den hurtigste af guderne.'),
+ I('x:pegasus','greek',3,'🐎☁️','Pegas','Pegasus','Un cal alb cu aripi care zbura printre nori. Pe cer există o constelație numită Pegas.','En hvid hest med vinger, der fløj mellem skyerne. På himlen findes et stjernebillede, der hedder Pegasus.'),
+ I('x:heracles','greek',2,'💪','Hercule','Herkules','Cel mai puternic erou grec, care a dus la bun sfârșit 12 munci foarte grele.','Den stærkeste græske helt, som klarede 12 meget svære opgaver.'),
+ I('x:minotaur','greek',2,'🐂','Minotaurul','Minotauros','Jumătate om, jumătate taur. Trăia într-un labirint pe insula Creta.','Halvt menneske, halvt tyr. Han boede i en labyrint på øen Kreta.'),
+ I('x:cyclops','greek',1,'👁️','Ciclopul','Kyklop','Un uriaș cu un singur ochi, în mijlocul frunții.','En kæmpe med ét øje midt i panden.'),
+ I('x:medusa','greek',2,'🐍','Meduza','Medusa','Avea șerpi în loc de păr; cine se uita la ea se prefăcea în piatră.','Hun havde slanger i stedet for hår; den, der så på hende, blev til sten.'),
+ I('x:cerberus','greek',1,'🐕','Cerber','Kerberos','Câinele cu trei capete care păzea poarta lumii de dincolo.','Hunden med tre hoveder, der vogtede porten til underverdenen.'),
+ I('x:pandora','greek',1,'📦','Pandora','Pandora','A deschis o cutie din care au zburat toate necazurile lumii — dar pe fund a rămas speranța.','Hun åbnede en æske, hvorfra alverdens plager fløj ud — men i bunden lå håbet tilbage.'),
+ I('x:olympus','greek',3,'🏔️','Muntele Olimp','Olympen','Cel mai înalt munte din Grecia (aproape 3000 m) și casa zeilor.','Grækenlands højeste bjerg (næsten 3000 m) og gudernes hjem.'),
+ I('x:phoenix','greek',4,'🔥🐦','Pasărea Phoenix','Fugl Føniks','Când îmbătrânea, ardea și renăștea din propria cenușă. E simbolul unui nou început.','Når den blev gammel, brændte den og blev født igen af sin egen aske. Den er et symbol på at begynde forfra.'),
+ /* nordică */
+ I('x:odin','norse',3,'🧙‍♂️','Odin','Odin','Căpetenia zeilor nordici. Și-a dat un ochi ca să primească înțelepciune. Ziua „onsdag” (miercuri) îi poartă numele.','De nordiske guders høvding. Han gav et øje for at få visdom. Onsdag er opkaldt efter ham.'),
+ I('x:thor','norse',3,'🔨','Thor','Thor','Zeul tunetului, cu ciocanul Mjölnir. „Torsdag” (joi, în daneză) înseamnă „ziua lui Thor”.','Tordenens gud med hammeren Mjølner. Torsdag betyder „Thors dag”.'),
+ I('x:freya','norse',2,'🐈','Freya','Freja','Zeița iubirii și a frumuseții. Trăsura ei era trasă de pisici.','Kærlighedens og skønhedens gudinde. Hendes vogn blev trukket af katte.'),
+ I('x:loki','norse',2,'🦊✨','Loki','Loke','Zeul șiret care își putea schimba forma. Uneori ajuta, alteori făcea pozne.','Den snu gud, der kunne skifte skikkelse. Nogle gange hjalp han, andre gange lavede han ballade.'),
+ I('x:yggdrasil','norse',4,'🌳','Yggdrasil','Yggdrasil','Copacul Lumii: un frasin uriaș care ținea laolaltă cele nouă lumi din mitologia nordică.','Verdenstræet: et kæmpe asketræ, der holdt de ni verdener i nordisk mytologi sammen.'),
+ I('x:sleipnir','norse',3,'🐎','Sleipnir','Sleipner','Calul lui Odin, cu opt picioare — cel mai rapid cal din toate lumile.','Odins hest med otte ben — den hurtigste hest i alle verdener.'),
+ I('x:fenrir','norse',2,'🐺','Fenrir','Fenrisulven','Un lup uriaș, pe care zeii l-au legat cu o panglică fermecată.','En kæmpe ulv, som guderne bandt med et fortryllet bånd.'),
+ I('x:jormungandr','norse',2,'🌍🐍','Șarpele Midgard','Midgårdsormen','Un șarpe atât de lung încât înconjura tot pământul și își mușca propria coadă.','En slange så lang, at den lå rundt om hele jorden og bed sig selv i halen.'),
+ I('x:huginmunin','norse',1,'🐦🐦','Hugin și Munin','Hugin og Munin','Cei doi corbi ai lui Odin: Gândul și Amintirea. Zburau prin lume și îi povesteau tot ce vedeau.','Odins to ravne, Tanke og Erindring. De fløj ud over verden og fortalte ham alt.'),
+ I('x:bifrost','norse',3,'🌈✨','Bifrost','Bifrost','Podul-curcubeu care lega lumea oamenilor de Asgard, casa zeilor.','Regnbuebroen mellem menneskenes verden og Asgård, gudernes hjem.'),
+ I('x:valhalla','norse',2,'🏰','Valhalla','Valhal','Sala cea mare a lui Odin, unde ajungeau vitejii, după legendă.','Odins store hal, hvor de modige kom hen ifølge sagnet.'),
+ I('x:idun','norse',1,'🍏','Idun','Idun','Zeița care păzea merele de aur; cine mânca din ele rămânea tânăr.','Gudinden, der passede guldæblerne; den, der spiste dem, blev ved med at være ung.'),
+ I('x:heimdall','norse',1,'📯','Heimdall','Heimdal','Paznicul podului Bifrost. Auzea iarba crescând și sufla în cornul Gjallarhorn.','Vogteren af Bifrost. Han kunne høre græsset gro og blæste i Gjallarhorn.'),
+ I('x:valkyrie','norse',2,'⚔️','Valkiriile','Valkyrierne','Războinice care călăreau prin văzduh și alegeau eroii.','Kvindelige krigere, der red gennem luften og valgte heltene.'),
+ /* Egipt */
+ I('x:ra','egypt',3,'☀️','Ra','Ra','Zeul Soarelui. Egiptenii credeau că traversează cerul în fiecare zi într-o barcă.','Solguden. Egypterne troede, at han sejlede over himlen i en båd hver dag.'),
+ I('x:thoth','egypt',1,'📜','Thot','Thoth','Zeul scrisului și al înțelepciunii, cu cap de ibis. Egiptenii scriau cu hieroglife.','Skriftens og visdommens gud med hoved som en ibis. Egypterne skrev med hieroglyffer.'),
+ I('x:horus','egypt',2,'🦅👑','Horus','Horus','Zeul cu cap de șoim. „Ochiul lui Horus” era un semn de protecție și sănătate.','Guden med falkehoved. „Horus’ øje” var et tegn på beskyttelse og sundhed.'),
+ I('x:bastet','egypt',1,'🐈‍⬛','Bastet','Bastet','Zeița-pisică, ocrotitoarea casei și a copiilor.','Kattegudinden, der beskyttede hjemmet og børnene.'),
+ I('x:sphinx','egypt',2,'🦁🏜️','Marele Sfinx','Den Store Sfinks','Corp de leu și cap de om, vechi de peste 4500 de ani, lângă piramidele din Giza.','En løvekrop med et menneskehoved, over 4500 år gammel, ved pyramiderne i Giza.'),
+ I('x:pyramid','egypt',3,'🔺','Marea Piramidă','Den Store Pyramide','Timp de aproape 4000 de ani a fost cea mai înaltă construcție din lume. Are baza pătrată!','I næsten 4000 år var den verdens højeste bygning. Den har en kvadratisk bund!'),
+ I('x:scarab','egypt',0,'🪲','Scarabeul','Skarabæen','Gândacul scarab era simbolul Soarelui care răsare în fiecare dimineață.','Skarabæen var et symbol på solen, der står op hver morgen.'),
+ I('x:sobek','egypt',1,'🐊','Sobek','Sobek','Zeul cu cap de crocodil, care ocrotea apele Nilului.','Guden med krokodillehoved, der beskyttede Nilens vand.'),
+ I('x:tut','egypt',2,'🏺','Tutankamon','Tutankhamon','Un faraon copil. Masca lui de aur e una dintre cele mai faimoase comori din lume.','En drengekonge. Hans guldmaske er en af verdens mest berømte skatte.'),
+ /* basme românești */
+ I('x:fatfrumos','roleg',2,'🤴','Făt-Frumos','Făt-Frumos','Eroul basmelor românești: curajos și bun, învinge zmeii și balaurii.','Helten i de rumænske eventyr: modig og god, han besejrer drager og trolde.'),
+ I('x:ileana','roleg',2,'👸','Ileana Cosânzeana','Ileana Cosânzeana','Cea mai frumoasă zână din basmele românești.','Den smukkeste fe i de rumænske eventyr.'),
+ I('x:zmeu','roleg',1,'🐲','Zmeul','Zmeul','Un personaj de basm, jumătate om, jumătate dragon, care se luptă cu Făt-Frumos.','Et eventyrvæsen, halvt menneske og halvt drage, som slås med Făt-Frumos.'),
+ I('x:balaur','roleg',3,'🐉🐉','Balaurul','Balaurul','Un dragon uriaș cu mai multe capete, din legendele românești.','En kæmpe drage med flere hoveder fra de rumænske sagn.'),
+ I('x:cal','roleg',2,'🐴✨','Calul năzdrăvan','Den magiske hest','Calul fermecat al lui Făt-Frumos: vorbește, zboară și mănâncă jăratic!','Făt-Frumos’ fortryllede hest: den kan tale og flyve, og den spiser gløder!'),
+ I('x:maiastra','roleg',4,'🐦✨','Pasărea Măiastră','Pasărea Măiastră','O pasăre fermecată care cânta minunat. Sculptorul român Constantin Brâncuși a făcut statui celebre cu ea.','En fortryllet fugl, der sang vidunderligt. Den rumænske billedhugger Constantin Brâncuși lavede berømte skulpturer af den.'),
+ I('x:iele','roleg',2,'🧚','Ielele','Ielele','Zâne ale nopții care dansează în cerc pe pajiști, sub lumina Lunii.','Nattens feer, der danser i rundkreds på engen i måneskin.'),
+ I('x:ursitoare','roleg',1,'🧵','Ursitoarele','Ursitoarele','Trei zâne care vin la nașterea unui copil și îi „ursesc” (hotărăsc) viitorul.','Tre feer, der kommer, når et barn bliver født, og bestemmer dets fremtid.'),
+ I('x:solomonar','roleg',3,'🌩️','Solomonarul','Solomonarul','Un vrăjitor din legende care călărea pe balauri și putea aduce ploaia sau grindina.','En troldmand fra sagnene, der red på drager og kunne hente regn eller hagl.'),
+ /* legende daneze */
+ I('x:holger','dkleg',3,'🛡️','Holger Danske','Holger Danske','Un cavaler care, după legendă, doarme sub castelul Kronborg și se trezește dacă Danemarca e în pericol.','En ridder, der efter sagnet sover under Kronborg og vågner, hvis Danmark er i fare.'),
+ I('x:nisse','dkleg',1,'🎅','Nissen','Nissen','Un spiriduș mic cu bonetă roșie care locuiește la fermă. Dacă primește terci de orez de Crăciun, aduce noroc.','En lille fyr med rød hue, der bor på gården. Får han risengrød til jul, bringer han held.'),
+ I('x:havfrue','dkleg',2,'🧜‍♀️','Mica Sirenă','Den lille Havfrue','Din povestea lui Hans Christian Andersen. Statuia ei din Copenhaga are peste 100 de ani.','Fra H.C. Andersens eventyr. Statuen i København er over 100 år gammel.'),
+ I('x:trold','dkleg',1,'🧌','Trolul','Trolden','Făptură din poveștile nordice care trăiește în munți și păduri; se spune că lumina soarelui o transformă în piatră.','Et væsen fra nordiske sagn, der bor i bjerge og skove; man siger, at sollys forvandler det til sten.'),
+ I('x:elver','dkleg',2,'🧝','Elfii','Elverfolket','Făpturi frumoase din legendele daneze, care dansează în ceața de seară de pe pajiști.','Smukke væsner fra danske sagn, der danser i aftentågen over engene.'),
+ I('x:lindorm','dkleg',2,'🐍👑','Lindormul','Lindormen','Un dragon fără aripi, ca un șarpe uriaș, din legendele daneze.','En drage uden vinger, som en kæmpe slange, fra danske sagn.'),
+ I('x:guldhorn','dkleg',3,'📯✨','Coarnele de aur','Guldhornene','Două coarne de aur vechi de aproximativ 1600 de ani, găsite în Danemarca, la Gallehus.','To guldhorn, omkring 1600 år gamle, fundet ved Gallehus i Danmark.'),
+ I('x:solvogn','dkleg',3,'🌞🐎','Carul Soarelui','Solvognen','O sculptură veche de circa 3400 de ani, găsită la Trundholm: un cal care trage Soarele.','En omkring 3400 år gammel figur fundet ved Trundholm: en hest, der trækker solen.'),
+ /* pietre prețioase */
+ I('x:diamond','gems',4,'','Diamantul','Diamanten','Cea mai dură piatră naturală (10 pe scara Mohs). E făcut din carbon, ca mina de creion, dar s-a format adânc în pământ.','Den hårdeste naturlige sten (10 på Mohs’ skala). Den består af kulstof ligesom en blyant, men er dannet dybt nede i jorden.',s=>gemSVG('#ffffff','#9fd8ff','round',s)),
+ I('x:ruby','gems',2,'','Rubinul','Rubinen','O piatră roșie, rudă cu safirul: amândouă sunt „corindon”. Duritate 9.','En rød sten i familie med safiren: begge er „korund”. Hårdhed 9.',s=>gemSVG('#ff6b7a','#a3001b','round',s)),
+ I('x:sapphire','gems',2,'','Safirul','Safiren','De obicei albastru și la fel de dur ca rubinul.','Oftest blå og lige så hård som rubinen.',s=>gemSVG('#7fa8ff','#1a2fa0','oval',s)),
+ I('x:emerald','gems',3,'','Smaraldul','Smaragden','Verde intens. Cleopatra, regina Egiptului, iubea smaraldele.','Dybt grøn. Kleopatra, Egyptens dronning, elskede smaragder.',s=>gemSVG('#6be3a0','#0a7a45','emerald',s)),
+ I('x:amethyst','gems',1,'','Ametistul','Ametysten','Un cuarț mov. Grecii antici credeau că te ajută să ai mintea limpede.','En lilla kvarts. De gamle grækere troede, at den gav et klart hoved.',s=>gemSVG('#d9a8ff','#6a2bb0','crystal',s)),
+ I('x:topaz','gems',1,'','Topazul','Topasen','Poate fi galben, albastru sau roz. Duritate 8.','Kan være gul, blå eller lyserød. Hårdhed 8.',s=>gemSVG('#ffe08a','#e08a00','drop',s)),
+ I('x:opal','gems',3,'','Opalul','Opalen','Sclipește în toate culorile curcubeului când îl miști. Cele mai multe opale vin din Australia.','Glimter i alle regnbuens farver, når du drejer den. De fleste opaler kommer fra Australien.',s=>gemSVG('#b8f3ff','#ff9ad8','oval',s)),
+ I('x:pearl','gems',1,'','Perla','Perlen','Singura piatră prețioasă făcută de un animal: o scoică o construiește strat cu strat.','Den eneste ædelsten, som et dyr laver: en musling bygger den lag på lag.',s=>gemSVG('#ffffff','#d9d2e6','pearl',s)),
+ I('x:amber','gems',2,'','Chihlimbarul','Rav','Rășină de copac veche de milioane de ani; uneori are o insectă prinsă înăuntru. Îl poți găsi pe plajele Danemarcei!','Harpiks fra træer, som er millioner af år gammel; nogle gange sidder der et insekt inden i. Du kan finde det på de danske strande!',s=>gemSVG('#ffd27a','#d07a00','amber',s)),
+ I('x:jade','gems',1,'','Jadul','Jade','O piatră verde, prețuită în China de mii de ani.','En grøn sten, som man har sat højt i Kina i tusinder af år.',s=>gemSVG('#9be6b4','#2f8f5a','oval',s)),
+ I('x:turquoise','gems',1,'','Turcoazul','Turkis','Albastru-verzui. Egiptenii făceau bijuterii din el acum aproximativ 5000 de ani.','Blågrøn. Egypterne lavede smykker af den for omkring 5000 år siden.',s=>gemSVG('#8ff0e6','#1aa39a','nugget',s)),
+ I('x:garnet','gems',0,'','Granatul','Granat','Roșu închis, ca semințele de rodie — numele vine chiar de la rodie.','Mørkerød som kernerne i et granatæble — navnet kommer netop af granatæble.',s=>gemSVG('#d6455e','#5c0a1e','round',s)),
+ I('x:aquamarine','gems',1,'','Acvamarinul','Akvamarin','Albastru deschis ca apa mării; numele înseamnă chiar „apa mării”.','Lyseblå som havvand; navnet betyder netop „havets vand”.',s=>gemSVG('#d0f7ff','#4cc3e0','emerald',s)),
+ I('x:lapis','gems',2,'','Lapis lazuli','Lapis lazuli','Albastru cu sclipiri aurii. Pictorii de demult îl măcinau ca să facă vopsea albastră.','Blå med små guldprikker. Malere knuste den i gamle dage for at lave blå maling.',s=>gemSVG('#3d6bff','#102a8a','flecks',s)),
+ I('x:gold','gems',3,'','Aurul','Guld','Un metal care nu ruginește niciodată și e atât de moale încât îl poți modela.','Et metal, der aldrig ruster, og som er så blødt, at man kan forme det.',s=>gemSVG('#fff1a1','#d49b00','nugget',s)),
+ I('x:silver','gems',0,'','Argintul','Sølv','Metalul care conduce cel mai bine electricitatea.','Det metal, der leder strøm allerbedst.',s=>gemSVG('#ffffff','#9aa3b5','nugget',s)),
+ I('x:quartz','gems',0,'','Cuarțul','Kvarts','Unul dintre cele mai răspândite minerale. Se folosește și în ceasuri, ca să meargă exact!','Et af de mest almindelige mineraler. Det bruges også i ure, så de går præcist!',s=>gemSVG('#ffffff','#cfd8e8','crystal',s)),
+ I('x:malachite','gems',1,'','Malachitul','Malakit','Verde, cu dungi rotunde ca inelele dintr-un trunchi de copac.','Grøn med runde striber som årringe i et træ.',s=>gemSVG('#5fdc8f','#0b6a3a','banded',s)),
+ I('x:obsidian','gems',1,'','Obsidianul','Obsidian','Sticlă neagră naturală, formată când lava se răcește foarte repede.','Naturligt sort glas, der dannes, når lava køler meget hurtigt af.',s=>gemSVG('#6a6a80','#0d0d16','glass',s)),
+ /* spațiu */
+ I('x:sun','space',3,'','Soarele','Solen','O stea uriașă: în ea ar încăpea peste un milion de Pământuri!','En kæmpe stjerne: der kunne være over en million jordkloder inden i den!',s=>planetSVG('sun',s)),
+ I('x:mercury','space',0,'','Mercur','Merkur','Cea mai mică planetă și cea mai apropiată de Soare.','Den mindste planet og den, der er tættest på Solen.',s=>planetSVG('mercury',s)),
+ I('x:venus','space',1,'','Venus','Venus','Cea mai fierbinte planetă, deși nu e cea mai apropiată de Soare.','Den varmeste planet, selv om den ikke er tættest på Solen.',s=>planetSVG('venus',s)),
+ I('x:earth','space',1,'🌍','Pământul','Jorden','Singura planetă pe care știm că există viață.','Den eneste planet, hvor vi ved, at der er liv.'),
+ I('x:mars','space',2,'','Marte','Mars','Planeta roșie. Are cel mai înalt vulcan din sistemul solar, Olympus Mons.','Den røde planet. Den har solsystemets højeste vulkan, Olympus Mons.',s=>planetSVG('mars',s)),
+ I('x:jupiter','space',3,'','Jupiter','Jupiter','Cea mai mare planetă. Are o furtună uriașă, Marea Pată Roșie, mai mare decât Pământul.','Den største planet. Den har en kæmpe storm, Den Store Røde Plet, som er større end Jorden.',s=>planetSVG('jupiter',s)),
+ I('x:saturn','space',2,'','Saturn','Saturn','Planeta cu inele frumoase, făcute din bucăți de gheață și piatră.','Planeten med smukke ringe af stykker af is og sten.',s=>planetSVG('saturn',s)),
+ I('x:uranus','space',1,'','Uranus','Uranus','O planetă care se rotește culcată pe o parte.','En planet, der drejer rundt, mens den ligger på siden.',s=>planetSVG('uranus',s)),
+ I('x:neptune','space',2,'','Neptun','Neptun','Cea mai îndepărtată planetă de Soare; acolo bat cele mai puternice vânturi.','Den planet, der er længst fra Solen; her blæser de kraftigste vinde.',s=>planetSVG('neptune',s)),
+ I('x:moon','space',0,'🌙','Luna','Månen','Singurul satelit natural al Pământului. Oamenii au pășit pe ea în 1969.','Jordens eneste naturlige måne. Mennesker gik på den i 1969.'),
+ I('x:comet','space',2,'☄️','Cometa','Kometen','Un bulgăre de gheață și praf care, când se apropie de Soare, capătă o coadă strălucitoare.','En klump is og støv, der får en lysende hale, når den kommer tæt på Solen.'),
+ I('x:polaris','space',1,'','Steaua Polară','Nordstjernen','Arată mereu spre nord, așa că marinarii se orientau după ea.','Den viser altid mod nord, så søfolk navigerede efter den.',s=>planetSVG('polaris',s)),
+ I('x:milkyway','space',4,'🌌','Calea Lactee','Mælkevejen','Galaxia noastră, cu peste 100 de miliarde de stele.','Vores galakse med over 100 milliarder stjerner.')
+];
+const CITEMS=[...ANIMALS,...NEWITEMS];
+const itemById=id=>CITEMS.find(x=>x.id===id);
+const itName=it=>it[S.lang]||it.ro||'';
+const itFact=it=>S.lang==='da'?it.fda:it.fro;
+function itIcon(it,sz){if(it.svg)return it.svg(sz);const n=[...it.ic].filter(ch=>/\p{Extended_Pictographic}/u.test(ch)).length;return `<span style="font-size:${n>1?Math.round(sz*.62):sz}px;line-height:1">${it.ic}</span>`;}
+const CT={ro:{rar:['obișnuit','rar','epic','legendar','mitic'],fact:'Știai că…?',daily:'🌅 Cufărul zilei',more:k=>`Mai ai ${k} ${k===1?'cufăr':'cufere'}! 🎁`,pityE:k=>`🔮 Încă ${k} ${k===1?'cufăr':'cufere'} până la un <b>epic</b> garantat`,pityL:k=>`👑 Încă ${k} ${k===1?'cufăr':'cufere'} până la un <b>legendar</b> garantat`,
+   newIt:'Un obiect nou în colecție!',dup:k=>`Îl ai deja — primești +${k} ⭐`,locked:'Încă nedescoperit. Ce o fi oare? 🤔',series:'Seria',done:'complet!',seriesDone:(s,k)=>`🎉 Ai completat seria „${s}”! +${k} ⭐`,
+   achC:{coll50:'50 de obiecte',coll75:'75 de obiecte',coll100:'100 de obiecte',firstLeg:'Primul legendar',firstMyth:'Primul mitic',epic10:'10 epice sau mai bune'}},
+ da:{rar:['almindelig','sjælden','episk','legendarisk','mytisk'],fact:'Vidste du…?',daily:'🌅 Dagens skattekiste',more:k=>`Du har ${k} ${k===1?'skattekiste':'skattekister'} mere! 🎁`,pityE:k=>`🔮 ${k} ${k===1?'kiste':'kister'} mere til en garanteret <b>episk</b>`,pityL:k=>`👑 ${k} ${k===1?'kiste':'kister'} mere til en garanteret <b>legendarisk</b>`,
+   newIt:'En ny ting i samlingen!',dup:k=>`Den har du allerede — du får +${k} ⭐`,locked:'Ikke fundet endnu. Hvad mon det er? 🤔',series:'Serie',done:'færdig!',seriesDone:(s,k)=>`🎉 Du har fuldført serien „${s}”! +${k} ⭐`,
+   achC:{coll50:'50 ting',coll75:'75 ting',coll100:'100 ting',firstLeg:'Første legendariske',firstMyth:'Første mytiske',epic10:'10 episke eller bedre'}}};
+const CX=()=>CT[S.lang]||CT.ro;
+/* --- tragerea la sorți, cu prag garantat și preferință pentru ce nu are încă --- */
+function rollCreature(boost){
+  const P=S.pity||(S.pity={e:0,l:0});P.e++;P.l++;
+  let rar;
+  if(P.l>=PITY_LEG)rar=Math.random()<.2?4:3;
+  else if(P.e>=PITY_EPIC)rar=Math.random()<.75?2:Math.random()<.85?3:4;
+  else{const w=boost?RARW.gold:RARW.base;let r=Math.random()*100;rar=0;for(let i=0;i<5;i++){if(r<w[i]){rar=i;break;}r-=w[i];}}
+  if(rar>=2)P.e=0;if(rar>=3)P.l=0;
+  const pool=CITEMS.filter(x=>x.r===rar),fresh=pool.filter(x=>!S.coll[x.id]);
+  const it=(fresh.length&&Math.random()<.75)?pick(fresh):pick(pool);
+  return it.id;
+}
+let pendingChests=[];
+function queueChests(boost){pendingChests=[{id:rollCreature(boost)}];
+  const d=todayStr();if(S.dayChest!==d){S.dayChest=d;pendingChests.push({id:rollCreature(false),daily:true});}save();}
+function chestBoxHTML(){const c=pendingChests[0];if(!c)return '';
+  return `<div class="chest" onclick="openChest()">${c.daily?'🌅':'🎁'}</div><p class="muted">${c.daily?CX().daily+' · ':''}${t('tapChest')}</p>${pendingChests.length>1?`<p style="font-weight:800">${CX().more(pendingChests.length)}</p>`:''}`;}
+function pityHTML(){const P=S.pity||{e:0,l:0};return `<p class="muted" style="font-size:14px;margin:4px 0">${CX().pityE(Math.max(1,PITY_EPIC-P.e))}<br>${CX().pityL(Math.max(1,PITY_LEG-P.l))}</p>`;}
+function openChest(){
+  const c=pendingChests.shift();if(!c)return;const it=itemById(c.id);if(!it)return;
+  const had=S.coll[it.id];S.coll[it.id]=(S.coll[it.id]||0)+1;let extra=0;if(had){extra=DUP_STARS[it.r];S.stars+=extra;}
+  const ser=it.s,serDone=!had&&CITEMS.filter(x=>x.s===ser).every(x=>S.coll[x.id]);
+  if(serDone){S.stars+=50;setTimeout(()=>{toast(CX().seriesDone(SERIES[ser][S.lang]||SERIES[ser].ro,50),4000);sound('great');burst();},1200);}
+  save();updateHeader();checkAch();
+  const fact=itFact(it);
+  $('chestBox').innerHTML=`<div class="creature item-big glow${it.r}">${itIcon(it,110)}</div>
+    <div style="margin:6px 0"><span class="rar r${it.r}">${CX().rar[it.r]}</span> <span class="tag" style="background:#efe9ff">${SERIES[ser].e} ${SERIES[ser][S.lang]||SERIES[ser].ro}</span></div>
+    ${it.ro?`<h2 style="margin:6px 0">${itName(it)}</h2>`:''}
+    <p style="font-weight:800">${had?CX().dup(extra):CX().newIt}</p>
+    ${fact?`<div class="fb good" style="text-align:left"><div class="title">💡 ${CX().fact}</div><p style="margin:0;font-size:17px">${fact}</p><button class="iconbtn" style="margin-top:6px" onclick="speak(${JSON.stringify(itName(it)+'. '+fact).replace(/"/g,'&quot;')})">🔊</button></div>`:''}
+    ${pendingChests.length?`<div style="margin-top:14px">${chestBoxHTML()}</div>`:pityHTML()}`;
+  if(S.settings.speak&&fact)speak(itName(it)+'. '+fact);
+  sound('great');burst();if(it.r>=3)setTimeout(burst,400);if(it.r>=4)setTimeout(burst,800);buzz(it.r>=3?[40,40,40,40,120]:[30,30,60]);
+}
+/* --- camera trofeelor, pe serii --- */
+function renderRoom(){
+  $('roomCups').innerHTML=`<span><i>🏆</i>${S.cups[3]||0}</span><span><i>🥈</i>${S.cups[2]||0}</span><span><i>🥉</i>${S.cups[1]||0}</span>`;
+  const owned=CITEMS.filter(x=>S.coll[x.id]).length;
+  $('collTitle').innerHTML=t('coll',owned,CITEMS.length)+pityHTML();
+  $('roomColl').innerHTML='';$('roomColl').className='';
+  $('roomColl').innerHTML=Object.keys(SERIES).map(s=>{const its=CITEMS.filter(x=>x.s===s),k=its.filter(x=>S.coll[x.id]).length,full=k===its.length;
+    return `<div class="series ${full?'full':''}"><div class="sh"><span>${SERIES[s].e} ${SERIES[s][S.lang]||SERIES[s].ro}</span><span>${k}/${its.length}${full?' ✅':''}</span></div>
+      <div class="wbar"><div style="width:${k/its.length*100}%"></div></div>
+      <div class="coll">${its.map(x=>`<div class="r${x.r} ${S.coll[x.id]?'':'lock'}" onclick="itemInfo('${x.id}')">${S.coll[x.id]?itIcon(x,30):'❔'}${S.coll[x.id]>1?`<sup>×${S.coll[x.id]}</sup>`:''}</div>`).join('')}</div></div>`;}).join('');
+  $('roomAch').innerHTML=achList().map(([id,e,n])=>`<span class="badge ${S.badges.includes(id)?'':'off'}">${S.badges.includes(id)?e:'🔒'} ${n}</span>`).join('');
+}
+function itemInfo(id){const it=itemById(id);if(!it)return;const has=S.coll[id];const ser=SERIES[it.s];
+  if(!has){openModal(`${ser.e} ${ser[S.lang]||ser.ro}`,`<div class="center"><div style="font-size:70px">❔</div><p><span class="rar r${it.r}">${CX().rar[it.r]}</span></p><p>${CX().locked}</p></div>`);return;}
+  const fact=itFact(it);
+  openModal(`${ser.e} ${ser[S.lang]||ser.ro}`,`<div class="center"><div class="item-big glow${it.r}" style="margin:6px 0">${itIcon(it,110)}</div><p><span class="rar r${it.r}">${CX().rar[it.r]}</span>${has>1?` ×${has}`:''}</p>${it.ro?`<h2>${itName(it)}</h2>`:''}
+    ${fact?`<div class="fb good" style="text-align:left"><div class="title">💡 ${CX().fact}</div><p style="margin:0;font-size:17px">${fact}</p></div><button class="btn sec" style="margin-top:10px" onclick="speak(${JSON.stringify(itName(it)+'. '+fact).replace(/"/g,'&quot;')})">🔊</button>`:''}</div>`);
+  if(S.settings.speak&&fact)speak(itName(it)+'. '+fact);}
+function collAch(){const c=CX().achC,own=CITEMS.filter(x=>S.coll[x.id]),L=[
+  ['coll50','🎒',c.coll50,()=>own.length>=50],['coll75','🧳',c.coll75,()=>own.length>=75],['coll100','🏛️',c.coll100,()=>own.length>=100],
+  ['firstLeg','👑',c.firstLeg,()=>own.some(x=>x.r>=3)],['firstMyth','🌟',c.firstMyth,()=>own.some(x=>x.r>=4)],['epic10','💜',c.epic10,()=>own.filter(x=>x.r>=2).length>=10]];
+  Object.keys(SERIES).forEach(s=>L.push(['ser_'+s,SERIES[s].e,SERIES_ACH[s][S.lang==='da'?1:0],()=>CITEMS.filter(x=>x.s===s).every(x=>S.coll[x.id])]));return L;}
 function defState(){return {v:2,lang:'',name:'',buddy:'🦊',stars:0,settings:{slow:4,len:10,big:false,sound:true,vib:true,speak:false,breaks:true,examDur:45,examStuck:60,examBreaks:true},
   facts:{},history:[],badges:[],cups:{1:0,2:0,3:0},coll:{},wseen:{},wstats:{},days:[],missions:0,maxCombo:0,correct:0};}
 function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.facts){const d=defState();const o=Object.assign(d,s,{settings:Object.assign(d.settings,s.settings||{})});
@@ -935,12 +1157,6 @@ function quitSession(){clearInterval(idleT);stopSpeak();document.body.classList.
 /* ================= END / REWARDS ================= */
 function todayStr(d=new Date()){return d.toISOString().slice(0,10);}
 function streak(){const set=new Set(S.days);let n=0;const d=new Date();if(!set.has(todayStr(d)))d.setDate(d.getDate()-1);while(set.has(todayStr(d))){n++;d.setDate(d.getDate()-1);}return n;}
-function rollCreature(boost){
-  const w=boost?[45,35,15,5]:[60,28,10,2];let r=Math.random()*100,rar=0;
-  for(let i=0;i<4;i++){if(r<w[i]){rar=i;break;}r-=w[i];}
-  return pick(CREATURES.filter(c=>c[1]===rar));
-}
-let pendingChest=null;
 function endSession(quit){
   clearInterval(idleT);document.body.classList.remove('focus');
   const r=sess.res,n=r.length,fast=r.filter(x=>x.fast).length,slow=r.filter(x=>x.ok&&!x.fast).length,bad=r.filter(x=>!x.ok).length;
@@ -950,8 +1166,8 @@ function endSession(quit){
   let cup=0;
   if(sess.mode==='practice'&&complete&&n>=3){
     const pct=fast/n;cup=pct>=.8&&bad<=1?3:pct>=.5?2:1;S.cups[cup]=(S.cups[cup]||0)+1;S.missions=(S.missions||0)+1;
-    pendingChest=rollCreature(cup===3);
-  }else pendingChest=null;
+    queueChests(cup===3);
+  }else pendingChests=[];
   if(sess.mode==='assess')S.assessDone=true;
   if(sess.world&&complete&&n>=3){const st=S.wstats[sess.world]||(S.wstats[sess.world]={m:0,l3:0});st.m++;if(sess.lvl===3)st.l3++;}
   if(n>0&&!S.days.includes(todayStr())){S.days.push(todayStr());S.days=S.days.slice(-120);}
@@ -963,7 +1179,7 @@ function endSession(quit){
   if(cup){
     h+=`<div class="reward"><div class="buddy" style="justify-content:center"><div class="av">${S.buddy}</div><div class="bubble" style="flex:0 1 auto">${msg('end')}</div></div>
         <div class="cupbig">${cup===3?'🏆':cup===2?'🥈':'🥉'}</div><h2>${t('youWon',t('cupN')[cup])}</h2>
-        <div id="chestBox"><div class="chest" onclick="openChest()">🎁</div><p class="muted">${t('tapChest')}</p></div></div>`;
+        <div id="chestBox">${chestBoxHTML()}</div></div>`;
   }else h+=`<h2>${sess.mode==='assess'?t('assessDone'):'⭐'}</h2>`;
   h+=`<p style="font-size:20px;text-align:center">${t('earned',sess.stars)}</p>
     <div class="stats"><div><b style="color:var(--ok)">${fast}</b>${t('fastL')}</div><div><b style="color:var(--warn)">${slow}</b>${t('slowL')}</div><div><b style="color:var(--bad)">${bad}</b>${t('badL')}</div></div>
@@ -976,13 +1192,6 @@ function endSession(quit){
      `<button class="btn" onclick='afterResults(null,"${sess.world||''}",${sess.lvl||0})'>${t('another')}</button><button class="btn sec" onclick="go('home')">${t('home')}</button></div>`;
   $('resBox').innerHTML=h;sess=null;cur=null;go('results');
   if(cup)setTimeout(()=>{sound('great');burst();},300);
-}
-function openChest(){
-  if(!pendingChest)return;const [e,rar]=pendingChest;pendingChest=null;
-  const had=S.coll[e];S.coll[e]=(S.coll[e]||0)+1;if(had)S.stars+=5;save();updateHeader();checkAch();
-  $('chestBox').innerHTML=`<div class="creature ${rar>=3?'glow3':rar>=2?'glow2':''}">${e}</div>
-    <div><span class="rar r${rar}">${t('rar')[rar]}</span></div><p style="font-weight:800">${had?t('dup'):t('newCreature')}</p>`;
-  sound('great');burst();buzz([30,30,60]);
 }
 function afterResults(forced,world,lvl){
   const go2=world?()=>forced?startWorld(world,lvl,forced):openWorld(world):()=>forced?startMission('mix',forced):go('missionSetup');
@@ -1845,7 +2054,7 @@ function examFinish(){
   const areas={};['tal','geo','stat'].forEach(a=>{const r=res.filter(z=>z.x.area===a);areas[a]=[r.filter(z=>z.ok).length,r.length];});
   const sk=E.qs.filter(x=>x.was).length,ret=E.qs.filter(x=>x.was&&x.st==='ans').length;
   const pct=c/n,cup=pct>=.85?3:pct>=.65?2:1,bonus=ret*2,stars=c*2+bonus;
-  S.stars+=stars;S.cups[cup]=(S.cups[cup]||0)+1;pendingChest=rollCreature(cup===3);
+  S.stars+=stars;S.cups[cup]=(S.cups[cup]||0)+1;queueChests(cup===3);
   const used=Math.round((E.dur*60000-Math.max(0,E.left))/60000);
   S.exams=(S.exams||[]);S.exams.unshift({d:Date.now(),mini:E.mini,n,c,areas,sk,ret,used,cup});S.exams=S.exams.slice(0,30);
   S.history.unshift({d:Date.now(),m:'exam',k:'',n,fast:c,slow:0,bad:n-c,avg:0});
@@ -1855,7 +2064,7 @@ function examFinish(){
   const A=EX().areas;
   $('resBox').innerHTML=`<div class="reward"><div class="buddy" style="justify-content:center"><div class="av">${S.buddy}</div><div class="bubble" style="flex:0 1 auto">${msg('end')}</div></div>
     <div class="cupbig">${cup===3?'🏆':cup===2?'🥈':'🥉'}</div><h2>${EX().resTitle}</h2><p style="font-size:22px">${EX().score(c,n)} · +${stars} ⭐</p>
-    <div id="chestBox"><div class="chest" onclick="openChest()">🎁</div><p class="muted">${t('tapChest')}</p></div></div>
+    <div id="chestBox">${chestBoxHTML()}</div></div>
     ${Object.keys(areas).map(a=>{const [k,m]=areas[a];const p=m?Math.round(k/m*100):0;return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-weight:800"><span>${A[a]}</span><span>${k}/${m}</span></div><div class="wbar" style="height:14px"><div style="width:${p}%;background:${p>=80?'var(--ok)':p>=50?'var(--warn)':'var(--bad)'}"></div></div></div>`;}).join('')}
     <div class="fb ${sk&&ret===sk?'good':'slow'}" style="margin-top:12px"><div class="title">${EX().stratT}</div><p style="margin:0">${EX().stratL(sk,ret)}${bonus?` <b>${EX().bonus(bonus)}</b>`:''}</p></div>
     <p class="muted">${EX().timeUsed(used)}</p>
@@ -1997,16 +2206,10 @@ function achList(){
   l.push(['exam1','📝',xa.exam1,()=>XS().length>=1],['strategist','🧠',xa.strategist,()=>XS().some(e=>e.sk>0&&e.ret===e.sk)],['examGold','🏅',xa.examGold,()=>XS().some(e=>!e.mini&&e.cup===3)]);
   l.push(['pioneer','🌱',wa.pioneer,()=>WORLDS.some(w=>((S.wstats[w]||{}).l3||0)>=1)],['explorer','🗺️',wa.explorer,()=>WORLDS.every(w=>S.wseen[w])]);
   l.push(['add','➕',a.add,()=>cnt('add')>=90],['sub','➖',a.sub,()=>cnt('sub')>=90],['div','➗',a.div,()=>cnt('div')>=90],['rem','🍬',a.rem,()=>cnt('rem')>=60]);
-  return l;
+  return l.concat(collAch());
 }
 function checkAch(){achList().forEach(([id,e,n,test])=>{if(!S.badges.includes(id)&&test()){S.badges.push(id);save();setTimeout(()=>{toast(`${e} ${t('newAch',n)}`,3200);sound('great');buzz([40,40,80]);},400);}});}
 function openRoom(){go('room');}
-function renderRoom(){
-  $('roomCups').innerHTML=`<span><i>🏆</i>${S.cups[3]||0}</span><span><i>🥈</i>${S.cups[2]||0}</span><span><i>🥉</i>${S.cups[1]||0}</span>`;
-  $('collTitle').textContent=t('coll',Object.keys(S.coll).length,CREATURES.length);
-  $('roomColl').innerHTML=CREATURES.map(([e,r])=>S.coll[e]?`<div class="r${r}" title="${t('rar')[r]}">${e}${S.coll[e]>1?`<sup>×${S.coll[e]}</sup>`:''}</div>`:`<div class="lock">❔</div>`).join('');
-  $('roomAch').innerHTML=achList().map(([id,e,n])=>`<span class="badge ${S.badges.includes(id)?'':'off'}">${S.badges.includes(id)?e:'🔒'} ${n}</span>`).join('');
-}
 
 /* ================= ONBOARDING / HOME ================= */
 function obStep(n){go('onboard');[1,2,3].forEach(i=>$('ob'+i).classList.toggle('hidden',i!==n));if(n===2)setTimeout(()=>$('nameIn').focus(),200);if(n===3)renderBuddies();}
@@ -2036,7 +2239,7 @@ function renderHome(){
   updateHeader();$('homeAv').textContent=S.buddy;
   const seen=Object.keys(S.facts).filter(k=>!k.startsWith('big')).length,sk=streak();
   $('homeMsg').textContent=!seen?msg('homeFirst'):sk>=2?msg('homeStreak',{k:sk}):msg('home');
-  $('homeStats').innerHTML=`<span class="pill">🎖️ ${level()}</span><span class="pill">🔥 ${sk} ${t('streakDays')}</span><span class="pill">🏆 ${(S.cups[1]||0)+(S.cups[2]||0)+(S.cups[3]||0)}</span><span class="pill">🐾 ${Object.keys(S.coll).length}/${CREATURES.length}</span>`;
+  $('homeStats').innerHTML=`<span class="pill">🎖️ ${level()}</span><span class="pill">🔥 ${sk} ${t('streakDays')}</span><span class="pill">🏆 ${(S.cups[1]||0)+(S.cups[2]||0)+(S.cups[3]||0)}</span><span class="pill">🐾 ${CITEMS.filter(x=>S.coll[x.id]).length}/${CITEMS.length}</span>`;
   $('bAssess').classList.toggle('hl',!seen);
   $('bExamT').textContent=EX().btn+(S.exam?' ⏸':'');$('bExamS').textContent=S.exam?EX().resume:EX().btnSub;
   $('bWorldsT').textContent=WD().btn;$('bWorldsS').textContent=WD().btnSub;$('bWorldsNew').innerHTML=WORLDS.some(w=>!S.wseen[w])?`<span class="newtag">${WD().isNew}</span>`:'';
