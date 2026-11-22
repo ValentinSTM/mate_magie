@@ -1,11 +1,11 @@
 // Mate-Magie: funcționează și fără internet după prima deschidere
-const CACHE = 'mate-magie-v10';
+const CACHE = 'mate-magie-v11';
 const FILES = ['./', 'index.html', 'manifest.json', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== CACHE).map(x => caches.delete(x)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x.startsWith('mate-magie-') && x !== CACHE).map(x => caches.delete(x)))).then(() => self.clients.claim()));
 });
 // rețea întâi (ca să primești versiunile noi), cache dacă nu e internet
 self.addEventListener('fetch', e => {

@@ -1,3 +1,15 @@
+# 🦉 Academia Bufniței · Ugleakademiet
+
+**Aplicația nouă / Den nye app:** https://valentinstm.github.io/mate_magie/academia/
+
+Matematică (strategii, lumi, testul cel mare), colecția cu 311 obiecte și enciclopedia, jurnalul de citit (Læsekontrakt).
+La prima deschidere preia o copie a progresului din Mate-Magie (doar citește; Mate-Magie rămâne neatinsă). Salvare: `academia_v1`.
+
+- Mate-Magie (aplicația veche, neschimbată): https://valentinstm.github.io/mate_magie/
+- Versiunea de test pentru funcții noi: https://valentinstm.github.io/mate_magie/test/ (salvare separată)
+
+---
+
 # 🦉 Mate-Magie · Matte-Magi
 
 Joc de matematică pentru clasa a III-a, în **română și daneză**: adunări, scăderi, înmulțiri, împărțiri (și cu rest).

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mate-Magie</title>
+<title>Academia Bufniței</title>
 <meta name="theme-color" content="#5b3cc4">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
@@ -24,7 +24,8 @@ body{font-family:"Nunito","Trebuchet MS","Segoe UI",Roboto,system-ui,sans-serif;
 button{font-family:inherit;cursor:pointer;border:0;touch-action:manipulation}
 input,select{user-select:text;-webkit-user-select:text}
 header{display:flex;align-items:center;gap:8px;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));background:var(--pri);color:#fff;position:sticky;top:0;z-index:5}
-header h1{font-size:19px;margin:0;flex:1;cursor:pointer;white-space:nowrap}
+header h1{font-size:17px;margin:0;flex:1;min-width:0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header>*:not(h1){flex:none}
 .pill{background:rgba(255,255,255,.18);padding:6px 10px;border-radius:99px;font-weight:800;font-size:14px;white-space:nowrap}
 .lang-btn{background:rgba(255,255,255,.18);color:#fff;border-radius:99px;padding:6px 10px;font-weight:800;font-size:14px}
 body.focus header{display:none}
@@ -246,7 +247,7 @@ label.ck input{width:24px;height:24px;flex:none}
 </head>
 <body>
 <header>
-  <h1 onclick="go('home')" id="hdrTitle">🦉 Mate-Magie</h1>
+  <h1 onclick="go('home')" id="hdrTitle">🦉 Academia</h1>
   <span class="pill" id="hdrStars">⭐ 0</span>
   <button class="lang-btn" onclick="toggleLang()" id="hdrLang">DA</button>
 </header>
@@ -462,7 +463,7 @@ label.ck input{width:24px;height:24px;flex:none}
    ====================================================================== */
 const I18N={
 ro:{
-  app:'Mate-Magie', obName:'Bună! Eu sunt bufnița Mate-Magie. 🦉 Cum te cheamă? Scrie-ți numele aici:', next:'Mai departe ➜',
+  app:'Academia Bufniței', appShort:'Academia', obName:'Bună! Eu sunt bufnița de la Academia Bufniței. 🦉 Cum te cheamă? Scrie-ți numele aici:', next:'Mai departe ➜',
   obBuddy:n=>`Încântat de cunoștință, ${n}! 🎉 Alege-ți un prieten care te ajută la matematică:`, letsGo:'Începem! 🚀',
   btnMission:'Misiune nouă', btnMissionSub:'câteva minute + un cufăr surpriză 🎁', btnAssess:'Evaluare', btnAssessSub:'Aflăm ce știi deja',
   btnRoom:'Trofeele mele', btnRoomSub:'Cupe și colecția ta', btnTricks:'Trucuri', btnTricksSub:'Mai multe feluri de a calcula',
@@ -589,7 +590,7 @@ ro:{
   }
 },
 da:{
-  app:'Matte-Magi', obName:'Hej! Jeg er Matte-Magi-uglen. 🦉 Hvad hedder du? Skriv dit navn her:', next:'Videre ➜',
+  app:'Ugleakademiet', appShort:'Akademiet', obName:'Hej! Jeg er uglen fra Ugleakademiet. 🦉 Hvad hedder du? Skriv dit navn her:', next:'Videre ➜',
   obBuddy:n=>`Hyggeligt at møde dig, ${n}! 🎉 Vælg en ven, der hjælper dig med matematik:`, letsGo:'Lad os starte! 🚀',
   btnMission:'Ny mission', btnMissionSub:'få minutter + en skattekiste 🎁', btnAssess:'Test', btnAssessSub:'Find ud af, hvad du kan',
   btnRoom:'Mine trofæer', btnRoomSub:'Pokaler og din samling', btnTricks:'Tricks', btnTricksSub:'Flere måder at regne på',
@@ -717,10 +718,11 @@ da:{
 }};
 
 /* ================= STATE ================= */
-const IS_TEST=/\/test\//.test(location.pathname);
-const LS=IS_TEST?'mateMagie_test':'mateMagie_v1', BK=LS+'_backup';
+const IS_TEST=/\/test\//.test(location.pathname), IS_ACAD=/\/academia\//.test(location.pathname);
+const LS=IS_TEST?'mateMagie_test':IS_ACAD?'academia_v1':'mateMagie_v1', BK=LS+'_backup';
 // versiunea de test pornește cu o COPIE a progresului adevărat (doar citire)
-if(IS_TEST){try{if(!localStorage.getItem(LS)&&localStorage.getItem('mateMagie_v1'))localStorage.setItem(LS,localStorage.getItem('mateMagie_v1'));}catch(e){}}
+/* prima deschidere: preia (doar citește) progresul existent; aplicația Mate-Magie nu e modificată */
+if(IS_TEST||IS_ACAD){try{const src=IS_TEST&&localStorage.getItem('academia_v1')?'academia_v1':'mateMagie_v1';if(!localStorage.getItem(LS)&&localStorage.getItem(src))localStorage.setItem(LS,localStorage.getItem(src));}catch(e){}}
 const OPS=['add','sub','mul','div','rem'];
 const LEVELS=[0,60,150,300,500,800];
 const BUDDIES=['🦊','🐱','🦄','🐼','🐸','🐧','🐶','🐉','🐰','🦋'];
@@ -1385,7 +1387,7 @@ function applyI18n(){
   document.documentElement.lang=S.lang||'ro';
   document.querySelectorAll('[data-t]').forEach(el=>{const v=t(el.dataset.t);if(el.dataset.t==='adhdNote')el.innerHTML=v;else el.textContent=v;});
   $('nameIn').placeholder=S.lang==='da'?'Dit navn':'Numele tău';
-  $('hdrTitle').textContent='🦉 '+t('app');document.title=t('app');
+  $('hdrTitle').textContent='🦉 '+t('appShort');document.title=t('app');
   $('hdrLang').textContent=S.lang==='da'?'🇷🇴 RO':'🇩🇰 DA';
   if(IS_TEST)$('testBanner').textContent=t('testBanner');
 }
@@ -2779,7 +2781,7 @@ function saveSettings(silent){
   Object.assign(S.settings,{sound:$('ckSound').checked,vib:$('ckVib').checked,speak:$('ckSpeak').checked,breaks:$('ckBreaks').checked,big:$('ckBig').checked});
   save();if(silent!==true)toast(t('saved'));
 }
-function exportFile(){return new File([JSON.stringify(S)],`mate-magie-${(S.name||'progres').toLowerCase().replace(/[^a-z0-9-]/g,'')}-${todayStr()}.json`,{type:'application/json'});}
+function exportFile(){return new File([JSON.stringify(S)],`academia-${(S.name||'progres').toLowerCase().replace(/[^a-z0-9-]/g,'')}-${todayStr()}.json`,{type:'application/json'});}
 function exportData(){const f=exportFile();const a=document.createElement('a');a.href=URL.createObjectURL(f);
   S.lastExport=Date.now();save();a.download=f.name;document.body.appendChild(a);a.click();a.remove();toast(t('bkSaved'),3500);try{renderParent();}catch(e){}}
 async function shareData(){const f=exportFile();
