@@ -1,6 +1,6 @@
 // Academia Bufniței: funcționează și fără internet după prima deschidere
-const CACHE = 'academia-v1';
-const FILES = ['./', 'index.html', 'manifest.json', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'academia-v2';
+const FILES = ['./', 'index.html', 'manifest.json', 'manifest-da.json', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
 });

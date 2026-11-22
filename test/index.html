@@ -6,7 +6,8 @@
 <title>Academia Bufniței</title>
 <meta name="theme-color" content="#5b3cc4">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json" id="manLink">
+<script>/* numele aplicației după limba telefonului (pentru Chrome mai vechi; cele noi citesc name_localized) */try{if(/^da/i.test(navigator.language||''))document.getElementById('manLink').href='manifest-da.json';}catch(e){}</script>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
