@@ -2541,7 +2541,7 @@ function examStrats(i){const q=lastExam.res[i].q;openModal(q.w?q.short:`${q.text
    ====================================================================== */
 const RT={
 ro:{btn:'Jurnalul de citit',btnSub:'Læsekontrakt · ce ai citit',title:'📚 Jurnalul de citit',week:n=>`Săptămâna ${n}`,add:'✏️ Scrie ce ai citit',
-  remind:'📚 Ai citit azi? Scrie aici și primești un cufăr! 🎁',book:'Ce carte?',newBook:'＋ Carte nouă',titlePh:'Titlul cărții',from:'De la pagina',to:'până la pagina',
+  remind:'📚 Ai citit azi? Scrie aici și primești un cufăr! 🎁',book:'Ce carte?',newBook:'＋ Carte nouă',titlePh:'Titlul cărții (ex: Medusa 2 – …)',editT:'✏️ Schimbă ce ai scris',myBooks:'📚 Cărțile mele',rename:'✏️ Schimbă numele cărții',renameT:'Numele întreg al cărții',okSaved:'Salvat ✔',bReading:'o citesc',bDone:'terminată ✔',from:'De la pagina',to:'până la pagina',
   pages:n=>`${n} ${n===1?'pagină':'pagini'}`,simple:'🔢 Știu doar câte pagini',exact:'📄 Scriu paginile (de la… până la…)',count:'Câte pagini ai citit?',minutes:'Câte minute?',day:'Când ai citit?',today:'Azi',yesterday:'Ieri',finished:'Am terminat cartea! 🎉',note:'Despre ce a fost? (dacă vrei)',
   save:'Salvez ✔',need:'Scrie titlul cărții și paginile.',bad:'Hmm, „până la” e mai mic decât „de la”. Verifică numerele sau apasă „Știu doar câte pagini” 🙂',needC:'Scrie câte pagini ai citit 🙂',
   saved:(n,p)=>`Bravo, ${n}! Ai citit ${p}. Cititul îți face creierul mai puternic! 📚`,savedLater:'Super că ți-ai amintit să scrii! 👍',
@@ -2551,7 +2551,7 @@ ro:{btn:'Jurnalul de citit',btnSub:'Læsekontrakt · ce ai citit',title:'📚 Ju
   ach:{read1:'Prima zi de citit',read7:'7 zile de citit',pages100:'100 de pagini',pages500:'500 de pagini',book1:'Prima carte terminată',books5:'5 cărți terminate',goal1:'Ținta săptămânii atinsă'},
   wd:['L','Ma','Mi','J','V','S','D']},
 da:{btn:'Læsekontrakt',btnSub:'Skriv, hvad du har læst',title:'📚 Læsekontrakt',week:n=>`Uge ${n}`,add:'✏️ Skriv, hvad du har læst',
-  remind:'📚 Har du læst i dag? Skriv det ind og få en skattekiste! 🎁',book:'Hvilken bog?',newBook:'＋ Ny bog',titlePh:'Bogens titel',from:'Fra side',to:'til side',
+  remind:'📚 Har du læst i dag? Skriv det ind og få en skattekiste! 🎁',book:'Hvilken bog?',newBook:'＋ Ny bog',titlePh:'Bogens titel (fx Medusa 2 – …)',editT:'✏️ Ret det, du har skrevet',myBooks:'📚 Mine bøger',rename:'✏️ Ret bogens navn',renameT:'Bogens fulde navn',okSaved:'Gemt ✔',bReading:'læser den',bDone:'færdig ✔',from:'Fra side',to:'til side',
   pages:n=>`${n} ${n===1?'side':'sider'}`,simple:'🔢 Jeg ved kun, hvor mange sider',exact:'📄 Skriv siderne (fra… til…)',count:'Hvor mange sider har du læst?',minutes:'Hvor mange minutter?',day:'Hvornår læste du?',today:'I dag',yesterday:'I går',finished:'Jeg har læst bogen færdig! 🎉',note:'Hvad handlede det om? (hvis du vil)',
   save:'Gem ✔',need:'Skriv bogens titel og siderne.',bad:'Hmm, „til side” er mindre end „fra side”. Tjek tallene, eller tryk „Jeg ved kun, hvor mange sider” 🙂',needC:'Skriv, hvor mange sider du har læst 🙂',
   saved:(n,p)=>`Flot, ${n}! Du har læst ${p}. Læsning gør din hjerne stærkere! 📚`,savedLater:'Super, at du huskede at skrive det! 👍',
@@ -2585,8 +2585,9 @@ function renderRead(){
    <p style="text-align:center;font-weight:800;margin:6px 0">${readDays.size>=D.goal?R.goalDone:R.goal(D.goal)} · ${readDays.size}/${D.goal}</p>
    <div class="stats" style="grid-template-columns:repeat(4,1fr)"><div><b>${readDays.size}</b>${R.days}</div><div><b>${tp}</b>${R.total}</div><div><b>${tm}</b>${R.mins}</div><div><b>${bk}</b>${R.books}</div></div>
    <button class="big-btn hero" style="margin-top:12px" onclick="startReadForm()"><span class="ico">✏️</span><span>${R.add.replace('✏️ ','')}</span></button>
-   ${logs.length?`<div class="list">${logs.map(l=>`<div class="li" style="cursor:default"><span style="font-size:15px">${parseYmd(l.d).toLocaleDateString(loc,{weekday:'short',day:'numeric'})} · <b>${esc(bookTitle(l.book))}</b><br><span class="muted">${l.count?R.pages(pagesOf(l)):`${l.from}–${l.to} (${R.pages(pagesOf(l))})`} · ${l.min||0} min${l.done?' · 🎉':''}${l.note?` · ${esc(l.note)}`:''}</span></span><button class="iconbtn" onclick="delReadLog('${l.id}')">🗑️</button></div>`).join('')}</div>`:`<p class="muted" style="text-align:center">${R.none}</p>`}
+   ${logs.length?`<div class="list">${logs.map(l=>`<div class="li" style="cursor:default"><span style="font-size:15px">${parseYmd(l.d).toLocaleDateString(loc,{weekday:'short',day:'numeric'})} · <b>${esc(bookTitle(l.book))}</b><br><span class="muted">${l.count?R.pages(pagesOf(l)):`${l.from}–${l.to} (${R.pages(pagesOf(l))})`} · ${l.min||0} min${l.done?' · 🎉':''}${l.note?` · ${esc(l.note)}`:''}</span></span><span style="display:flex;gap:6px;flex:none"><button class="iconbtn" onclick="editReadLog('${l.id}')">✏️</button><button class="iconbtn" onclick="delReadLog('${l.id}')">🗑️</button></span></div>`).join('')}</div>`:`<p class="muted" style="text-align:center">${R.none}</p>`}
    <div class="row" style="margin-top:12px"><button class="btn sec" onclick="printWeek()">${R.print}</button><button class="btn sec" onclick="shareWeek()">${R.share}</button></div>
+   ${D.books.length?`<h3 style="margin:16px 0 6px">${R.myBooks}</h3><div class="list">${[...D.books].reverse().map(b=>`<div class="li" style="cursor:default"><span>📖 <b>${esc(b.title)}</b><br><span class="muted" style="font-size:14px">${b.done?R.bDone:R.bReading}</span></span><span style="display:flex;gap:6px;flex:none"><button class="iconbtn" onclick="renameBook('${b.id}')">✏️</button><button class="iconbtn" title="${R.finished}" onclick="toggleBookDone('${b.id}')">${b.done?'↩️':'✅'}</button></span></div>`).join('')}</div>`:''}
    <p style="margin:14px 0 4px"><b>${R.goalSet}</b></p><div class="chips">${[3,4,5,6,7].map(v=>`<button class="chip ${D.goal===v?'on':''}" onclick="RD().goal=${v};save();renderRead()">${v}</button>`).join('')}</div>
    <div class="row" style="margin-top:12px"><button class="btn sec" onclick="go('home')">${R.home}</button></div>`;
   $('readBox').innerHTML=h;
@@ -2599,15 +2600,16 @@ function startReadForm(){const D=RD(),open=D.books.filter(b=>!b.done);const last
   go('read');renderReadForm();}
 function lastPage(bk){const ls=RD().logs.filter(l=>l.book===bk);return ls.length?Math.max(...ls.map(l=>+l.to||0)):0;}
 function renderReadForm(){
-  const R=RX(),D=RD(),f=rForm,open=D.books.filter(b=>!b.done),days=weekDays(0),loc=t('locale');
+  const R=RX(),D=RD(),f=rForm,open=D.books.filter(b=>!b.done||b.id===f.book),days=weekDays(0),loc=t('locale');
   const yd=new Date();yd.setDate(yd.getDate()-1);
   const p=f.simple?(+f.count>0?+f.count:0):(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;
-  $('readBox').innerHTML=`<h2>${R.add}</h2>
+  const dl=days.filter(d=>d<=new Date());if(!dl.some(d=>ymd(d)===f.day))dl.unshift(parseYmd(f.day));
+  $('readBox').innerHTML=`<h2>${f.editId?R.editT:R.add}</h2>
    <p style="margin:6px 0"><b>${R.day}</b></p>
-   <div class="chips">${days.filter(d=>d<=new Date()).map(d=>{const k=ymd(d),lab=k===ymd(new Date())?R.today:k===ymd(yd)?R.yesterday:d.toLocaleDateString(loc,{weekday:'short',day:'numeric'});return `<button class="chip ${f.day===k?'on':''}" onclick="rForm.day='${k}';renderReadForm()">${lab}</button>`;}).join('')}</div>
+   <div class="chips">${dl.map(d=>{const k=ymd(d),lab=k===ymd(new Date())?R.today:k===ymd(yd)?R.yesterday:d.toLocaleDateString(loc,{weekday:'short',day:'numeric'});return `<button class="chip ${f.day===k?'on':''}" onclick="rForm.day='${k}';renderReadForm()">${lab}</button>`;}).join('')}</div>
    <p style="margin:14px 0 6px"><b>${R.book}</b></p>
    <div class="chips">${open.map(b=>`<button class="chip ${!f.isNew&&f.book===b.id?'on':''}" onclick="pickBook('${b.id}')">📖 ${esc(b.title)}</button>`).join('')}<button class="chip ${f.isNew?'on':''}" onclick="rForm.isNew=true;rForm.book=null;rForm.from='';renderReadForm()">${R.newBook}</button></div>
-   ${f.isNew?`<input type="text" id="rTitle" placeholder="${R.titlePh}" value="${esc(f.newTitle)}" style="margin-top:8px" oninput="rForm.newTitle=this.value">`:(f.book&&lastPage(f.book)?`<p class="muted" style="margin:6px 0">${R.cont(lastPage(f.book)+1)}</p>`:'')}
+   ${f.isNew?`<input type="text" id="rTitle" placeholder="${R.titlePh}" value="${esc(f.newTitle)}" style="margin-top:8px" oninput="rForm.newTitle=this.value">`:`${!f.editId&&f.book&&lastPage(f.book)?`<p class="muted" style="margin:6px 0">${R.cont(lastPage(f.book)+1)}</p>`:''}${f.book?`<button class="chip" style="font-size:14px;margin-top:6px" onclick="renameBook('${f.book}')">${R.rename}</button>`:''}`}
    ${f.simple?`<label style="display:block;margin-top:14px"><b>${R.count}</b><input type="number" inputmode="numeric" id="rCount" value="${f.count}" oninput="rForm.count=this.value;updPages()" class="bignum-in"></label>`:`<div class="row" style="margin-top:14px;flex-wrap:nowrap;align-items:flex-end;gap:8px">
      <label style="flex:1"><b>${R.from}</b><input type="number" inputmode="numeric" id="rFrom" value="${f.from}" oninput="rForm.from=this.value;updPages()" class="bignum-in"></label>
      <label style="flex:1"><b>${R.to}</b><input type="number" inputmode="numeric" id="rTo" value="${f.to}" oninput="rForm.to=this.value;updPages()" class="bignum-in"></label></div>`}
@@ -2621,7 +2623,7 @@ function renderReadForm(){
    <div class="row"><button class="btn ok" onclick="saveRead()">${R.save}</button><button class="btn sec" onclick="rForm=null;renderRead()">${t('back')}</button></div>`;
 }
 function updPages(){const f=rForm,R=RX();const p=f.simple?(+f.count>0?+f.count:0):(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;$('rPages').textContent=p?R.pages(p):'';}
-function pickBook(id){rForm.isNew=false;rForm.book=id;const lp=lastPage(id);rForm.from=lp?String(lp+1):'';renderReadForm();}
+function pickBook(id){rForm.isNew=false;rForm.book=id;if(!rForm.editId){const lp=lastPage(id);rForm.from=lp?String(lp+1):'';}renderReadForm();}
 function saveRead(){
   const f=rForm,R=RX(),D=RD();
   const title=(f.newTitle||'').trim();
@@ -2630,6 +2632,9 @@ function saveRead(){
   else{if(!f.from||!f.to){$('rErr').textContent=R.need;return;}if(+f.to<+f.from){$('rErr').textContent=R.bad;return;}}
   let bid=f.book;
   if(f.isNew){const ex=D.books.find(b=>b.title.toLowerCase()===title.toLowerCase());if(ex){bid=ex.id;ex.done=false;}else{bid='b'+Date.now();D.books.push({id:bid,title,done:false});}}
+  if(f.editId){const l=D.logs.find(x=>x.id===f.editId);if(l){l.d=f.day;l.book=bid;delete l.count;delete l.from;delete l.to;Object.assign(l,f.simple?{count:Math.round(+f.count)}:{from:+f.from,to:+f.to});l.min=+f.min||0;l.done=!!f.done;l.note=(f.note||'').trim();
+      const b=D.books.find(b=>b.id===bid);if(b&&f.done)b.done=true;}
+    save();checkAch();rForm=null;renderRead();toast(R.okSaved);return;}
   const firstToday=!D.logs.some(l=>l.logged===ymd(new Date()));
   const log={id:'l'+Date.now(),d:f.day,book:bid,...(f.simple?{count:Math.round(+f.count)}:{from:+f.from,to:+f.to}),min:+f.min||0,done:!!f.done,note:(f.note||'').trim(),logged:ymd(new Date())};
   D.logs.push(log);if(f.done){const b=D.books.find(b=>b.id===bid);if(b)b.done=true;}
@@ -2645,6 +2650,13 @@ function saveRead(){
     <div class="row" style="margin-top:14px;justify-content:center"><button class="btn" onclick="openRead()">${R.seeWeek}</button><button class="btn sec" onclick="go('home')">${R.home}</button></div>`;
   go('results');sound('great');burst();
 }
+function editReadLog(id){const l=RD().logs.find(x=>x.id===id);if(!l)return;
+  rForm={editId:id,book:l.book,newTitle:'',from:l.from!=null?String(l.from):'',to:l.to!=null?String(l.to):'',count:l.count?String(l.count):'',min:l.min||20,day:l.d,done:!!l.done,note:l.note||'',isNew:false,simple:!!l.count};renderReadForm();window.scrollTo(0,0);}
+function renameBook(id){const b=RD().books.find(x=>x.id===id),R=RX();if(!b)return;
+  openModal(R.renameT,`<input type="text" id="rnIn" value="${esc(b.title)}" style="width:100%;font-size:18px"><div class="row" style="margin-top:12px"><button class="btn ok" onclick="doRename('${id}')">${R.save}</button></div>`);
+  setTimeout(()=>{const i=$('rnIn');if(i){i.focus();i.select();}},100);}
+function doRename(id){const v=($('rnIn').value||'').trim();if(!v)return;const b=RD().books.find(x=>x.id===id);if(b)b.title=v;save();closeModal();if(rForm)renderReadForm();else renderRead();toast(RX().okSaved);}
+function toggleBookDone(id){const b=RD().books.find(x=>x.id===id);if(!b)return;b.done=!b.done;save();checkAch();renderRead();}
 function delReadLog(id){if(!confirm(RX().del))return;const D=RD();D.logs=D.logs.filter(l=>l.id!==id);save();renderRead();}
 /* tabelul pentru profesoară — mereu în daneză */
 function weekTableDA(){
