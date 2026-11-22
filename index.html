@@ -310,6 +310,12 @@ label.ck input{width:24px;height:24px;flex:none}
 
 <!-- PARENT -->
 <section class="screen" id="parent">
+  <div class="card" style="background:#eafbef;border:2px solid #1fa463">
+    <h3 style="margin-top:0">💾 <span data-t="bkCardT"></span></h3>
+    <p style="margin:4px 0 10px;font-size:15px" data-t="bkCardP"></p>
+    <div class="row"><button class="btn ok" onclick="shareData()" data-t="bkShare"></button><button class="btn sec" onclick="exportData()" data-t="export"></button></div>
+    <p id="bkLast" class="muted" style="font-size:14px;margin:8px 0 0"></p>
+  </div>
   <div class="card">
     <h2>📊 <span data-t="pTitle"></span></h2>
     <div class="tabs" id="pTabs"></div>
@@ -388,6 +394,7 @@ ro:{
   rar:['obișnuit','rar','epic','legendar'], achievements:'Realizări', coll:(k,t)=>`🐾 Colecția mea (${k} din ${t})`,
   exTitle:'Trucuri de calcul', exIntro:'Alege o operație și două numere. Îți arăt mai multe drumuri până la același răspuns.',
   exOps:{add:'+ Plus',sub:'− Minus',mul:'× Ori',div:': Împărțit'}, exShow:'Arată trucurile', exOther:'🎲 Altul',
+  bkCardT:'Copie de siguranță a progresului', bkCardP:'Trimite-ți fișierul cu progresul pe e-mail sau în Google Drive. Cu el poți readuce tot (stele, trofee, colecția) pe orice telefon.', bkShare:'📤 Trimite pe e-mail / Drive', bkLastT:d=>`Ultima copie: ${d}`, bkNone:'Nu ai făcut încă nicio copie.', bkSaved:'Fișierul a fost salvat în „Descărcări” (Downloads) ✔',
   pTitle:'Progres', tapCell:'Atinge o căsuță ca să vezi trucurile pentru acel calcul.',
   legend:['neîncercat','greșit recent','lent / pe degete','corect','rapid','stăpânit'],
   opsN:{add:'Adunări',sub:'Scăderi',mul:'Înmulțiri',div:'Împărțiri',rem:'Cu rest'},
@@ -514,6 +521,7 @@ da:{
   rar:['almindelig','sjælden','episk','legendarisk'], achievements:'Præstationer', coll:(k,t)=>`🐾 Min samling (${k} af ${t})`,
   exTitle:'Regnetricks', exIntro:'Vælg en regningsart og to tal. Jeg viser dig flere veje til det samme svar.',
   exOps:{add:'+ Plus',sub:'− Minus',mul:'· Gange',div:': Division'}, exShow:'Vis tricks', exOther:'🎲 Et andet',
+  bkCardT:'Sikkerhedskopi af fremskridt', bkCardP:'Send filen med fremskridtet til din e-mail eller Google Drive. Med den kan du hente alt tilbage (stjerner, trofæer, samling) på enhver telefon.', bkShare:'📤 Send til e-mail / Drive', bkLastT:d=>`Sidste kopi: ${d}`, bkNone:'Du har ikke lavet en kopi endnu.', bkSaved:'Filen er gemt i „Overførsler” (Downloads) ✔',
   pTitle:'Fremskridt', tapCell:'Tryk på et felt for at se tricks til den opgave.',
   legend:['ikke prøvet','forkert for nylig','langsom / på fingrene','rigtigt','hurtigt','mestret'],
   opsN:{add:'Plus',sub:'Minus',mul:'Gange',div:'Division',rem:'Med rest'},
@@ -1148,7 +1156,7 @@ function renderParent(){
   $('setName').value=S.name;
   $('slowChips').innerHTML=[3,4,5,6,8].map(v=>`<button class="chip ${S.settings.slow===v?'on':''}" onclick="S.settings.slow=${v};save();renderParent()">${v} s</button>`).join('');
   $('lenChips').innerHTML=[5,10,15,20].map(v=>`<button class="chip ${S.settings.len===v?'on':''}" onclick="S.settings.len=${v};save();renderParent()">${v}</button>`).join('');
-  const lastEx=S.lastExport||0;$('exportRemind').innerHTML=(Date.now()-lastEx>14*864e5)?`<p style="background:var(--warnl);border-radius:12px;padding:10px;font-weight:700">${lastEx?t('exportOld'):t('exportNever')}</p>`:'';
+  const lastEx=S.lastExport||0;$('bkLast').textContent=lastEx?t('bkLastT',new Date(lastEx).toLocaleString(t('locale'))):t('bkNone');$('exportRemind').innerHTML=(Date.now()-lastEx>14*864e5)?`<p style="background:var(--warnl);border-radius:12px;padding:10px;font-weight:700">${lastEx?t('exportOld'):t('exportNever')}</p>`:'';
   $('bkList').innerHTML=backups().map((b,i)=>{let st='';try{st=JSON.parse(b.j).stars;}catch(e){}return `<div class="li"><span>${b.d} · ⭐ ${st}</span><button class="btn sec sm" onclick="restoreBackup(${i})">${t('restore')}</button></div>`;}).reverse().join('');
   $('ckSound').checked=S.settings.sound;$('ckVib').checked=S.settings.vib;$('ckSpeak').checked=S.settings.speak;$('ckBreaks').checked=S.settings.breaks;$('ckBig').checked=S.settings.big;
 }
@@ -1157,8 +1165,12 @@ function saveSettings(silent){
   Object.assign(S.settings,{sound:$('ckSound').checked,vib:$('ckVib').checked,speak:$('ckSpeak').checked,breaks:$('ckBreaks').checked,big:$('ckBig').checked});
   save();if(silent!==true)toast(t('saved'));
 }
-function exportData(){const blob=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  S.lastExport=Date.now();save();a.download=`mate-magie-${(S.name||'progres').toLowerCase().replace(/[^a-z0-9-]/g,'')}-${todayStr()}.json`;document.body.appendChild(a);a.click();a.remove();}
+function exportFile(){return new File([JSON.stringify(S)],`mate-magie-${(S.name||'progres').toLowerCase().replace(/[^a-z0-9-]/g,'')}-${todayStr()}.json`,{type:'application/json'});}
+function exportData(){const f=exportFile();const a=document.createElement('a');a.href=URL.createObjectURL(f);
+  S.lastExport=Date.now();save();a.download=f.name;document.body.appendChild(a);a.click();a.remove();toast(t('bkSaved'),3500);try{renderParent();}catch(e){}}
+async function shareData(){const f=exportFile();
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:f.name});S.lastExport=Date.now();save();try{renderParent();}catch(e){}return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  exportData();}
 function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.facts)throw 0;
   localStorage.setItem(LS,JSON.stringify(d));S=load();save();toast(t('imported'));applyI18n();renderParent();updateHeader();}catch(e){toast(t('invalid'));}};r.readAsText(f);inp.value='';}
 function resetAll(){if(confirm(t('confirmReset'))){const l=S.lang;S=defState();S.lang=l;save();toast(t('deleted'));go('onboard');obStep(2);}}
