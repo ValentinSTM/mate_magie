@@ -151,6 +151,16 @@ svg text{font-family:inherit}
 .cups span i{font-style:normal;font-size:40px}
 /* reward */
 .reward{text-align:center;padding:10px 0}
+.hero.w4{background:linear-gradient(135deg,#d6338a,#7b3fe4)}
+.remind{display:none;background:#fff4d6;border:2px dashed #ffb400;border-radius:14px;padding:12px;font-weight:800;text-align:center;margin:8px 0;cursor:pointer;animation:pop .6s}
+.wkdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0}
+.wkdays div{background:#f3f0ff;border-radius:10px;padding:6px 0;text-align:center;display:flex;flex-direction:column;align-items:center}
+.wkdays div small{font-size:12px;color:#777}.wkdays div b{font-size:18px}
+.wkdays div.on{background:#c9f7d6}.wkdays div.now{outline:3px solid var(--pri)}
+.bignum-in{font-size:26px;text-align:center;width:100%;font-weight:900}
+#printArea{display:none}
+@media print{body.printing>*:not(#printArea){display:none!important}body.printing #printArea{display:block;color:#000;background:#fff;font-family:Arial,sans-serif}
+ #printArea table{border-collapse:collapse;width:100%}#printArea td,#printArea th{border:1px solid #000;padding:6px;text-align:left;font-size:13pt}#printArea h1{font-size:20pt}}
 .cupbig{font-size:84px;animation:pop .6s}
 @keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
 .chest{font-size:90px;cursor:pointer;display:inline-block;animation:wiggle 1.2s infinite}
@@ -271,6 +281,8 @@ label.ck input{width:24px;height:24px;flex:none}
   <button class="big-btn hero" id="bMission" onclick="go('missionSetup')"><span class="ico">🚀</span><span data-t="btnMission"></span><small data-t="btnMissionSub"></small></button>
   <button class="big-btn hero w2" onclick="go('worlds')"><span class="ico">🗺️</span><span><span id="bWorldsT"></span><span id="bWorldsNew"></span></span><small id="bWorldsS"></small></button>
   <button class="big-btn hero w3" onclick="openExamSetup()"><span class="ico">📝</span><span id="bExamT"></span><small id="bExamS"></small></button>
+  <div class="remind" id="readRemind" onclick="startReadForm()"></div>
+  <button class="big-btn hero w4" onclick="openRead()"><span class="ico">📚</span><span id="bReadT"></span><small id="bReadS"></small></button>
   <div class="grid2">
     <button class="big-btn" id="bAssess" onclick="go('assessSetup')"><span class="ico">🔍</span><span data-t="btnAssess"></span><small data-t="btnAssessSub"></small></button>
     <button class="big-btn" onclick="openRoom()"><span class="ico">🏆</span><span data-t="btnRoom"></span><small data-t="btnRoomSub"></small></button>
@@ -358,6 +370,7 @@ label.ck input{width:24px;height:24px;flex:none}
 </section>
 
 <!-- RESULTS -->
+<section class="screen" id="read"><div class="card" id="readBox"></div></section>
 <section class="screen" id="results"><div class="card" id="resBox"></div></section>
 
 <!-- LEXICON -->
@@ -431,6 +444,7 @@ label.ck input{width:24px;height:24px;flex:none}
   <div class="card"><h3>🧠 <span data-t="adhdTitle"></span></h3><div data-t="adhdNote" style="font-size:15px;line-height:1.5"></div></div>
 </section>
 </main>
+<div id="printArea"></div>
 
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h3 id="mTitle"></h3><button class="btn sec sm" onclick="closeModal()">✖</button></div><div id="mBody"></div></div></div>
 <div class="toast" id="toast"></div>
@@ -1239,11 +1253,11 @@ const itFun=it=>S.lang==='da'?it.kda:it.kro;
 const cuName=c=>CULT[c]?CULT[c][S.lang==='da'?2:1]:'';
 const itUn=it=>S.lang==='da'?it.uda:it.uro;
 const thName=k=>THEMES[k]?THEMES[k][S.lang==='da'?2:1]:'';
-const CT={ro:{rar:['obișnuit','rar','epic','legendar','mitic'],fact:'Știai că…?',daily:'🌅 Cufărul zilei',more:k=>`Mai ai ${k} ${k===1?'cufăr':'cufere'}! 🎁`,pityE:k=>`🔮 Încă ${k} ${k===1?'cufăr':'cufere'} până la un <b>epic</b> garantat`,pityL:k=>`👑 Încă ${k} ${k===1?'cufăr':'cufere'} până la un <b>legendar</b> garantat`,
+const CT={ro:{rar:['obișnuit','rar','epic','legendar','mitic'],fact:'Știai că…?',daily:'🌅 Cufărul zilei',moreC:k=>`Mai ai ${k} ${k===1?'cufăr':'cufere'}! 🎁`,pityE:k=>`🔮 Încă ${k} ${k===1?'cufăr':'cufere'} până la un <b>epic</b> garantat`,pityL:k=>`👑 Încă ${k} ${k===1?'cufăr':'cufere'} până la un <b>legendar</b> garantat`,
    more:'📖 Află mai mult', tell:'🗣️ Poți să le spui colegelor:', like:'🔗 Seamănă cu (în alte culturi)', lexT:'📖 Enciclopedia mea', tabs:['Teme','Culturi','UNESCO','Curiozități'], un:'🏛️ De ce e în patrimoniul UNESCO?', unIntro:'Locuri atât de importante pentru toată omenirea încât toate țările lumii promit să le păstreze. Atinge unul ca să afli de ce e special!', from:'Vine din', theme:'Tema', readAll:'🔊 Citește-mi', back:'◀ Înapoi', found:(k,n,c)=>`Descoperite: ${k} din ${n}${c?` · din ${c} culturi`:''}`, lexIntro:'Aici găsești tot ce ai descoperit, grupat pe teme și pe culturi. Ce încă lipsește apare ca ❔ — mai joacă și le vei găsi!',
    newIt:'Un obiect nou în colecție!',dup:k=>`Îl ai deja — primești +${k} ⭐`,locked:'Încă nedescoperit. Ce o fi oare? 🤔',series:'Seria',done:'complet!',seriesDone:(s,k)=>`🎉 Ai completat seria „${s}”! +${k} ⭐`,
    achC:{coll50:'50 de obiecte',coll75:'75 de obiecte',coll100:'100 de obiecte',firstLeg:'Primul legendar',firstMyth:'Primul mitic',epic10:'10 epice sau mai bune'}},
- da:{rar:['almindelig','sjælden','episk','legendarisk','mytisk'],fact:'Vidste du…?',daily:'🌅 Dagens skattekiste',more:k=>`Du har ${k} ${k===1?'skattekiste':'skattekister'} mere! 🎁`,pityE:k=>`🔮 ${k} ${k===1?'kiste':'kister'} mere til en garanteret <b>episk</b>`,pityL:k=>`👑 ${k} ${k===1?'kiste':'kister'} mere til en garanteret <b>legendarisk</b>`,
+ da:{rar:['almindelig','sjælden','episk','legendarisk','mytisk'],fact:'Vidste du…?',daily:'🌅 Dagens skattekiste',moreC:k=>`Du har ${k} ${k===1?'skattekiste':'skattekister'} mere! 🎁`,pityE:k=>`🔮 ${k} ${k===1?'kiste':'kister'} mere til en garanteret <b>episk</b>`,pityL:k=>`👑 ${k} ${k===1?'kiste':'kister'} mere til en garanteret <b>legendarisk</b>`,
    more:'📖 Læs mere', tell:'🗣️ Fortæl dine venner:', like:'🔗 Ligner (i andre kulturer)', lexT:'📖 Mit leksikon', tabs:['Temaer','Kulturer','UNESCO','Sjove fakta'], un:'🏛️ Hvorfor er det på UNESCO’s verdensarvsliste?', unIntro:'Steder, der er så vigtige for hele menneskeheden, at alle verdens lande lover at passe på dem. Tryk på et for at se, hvorfor det er særligt!', from:'Kommer fra', theme:'Tema', readAll:'🔊 Læs for mig', back:'◀ Tilbage', found:(k,n,c)=>`Fundet: ${k} af ${n}${c?` · fra ${c} kulturer`:''}`, lexIntro:'Her finder du alt, hvad du har fundet, sorteret efter temaer og kulturer. Det, der mangler, står som ❔ — bliv ved med at spille, så finder du det!',
    newIt:'En ny ting i samlingen!',dup:k=>`Den har du allerede — du får +${k} ⭐`,locked:'Ikke fundet endnu. Hvad mon det er? 🤔',series:'Serie',done:'færdig!',seriesDone:(s,k)=>`🎉 Du har fuldført serien „${s}”! +${k} ⭐`,
    achC:{coll50:'50 ting',coll75:'75 ting',coll100:'100 ting',firstLeg:'Første legendariske',firstMyth:'Første mytiske',epic10:'10 episke eller bedre'}}};
@@ -1264,7 +1278,7 @@ let pendingChests=[];
 function queueChests(boost){pendingChests=[{id:rollCreature(boost)}];
   const d=todayStr();if(S.dayChest!==d){S.dayChest=d;pendingChests.push({id:rollCreature(false),daily:true});}save();}
 function chestBoxHTML(){const c=pendingChests[0];if(!c)return '';
-  return `<div class="chest" onclick="openChest()">${c.daily?'🌅':'🎁'}</div><p class="muted">${c.daily?CX().daily+' · ':''}${t('tapChest')}</p>${pendingChests.length>1?`<p style="font-weight:800">${CX().more(pendingChests.length)}</p>`:''}`;}
+  return `<div class="chest" onclick="openChest()">${c.daily?'🌅':'🎁'}</div><p class="muted">${c.daily?CX().daily+' · ':''}${t('tapChest')}</p>${pendingChests.length>1?`<p style="font-weight:800">${CX().moreC(pendingChests.length)}</p>`:''}`;}
 function pityHTML(){const P=S.pity||{e:0,l:0};return `<p class="muted" style="font-size:14px;margin:4px 0">${CX().pityE(Math.max(1,PITY_EPIC-P.e))}<br>${CX().pityL(Math.max(1,PITY_LEG-P.l))}</p>`;}
 function openChest(){
   const c=pendingChests.shift();if(!c)return;const it=itemById(c.id);if(!it)return;
@@ -2510,6 +2524,138 @@ function examFinish(){
 }
 function examStrats(i){const q=lastExam.res[i].q;openModal(q.w?q.short:`${q.text} = ${ansText(q)}`,stratsFor(q).map(stratHTML).join(''));}
 
+
+/* ======================================================================
+   JURNALUL DE CITIT / LÆSEKONTRAKT
+   ====================================================================== */
+const RT={
+ro:{btn:'Jurnalul de citit',btnSub:'Læsekontrakt · ce ai citit',title:'📚 Jurnalul de citit',week:n=>`Săptămâna ${n}`,add:'✏️ Scrie ce ai citit',
+  remind:'📚 Ai citit azi? Scrie aici și primești un cufăr! 🎁',book:'Ce carte?',newBook:'＋ Carte nouă',titlePh:'Titlul cărții',from:'De la pagina',to:'până la pagina',
+  pages:n=>`${n} ${n===1?'pagină':'pagini'}`,minutes:'Câte minute?',day:'Când ai citit?',today:'Azi',yesterday:'Ieri',finished:'Am terminat cartea! 🎉',note:'Despre ce a fost? (dacă vrei)',
+  save:'Salvez ✔',need:'Scrie titlul cărții și paginile.',bad:'„Până la pagina” trebuie să fie mai mare decât „de la pagina”.',
+  saved:(n,p)=>`Bravo, ${n}! Ai citit ${p}. Cititul îți face creierul mai puternic! 📚`,savedLater:'Super că ți-ai amintit să scrii! 👍',
+  days:'Zile cu citit',total:'Pagini în total',mins:'Minute în total',books:'Cărți',goal:k=>`Ținta săptămânii: ${k} zile`,goalSet:'Ținta (zile pe săptămână)',
+  none:'Încă nimic săptămâna asta. Hai să scriem prima zi! 📖',print:'🖨️ Tipărește pentru profesoară',share:'📤 Trimite / copiază',copied:'Copiat ✔',del:'Ștergi această înregistrare?',
+  cont:p=>`Continui de la pagina ${p}`,goalDone:'🎯 Ai atins ținta săptămânii!',seeWeek:'📅 Vezi săptămâna',home:'Acasă',
+  ach:{read1:'Prima zi de citit',read7:'7 zile de citit',pages100:'100 de pagini',pages500:'500 de pagini',book1:'Prima carte terminată',books5:'5 cărți terminate',goal1:'Ținta săptămânii atinsă'},
+  wd:['L','Ma','Mi','J','V','S','D']},
+da:{btn:'Læsekontrakt',btnSub:'Skriv, hvad du har læst',title:'📚 Læsekontrakt',week:n=>`Uge ${n}`,add:'✏️ Skriv, hvad du har læst',
+  remind:'📚 Har du læst i dag? Skriv det ind og få en skattekiste! 🎁',book:'Hvilken bog?',newBook:'＋ Ny bog',titlePh:'Bogens titel',from:'Fra side',to:'til side',
+  pages:n=>`${n} ${n===1?'side':'sider'}`,minutes:'Hvor mange minutter?',day:'Hvornår læste du?',today:'I dag',yesterday:'I går',finished:'Jeg har læst bogen færdig! 🎉',note:'Hvad handlede det om? (hvis du vil)',
+  save:'Gem ✔',need:'Skriv bogens titel og siderne.',bad:'„Til side” skal være større end „fra side”.',
+  saved:(n,p)=>`Flot, ${n}! Du har læst ${p}. Læsning gør din hjerne stærkere! 📚`,savedLater:'Super, at du huskede at skrive det! 👍',
+  days:'Dage med læsning',total:'Sider i alt',mins:'Minutter i alt',books:'Bøger',goal:k=>`Ugens mål: ${k} dage`,goalSet:'Mål (dage om ugen)',
+  none:'Intet endnu i denne uge. Lad os skrive den første dag! 📖',print:'🖨️ Print til læreren',share:'📤 Del / kopiér',copied:'Kopieret ✔',del:'Vil du slette denne linje?',
+  cont:p=>`Fortsæt fra side ${p}`,goalDone:'🎯 Du har nået ugens mål!',seeWeek:'📅 Se ugen',home:'Hjem',
+  ach:{read1:'Første læsedag',read7:'7 læsedage',pages100:'100 sider',pages500:'500 sider',book1:'Første bog læst færdig',books5:'5 bøger læst færdige',goal1:'Ugens mål nået'},
+  wd:['M','Ti','O','To','F','L','S']}};
+const RX=()=>RT[S.lang]||RT.ro;
+const RD=()=>S.reading||(S.reading={books:[],logs:[],goal:5});
+const pad2=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const parseYmd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);};
+function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y0)/864e5+1)/7);}
+function monday(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const n=(x.getDay()+6)%7;x.setDate(x.getDate()-n);return x;}
+function weekDays(off){const m=monday(new Date());m.setDate(m.getDate()+7*off);return [...Array(7)].map((_,i)=>{const x=new Date(m);x.setDate(m.getDate()+i);return x;});}
+const pagesOf=l=>Math.max(0,(l.to||0)-(l.from||0)+1);
+const bookTitle=id=>{const b=RD().books.find(x=>x.id===id);return b?b.title:'?';};
+let rWeek=0,rForm=null;
+function openRead(){rWeek=0;rForm=null;go('read');}
+function readToday(){return RD().logs.some(l=>l.d===ymd(new Date()));}
+function renderRead(){
+  const R=RX(),D=RD(),days=weekDays(rWeek),keys=days.map(ymd),logs=D.logs.filter(l=>keys.includes(l.d)).sort((a,b)=>a.d<b.d?-1:1);
+  if(rForm)return renderReadForm();
+  const readDays=new Set(logs.map(l=>l.d)),tp=logs.reduce((s,l)=>s+pagesOf(l),0),tm=logs.reduce((s,l)=>s+(+l.min||0),0),bk=new Set(logs.map(l=>l.book)).size;
+  const loc=t('locale'),wk=isoWeek(days[0]);
+  let h=`<h2>${R.title}</h2>
+   <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><button class="btn sec sm" onclick="rWeek--;renderRead()">◀</button><b style="font-size:18px">${R.week(wk)} · ${days[0].toLocaleDateString(loc,{day:'numeric',month:'short'})}–${days[6].toLocaleDateString(loc,{day:'numeric',month:'short'})}</b><button class="btn sec sm" ${rWeek>=0?'disabled':''} onclick="rWeek++;renderRead()">▶</button></div>
+   <div class="wkdays">${days.map((d,i)=>`<div class="${readDays.has(keys[i])?'on':''} ${keys[i]===ymd(new Date())?'now':''}"><small>${R.wd[i]}</small><b>${readDays.has(keys[i])?'📚':d.getDate()}</b></div>`).join('')}</div>
+   <p style="text-align:center;font-weight:800;margin:6px 0">${readDays.size>=D.goal?R.goalDone:R.goal(D.goal)} · ${readDays.size}/${D.goal}</p>
+   <div class="stats" style="grid-template-columns:repeat(4,1fr)"><div><b>${readDays.size}</b>${R.days}</div><div><b>${tp}</b>${R.total}</div><div><b>${tm}</b>${R.mins}</div><div><b>${bk}</b>${R.books}</div></div>
+   <button class="big-btn hero" style="margin-top:12px" onclick="startReadForm()"><span class="ico">✏️</span><span>${R.add.replace('✏️ ','')}</span></button>
+   ${logs.length?`<div class="list">${logs.map(l=>`<div class="li" style="cursor:default"><span style="font-size:15px">${parseYmd(l.d).toLocaleDateString(loc,{weekday:'short',day:'numeric'})} · <b>${esc(bookTitle(l.book))}</b><br><span class="muted">${l.from}–${l.to} (${R.pages(pagesOf(l))}) · ${l.min||0} min${l.done?' · 🎉':''}${l.note?` · ${esc(l.note)}`:''}</span></span><button class="iconbtn" onclick="delReadLog('${l.id}')">🗑️</button></div>`).join('')}</div>`:`<p class="muted" style="text-align:center">${R.none}</p>`}
+   <div class="row" style="margin-top:12px"><button class="btn sec" onclick="printWeek()">${R.print}</button><button class="btn sec" onclick="shareWeek()">${R.share}</button></div>
+   <p style="margin:14px 0 4px"><b>${R.goalSet}</b></p><div class="chips">${[3,4,5,6,7].map(v=>`<button class="chip ${D.goal===v?'on':''}" onclick="RD().goal=${v};save();renderRead()">${v}</button>`).join('')}</div>
+   <div class="row" style="margin-top:12px"><button class="btn sec" onclick="go('home')">${R.home}</button></div>`;
+  $('readBox').innerHTML=h;
+}
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function startReadForm(){const D=RD(),open=D.books.filter(b=>!b.done);const last=[...D.logs].sort((a,b)=>a.d<b.d?1:-1)[0];
+  const bk=last&&open.find(b=>b.id===last.book)?last.book:(open[0]?open[0].id:null);
+  rForm={book:bk,newTitle:'',from:'',to:'',min:20,day:ymd(new Date()),done:false,note:'',isNew:!bk};
+  if(bk){const lp=lastPage(bk);if(lp)rForm.from=String(lp+1);}
+  go('read');renderReadForm();}
+function lastPage(bk){const ls=RD().logs.filter(l=>l.book===bk);return ls.length?Math.max(...ls.map(l=>+l.to||0)):0;}
+function renderReadForm(){
+  const R=RX(),D=RD(),f=rForm,open=D.books.filter(b=>!b.done),days=weekDays(0),loc=t('locale');
+  const yd=new Date();yd.setDate(yd.getDate()-1);
+  const p=(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;
+  $('readBox').innerHTML=`<h2>${R.add}</h2>
+   <p style="margin:6px 0"><b>${R.day}</b></p>
+   <div class="chips">${days.filter(d=>d<=new Date()).map(d=>{const k=ymd(d),lab=k===ymd(new Date())?R.today:k===ymd(yd)?R.yesterday:d.toLocaleDateString(loc,{weekday:'short',day:'numeric'});return `<button class="chip ${f.day===k?'on':''}" onclick="rForm.day='${k}';renderReadForm()">${lab}</button>`;}).join('')}</div>
+   <p style="margin:14px 0 6px"><b>${R.book}</b></p>
+   <div class="chips">${open.map(b=>`<button class="chip ${!f.isNew&&f.book===b.id?'on':''}" onclick="pickBook('${b.id}')">📖 ${esc(b.title)}</button>`).join('')}<button class="chip ${f.isNew?'on':''}" onclick="rForm.isNew=true;rForm.book=null;rForm.from='';renderReadForm()">${R.newBook}</button></div>
+   ${f.isNew?`<input type="text" id="rTitle" placeholder="${R.titlePh}" value="${esc(f.newTitle)}" style="margin-top:8px" oninput="rForm.newTitle=this.value">`:(f.book&&lastPage(f.book)?`<p class="muted" style="margin:6px 0">${R.cont(lastPage(f.book)+1)}</p>`:'')}
+   <div class="row" style="margin-top:14px;flex-wrap:nowrap;align-items:flex-end;gap:8px">
+     <label style="flex:1"><b>${R.from}</b><input type="number" inputmode="numeric" id="rFrom" value="${f.from}" oninput="rForm.from=this.value;updPages()" class="bignum-in"></label>
+     <label style="flex:1"><b>${R.to}</b><input type="number" inputmode="numeric" id="rTo" value="${f.to}" oninput="rForm.to=this.value;updPages()" class="bignum-in"></label></div>
+   <p id="rPages" style="font-weight:900;font-size:20px;text-align:center;margin:6px 0">${p?R.pages(p):''}</p>
+   <p style="margin:10px 0 6px"><b>${R.minutes}</b></p>
+   <div class="chips">${[5,10,15,20,30,45,60].map(v=>`<button class="chip ${+f.min===v?'on':''}" onclick="rForm.min=${v};renderReadForm()">${v}</button>`).join('')}</div>
+   <label class="ck" style="margin-top:12px"><input type="checkbox" ${f.done?'checked':''} onchange="rForm.done=this.checked"><span>${R.finished}</span></label>
+   <input type="text" placeholder="${R.note}" value="${esc(f.note)}" oninput="rForm.note=this.value" style="margin-top:6px">
+   <p id="rErr" style="color:var(--bad);font-weight:800"></p>
+   <div class="row"><button class="btn ok" onclick="saveRead()">${R.save}</button><button class="btn sec" onclick="rForm=null;renderRead()">${t('back')}</button></div>`;
+}
+function updPages(){const f=rForm,R=RX();const p=(+f.to&&+f.from&&+f.to>=+f.from)?pagesOf({from:+f.from,to:+f.to}):0;$('rPages').textContent=p?R.pages(p):'';}
+function pickBook(id){rForm.isNew=false;rForm.book=id;const lp=lastPage(id);rForm.from=lp?String(lp+1):'';renderReadForm();}
+function saveRead(){
+  const f=rForm,R=RX(),D=RD();
+  const title=(f.newTitle||'').trim();
+  if((f.isNew&&!title)||(!f.isNew&&!f.book)||!f.from||!f.to){$('rErr').textContent=R.need;return;}
+  if(+f.to<+f.from){$('rErr').textContent=R.bad;return;}
+  let bid=f.book;
+  if(f.isNew){const ex=D.books.find(b=>b.title.toLowerCase()===title.toLowerCase());if(ex){bid=ex.id;ex.done=false;}else{bid='b'+Date.now();D.books.push({id:bid,title,done:false});}}
+  const firstToday=!D.logs.some(l=>l.logged===ymd(new Date()));
+  const log={id:'l'+Date.now(),d:f.day,book:bid,from:+f.from,to:+f.to,min:+f.min||0,done:!!f.done,note:(f.note||'').trim(),logged:ymd(new Date())};
+  D.logs.push(log);if(f.done){const b=D.books.find(b=>b.id===bid);if(b)b.done=true;}
+  const pg=pagesOf(log);let stars=3+(log.min>=20?2:0)+(f.done?10:0);S.stars+=stars;
+  if(!S.days.includes(todayStr()))S.days.push(todayStr());
+  // un cufăr pentru prima înregistrare din zi
+  if(firstToday)queueChests(f.done);else pendingChests=[];
+  save();updateHeader();checkAch();rForm=null;
+  const wk=weekDays(0).map(ymd),dset=new Set(D.logs.filter(l=>wk.includes(l.d)).map(l=>l.d));
+  $('resBox').innerHTML=`<div class="reward"><div class="buddy" style="justify-content:center"><div class="av">${S.buddy}</div><div class="bubble" style="flex:0 1 auto">${R.saved(S.name||'',R.pages(pg))}${f.day!==ymd(new Date())?' '+R.savedLater:''}</div></div>
+    <div class="cupbig">📚</div><p style="font-size:22px">+${stars} ⭐</p>${dset.size>=D.goal?`<p style="font-weight:900">${R.goalDone}</p>`:''}
+    ${pendingChests.length?`<div id="chestBox">${chestBoxHTML()}</div>`:''}</div>
+    <div class="row" style="margin-top:14px;justify-content:center"><button class="btn" onclick="openRead()">${R.seeWeek}</button><button class="btn sec" onclick="go('home')">${R.home}</button></div>`;
+  go('results');sound('great');burst();
+}
+function delReadLog(id){if(!confirm(RX().del))return;const D=RD();D.logs=D.logs.filter(l=>l.id!==id);save();renderRead();}
+/* tabelul pentru profesoară — mereu în daneză */
+function weekTableDA(){
+  const D=RD(),days=weekDays(rWeek),keys=days.map(ymd),logs=D.logs.filter(l=>keys.includes(l.d)).sort((a,b)=>a.d<b.d?-1:1);
+  const tp=logs.reduce((s,l)=>s+pagesOf(l),0),tm=logs.reduce((s,l)=>s+(+l.min||0),0);
+  return {wk:isoWeek(days[0]),days,logs,tp,tm,nd:new Set(logs.map(l=>l.d)).size};
+}
+function printWeek(){
+  const W=weekTableDA(),nm=esc(S.name||'');
+  const rows=W.logs.map(l=>`<tr><td>${parseYmd(l.d).toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'numeric'})}</td><td>${esc(bookTitle(l.book))}${l.done?' (færdig)':''}</td><td>${l.from}–${l.to}</td><td>${pagesOf(l)}</td><td>${l.min||''}</td><td>${esc(l.note)}</td></tr>`).join('');
+  $('printArea').innerHTML=`<h1>Læsekontrakt — uge ${W.wk}</h1><p><b>Navn:</b> ${nm} &nbsp; <b>Periode:</b> ${W.days[0].toLocaleDateString('da-DK')} – ${W.days[6].toLocaleDateString('da-DK')}</p>
+   <table><tr><th>Dag</th><th>Bog</th><th>Sider</th><th>Antal sider</th><th>Minutter</th><th>Kommentar</th></tr>${rows||'<tr><td colspan="6">—</td></tr>'}
+   <tr><th colspan="3">I alt (${W.nd} ${W.nd===1?"dag":"dage"})</th><th>${W.tp}</th><th>${W.tm}</th><th></th></tr></table>
+   <p style="margin-top:30px">Forældreunderskrift: ______________________________</p>`;
+  document.body.classList.add('printing');setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('printing'),800);},100);
+}
+async function shareWeek(){
+  const W=weekTableDA();const txt=`Læsekontrakt — uge ${W.wk} — ${S.name||''}\n`+W.logs.map(l=>`${parseYmd(l.d).toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'numeric'})}: ${bookTitle(l.book)}, s. ${l.from}–${l.to} (${pagesOf(l)} sider), ${l.min||0} min${l.done?', færdig':''}`).join('\n')+`\nI alt: ${W.nd} ${W.nd===1?"dag":"dage"}, ${W.tp} sider, ${W.tm} minutter`;
+  try{if(navigator.share){await navigator.share({title:`Læsekontrakt uge ${W.wk}`,text:txt});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  try{await navigator.clipboard.writeText(txt);toast(RX().copied);}catch(e){openModal('Læsekontrakt',`<textarea style="width:100%;height:220px;font-size:15px">${esc(txt)}</textarea>`);}
+}
+function readAch(){const a=RX().ach,D=RD(),ds=new Set(D.logs.map(l=>l.d)).size,tp=D.logs.reduce((s,l)=>s+pagesOf(l),0),bd=D.books.filter(b=>b.done).length;
+  const goalHit=()=>{const byW={};D.logs.forEach(l=>{const k=isoWeek(parseYmd(l.d))+'-'+parseYmd(l.d).getFullYear();(byW[k]=byW[k]||new Set()).add(l.d);});return Object.values(byW).some(s=>s.size>=D.goal);};
+  return [['read1','📖',a.read1,()=>ds>=1],['read7','📅',a.read7,()=>ds>=7],['pages100','📗',a.pages100,()=>tp>=100],['pages500','📚',a.pages500,()=>tp>=500],['book1','🎉',a.book1,()=>bd>=1],['books5','🏅',a.books5,()=>bd>=5],['goal1','🎯',a.goal1,goalHit]];}
+
 /* ---------- ecrane pentru lumi ---------- */
 let curWorld=null,discI=0;
 function renderWorlds(){
@@ -2642,7 +2788,7 @@ function achList(){
   l.push(['exam1','📝',xa.exam1,()=>XS().length>=1],['strategist','🧠',xa.strategist,()=>XS().some(e=>e.sk>0&&e.ret===e.sk)],['examGold','🏅',xa.examGold,()=>XS().some(e=>!e.mini&&e.cup===3)]);
   l.push(['pioneer','🌱',wa.pioneer,()=>WORLDS.some(w=>((S.wstats[w]||{}).l3||0)>=1)],['explorer','🗺️',wa.explorer,()=>WORLDS.every(w=>S.wseen[w])]);
   l.push(['add','➕',a.add,()=>cnt('add')>=90],['sub','➖',a.sub,()=>cnt('sub')>=90],['div','➗',a.div,()=>cnt('div')>=90],['rem','🍬',a.rem,()=>cnt('rem')>=60]);
-  return l.concat(collAch());
+  return l.concat(collAch(),readAch());
 }
 function checkAch(){achList().forEach(([id,e,n,test])=>{if(!S.badges.includes(id)&&test()){S.badges.push(id);save();setTimeout(()=>{toast(`${e} ${t('newAch',n)}`,3200);sound('great');buzz([40,40,80]);},400);}});}
 function openRoom(){go('room');}
@@ -2669,6 +2815,7 @@ function go(id){
   if(id==='examSetup')renderExamSetup();
   if(id!=='exam'&&id!=='brk'){clearInterval(eTimer);}
   if(id==='world')renderWorld();
+  if(id==='read')renderRead();
 }
 function updateHeader(){$('hdrStars').textContent=`⭐ ${S.stars}`;}
 function level(){let i=0;LEVELS.forEach((v,j)=>{if(S.stars>=v)i=j;});return t('levels')[i];}
@@ -2680,6 +2827,7 @@ function renderHome(){
   $('bAssess').classList.toggle('hl',!seen);
   $('bExamT').textContent=EX().btn+(S.exam?' ⏸':'');$('bExamS').textContent=S.exam?EX().resume:EX().btnSub;
   $('bLexT').textContent=CX().lexT.replace('📖 ','');$('bLexS').textContent=S.lang==='da'?'Guder, vidundere, planeter':'Zei, minuni, planete';
+  $('bReadT').textContent=RX().btn;$('bReadS').textContent=RX().btnSub;{const rr=$('readRemind');rr.textContent=RX().remind;rr.style.display=readToday()?'none':'block';}
   $('bWorldsT').textContent=WD().btn;$('bWorldsS').textContent=WD().btnSub;$('bWorldsNew').innerHTML=WORLDS.some(w=>!S.wseen[w])?`<span class="newtag">${WD().isNew}</span>`:'';
 }
 function buddyTalk(){$('homeMsg').textContent=msg('tap');sound('ok');}
