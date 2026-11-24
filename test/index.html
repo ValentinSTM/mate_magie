@@ -1552,7 +1552,7 @@ function key(k){
   if(k==='del')cur.vals[f]=cur.vals[f].slice(0,-1);
   else if(k==='ok'){if(cur.op==='rem'&&f===0&&cur.vals[0]!==''&&cur.vals[1]===''){cur.field=1;renderAns();return;}return submit();}
   else if(k==='next'){if(cur.op==='rem'){cur.field=1-cur.field;renderAns();}return;}
-  else if(cur.vals[f].length<3)cur.vals[f]+=k;
+  else if(cur.vals[f].length<5)cur.vals[f]+=k;
   renderAns();
 }
 document.addEventListener('keydown',e=>{
@@ -2161,7 +2161,7 @@ const GEN={
       return {...r,prompt:wq('unCompare'),vis:`<div style="font-size:30px;font-weight:900">${lA} &nbsp;?&nbsp; ${lB}</div>`,short:`${lA} / ${lB}`,strats:[card('🔄',ws('convT'),[`${lA} = ${uN(u2,A)}`,`${A} ${A>b?'>':A<b?'<':'='} ${b}`])]};}],
   facts2:[2,()=>[rnd(WTXT.ro.facts2.length)],([i])=>{const [q,a]=WD().facts2[i];return {kind:'num',ans:a,prompt:q,vis:'',short:`${q} ${a}`,strats:[card('🧠',ws('convT'),ws('convL'))]};}],
   convert:[3,()=>pick([['m','cm',2+rnd(8),100],['kg','g',2+rnd(5),1000],['h','min',1+rnd(3),60],['min','s',1+rnd(3),60],['km','m',2+rnd(4),1000]]),
-    ([u1,u2,a,f])=>{const U=WD().un;return {kind:'num',unit:U[u2],ans:a*f,prompt:wq('unConvert',uN(u1,a)),vis:'',short:`${uN(u1,a)} = ${uN(u2,a*f)}`,strats:[card('🔄',ws('convT'),[`${uN(u1,1)} = ${uN(u2,f)}`,`${a} ${X()} ${f} = <b>${a*f}</b>`])]};}]
+    ([u1,u2,a,f])=>{const U=WD().un;return {kind:'num',unit:U[u2],ans:a*f,prompt:wq('unConvert',uN(u1,a)).replace('?','? '+U[u2]),vis:'',short:`${uN(u1,a)} = ${uN(u2,a*f)}`,strats:[card('🔄',ws('convT'),[`${uN(u1,1)} = ${uN(u2,f)}`,`${a} ${X()} ${f} = <b>${a*f}</b>`])]};}]
  }
 };
 function clockRead(h,m,lvl){
@@ -2471,7 +2471,7 @@ function eAnsRender(){
 function ePick(i){const x=E.qs[E.i];x.ch=i;E.lastAct=Date.now();eAnsRender();}
 function eField(i){E.qs[E.i].f=i;eAnsRender();}
 function eKey(k){const x=E.qs[E.i];E.lastAct=Date.now();if(x.q.kind==='mc'){if(/^[1-9]$/.test(k)&&+k<=x.q.opts.length)ePick(+k-1);return;}
-  if(k==='del')x.v[x.f]=x.v[x.f].slice(0,-1);else if(k==='next'){if(x.q.op==='rem')x.f=1-x.f;}else if(x.v[x.f].length<4)x.v[x.f]+=k;eAnsRender();}
+  if(k==='del')x.v[x.f]=x.v[x.f].slice(0,-1);else if(k==='next'){if(x.q.op==='rem')x.f=1-x.f;}else if(x.v[x.f].length<5)x.v[x.f]+=k;eAnsRender();}
 function examConfirm(){const x=E.qs[E.i];if(!eHas(x)){if(x.q.op==='rem'&&x.v[0]!==''){x.f=1;eAnsRender();}return;}
   stopSpeak();const wasSkip=x.st==='skip';x.st='ans';if(wasSkip){x.ret=true;}eSay((wasSkip?'🔁 ':'')+exPick('saved'),1300);save();eNext();}
 function examSkip(){const x=E.qs[E.i];stopSpeak();x.skips++;x.was=true;if(x.st!=='ans')x.st='skip';eSay(exPick('skipped'),2200);save();eNext(true);}
