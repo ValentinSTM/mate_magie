@@ -349,12 +349,17 @@ label.ck input{width:24px;height:24px;flex:none}
       <button class="btn sec sm" onclick="exportData()" data-t="export"></button>
       <button class="btn sec sm" onclick="document.getElementById('impFile').click()" data-t="import"></button>
       <input type="file" id="impFile" accept=".json,application/json" class="hidden" onchange="importData(this)">
-      <button class="btn sec sm" style="color:var(--bad)" onclick="resetAll()" data-t="reset"></button>
     </div>
     <p class="muted" style="font-size:13px" data-t="storeNote"></p>
     <div id="exportRemind"></div>
     <h3 style="margin-top:14px">🛟 <span data-t="bkTitle"></span></h3>
     <div class="list" id="bkList"></div>
+    <h3 style="margin-top:14px">♻️ <span data-t="recT"></span></h3>
+    <div class="list" id="recList"></div>
+    <details style="margin-top:28px;border-top:1px dashed #ccc;padding-top:10px"><summary class="muted" style="cursor:pointer;font-size:14px" data-t="dangerT"></summary>
+      <p style="font-size:14px" data-t="resetHow"></p>
+      <div class="row" style="flex-wrap:nowrap"><input type="text" id="resetIn" autocomplete="off" autocapitalize="characters" style="flex:1"><button class="btn sec sm" style="color:var(--bad)" onclick="resetAll()" data-t="reset"></button></div>
+    </details>
   </div>
   <div class="card"><h3>🧠 <span data-t="adhdTitle"></span></h3><div data-t="adhdNote" style="font-size:15px;line-height:1.5"></div></div>
 </section>
@@ -405,7 +410,7 @@ ro:{
   settings:'Setări', language:'Limba', childName:'Numele copilului', thrTitle:'Prag „rapid" (secunde)',
   thrNote:'Peste acest timp, un răspuns corect e considerat „calculat", nu „știut".', lenTitle:'Întrebări pe misiune',
   sound:'Sunete', vib:'Vibrații (telefon)', speak:'Citește automat fiecare întrebare cu voce tare (și butonul 🔊 din misiune)', spkOn:'🔊 Citesc automat fiecare întrebare', spkOff:'🔇 Nu mai citesc automat. Atinge întrebarea și o citesc o dată.', breaks:'Pauze de mișcare între misiuni', big:'Include adunări/scăderi până la 100',
-  save:'Salvează', export:'⬇️ Exportă', import:'⬆️ Importă', reset:'🗑️ Șterge tot',
+  save:'Salvează', export:'⬇️ Exportă', import:'⬆️ Importă', reset:'🗑️ Șterge tot', dangerT:'⚠️ Doar pentru adulți: ștergerea progresului', resetHow:'Ca să ștergi tot, scrie cuvântul STERG în căsuță și apasă butonul. Înainte de ștergere se face automat o copie, pe care o poți restaura mai sus.', recT:'Recuperează progres de pe acest telefon', srcMM:'Mate-Magie', srcTest:'Versiunea de test', srcAc:'Academia Bufniței', srcPre:'Copie făcută înainte de ștergere', confirmRec:x=>`Înlocuiești progresul de acum cu cel din „${x}”? (Cel de acum se păstrează ca o copie.)`,
   storeNote:'Progresul se salvează doar pe acest dispozitiv. Folosește Export/Import ca să-l muți pe alt dispozitiv.',
   testVoice:'🔊 Testează vocea', voiceSample:n=>`Bună, ${n}! Eu îți citesc întrebările.`,
   ttsNone:'Acest browser nu poate citi cu voce. Deschide aplicația în Chrome.',
@@ -532,7 +537,7 @@ da:{
   settings:'Indstillinger', language:'Sprog', childName:'Barnets navn', thrTitle:'Grænse for „hurtig" (sekunder)',
   thrNote:'Over denne tid regnes et rigtigt svar som „regnet ud", ikke „kunne udenad".', lenTitle:'Opgaver pr. mission',
   sound:'Lyde', vib:'Vibration (telefon)', speak:'Læs hver opgave højt automatisk (også knappen 🔊 i missionen)', spkOn:'🔊 Jeg læser hver opgave højt', spkOff:'🔇 Jeg læser ikke automatisk. Tryk på opgaven, så læser jeg den én gang.', breaks:'Bevægelsespauser mellem missioner', big:'Tag plus/minus op til 100 med',
-  save:'Gem', export:'⬇️ Eksportér', import:'⬆️ Importér', reset:'🗑️ Slet alt',
+  save:'Gem', export:'⬇️ Eksportér', import:'⬆️ Importér', reset:'🗑️ Slet alt', dangerT:'⚠️ Kun for voksne: slet fremskridt', resetHow:'Skriv ordet SLET i feltet og tryk på knappen for at slette alt. Før sletning laves der automatisk en kopi, som du kan gendanne ovenfor.', recT:'Hent fremskridt fra denne telefon', srcMM:'Matte-Magi', srcTest:'Testversionen', srcAc:'Ugleakademiet', srcPre:'Kopi lavet før sletning', confirmRec:x=>`Vil du erstatte det nuværende fremskridt med „${x}”? (Det nuværende gemmes som en kopi.)`,
   storeNote:'Fremskridt gemmes kun på denne enhed. Brug Eksportér/Importér for at flytte det til en anden enhed.',
   testVoice:'🔊 Test stemmen', voiceSample:n=>`Hej ${n}! Jeg læser opgaverne højt for dig.`,
   ttsNone:'Denne browser kan ikke læse op. Åbn appen i Chrome.',
@@ -645,7 +650,14 @@ let S=load();
 function save(){try{const j=JSON.stringify(S);localStorage.setItem(LS,j);backupDaily(j);}catch(e){}}
 // copie de siguranță automată: una pe zi, ultimele 5 zile
 function backupDaily(j){try{const day=new Date().toISOString().slice(0,10);let b=JSON.parse(localStorage.getItem(BK)||'[]');
-  if(b.length&&b[b.length-1].d===day)b[b.length-1].j=j;else b.push({d:day,j});b=b.slice(-5);localStorage.setItem(BK,JSON.stringify(b));}catch(e){}}
+  let st=0;try{st=JSON.parse(j).stars||0;}catch(e){}
+  const sOf=x=>{if(x.s!=null)return x.s;try{return JSON.parse(x.j).stars||0;}catch(e){return 0;}};
+  const td=b.filter(x=>x.d===day);
+  if(!td.length)b.push({d:day,j,s:st});
+  else{const best=td.reduce((m,x)=>sOf(x)>=sOf(m)?x:m,td[0]);
+    if(st>=sOf(best)){best.j=j;best.s=st;b=b.filter(x=>x.d!==day||x===best);}   /* progres normal: o singură copie pe zi */
+    else{const other=td.find(x=>x!==best);if(other){other.j=j;other.s=st;}else b.push({d:day,j,s:st});}}  /* progres mai mic (ex. după ștergere): copia bună a zilei NU se suprascrie */
+  b=b.slice(-8);localStorage.setItem(BK,JSON.stringify(b));}catch(e){}}
 function backups(){try{return JSON.parse(localStorage.getItem(BK)||'[]');}catch(e){return [];}}
 function restoreBackup(i){const b=backups()[i];if(!b)return;if(!confirm(t('confirmRestore',b.d)))return;localStorage.setItem(LS,b.j);S=load();save();toast(t('restored'));applyI18n();renderParent();updateHeader();}
 const $=id=>document.getElementById(id);
@@ -1157,6 +1169,7 @@ function renderParent(){
   $('slowChips').innerHTML=[3,4,5,6,8].map(v=>`<button class="chip ${S.settings.slow===v?'on':''}" onclick="S.settings.slow=${v};save();renderParent()">${v} s</button>`).join('');
   $('lenChips').innerHTML=[5,10,15,20].map(v=>`<button class="chip ${S.settings.len===v?'on':''}" onclick="S.settings.len=${v};save();renderParent()">${v}</button>`).join('');
   const lastEx=S.lastExport||0;$('bkLast').textContent=lastEx?t('bkLastT',new Date(lastEx).toLocaleString(t('locale'))):t('bkNone');$('exportRemind').innerHTML=(Date.now()-lastEx>14*864e5)?`<p style="background:var(--warnl);border-radius:12px;padding:10px;font-weight:700">${lastEx?t('exportOld'):t('exportNever')}</p>`:'';
+  $('recList').innerHTML=recSources().map((r,i)=>`<div class="li"><span>${r.n}${r.name?' · '+r.name:''} · ⭐ ${r.s}</span><button class="btn sec sm" onclick="recoverFrom(${i})">${t('restore')}</button></div>`).join('')||'<p class="muted" style="font-size:14px">—</p>';
   $('bkList').innerHTML=backups().map((b,i)=>{let st='';try{st=JSON.parse(b.j).stars;}catch(e){}return `<div class="li"><span>${b.d} · ⭐ ${st}</span><button class="btn sec sm" onclick="restoreBackup(${i})">${t('restore')}</button></div>`;}).reverse().join('');
   $('ckSound').checked=S.settings.sound;$('ckVib').checked=S.settings.vib;$('ckSpeak').checked=S.settings.speak;$('ckBreaks').checked=S.settings.breaks;$('ckBig').checked=S.settings.big;
 }
@@ -1173,7 +1186,14 @@ async function shareData(){const f=exportFile();
   exportData();}
 function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.facts)throw 0;
   localStorage.setItem(LS,JSON.stringify(d));S=load();save();toast(t('imported'));applyI18n();renderParent();updateHeader();}catch(e){toast(t('invalid'));}};r.readAsText(f);inp.value='';}
-function resetAll(){if(confirm(t('confirmReset'))){const l=S.lang;S=defState();S.lang=l;save();toast(t('deleted'));go('onboard');obStep(2);}}
+function preResetCopies(){try{return JSON.parse(localStorage.getItem(LS+'_prereset')||'[]');}catch(e){return [];}}
+function keepPreReset(){try{const j=JSON.stringify(S);if(!(S.stars>0))return;const a=preResetCopies();a.push({d:new Date().toLocaleString('sv-SE').slice(0,16),j,s:S.stars});localStorage.setItem(LS+'_prereset',JSON.stringify(a.slice(-3)));}catch(e){}}
+function resetAll(){const w=(($('resetIn')||{}).value||'').trim().toUpperCase().replace('Ș','S').replace('Ş','S');
+  if(w!=='STERG'&&w!=='SLET'){toast(t('resetHow'),4500);return;}
+  if(confirm(t('confirmReset'))){keepPreReset();const l=S.lang;S=defState();S.lang=l;save();$('resetIn').value='';toast(t('deleted'));go('onboard');obStep(2);}}
+function recSources(){const out=[];[['mateMagie_v1','srcMM'],['academia_v1','srcAc'],['mateMagie_test','srcTest']].forEach(([k,n])=>{if(k===LS)return;try{const j=localStorage.getItem(k);if(!j)return;const d=JSON.parse(j);if(!(d.stars>0))return;out.push({n:t(n),j,s:d.stars,name:d.name||''});}catch(e){}});
+  preResetCopies().forEach(c=>out.push({n:t('srcPre')+' · '+c.d,j:c.j,s:c.s}));return out;}
+function recoverFrom(i){const r=recSources()[i];if(!r||!confirm(t('confirmRec',r.n)))return;keepPreReset();localStorage.setItem(LS,r.j);S=load();save();toast(t('restored'));applyI18n();renderParent();updateHeader();}
 
 /* ================= ACHIEVEMENTS ================= */
 function achList(){

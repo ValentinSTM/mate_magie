@@ -1,5 +1,5 @@
 // Mate-Magie: merge și fără internet (mod avion) după prima deschidere
-const CACHE = 'mate-magie-v12';
+const CACHE = 'mate-magie-v13';
 const FILES = ['./', 'index.html', 'manifest.json', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
